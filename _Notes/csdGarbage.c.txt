@@ -1,0 +1,106 @@
+// THIS IS JUST NOTES...
+
+// Just a storage-space for old experiments... TBDeleted eventually
+
+
+
+/*
+   //typedef struct
+   struct  __attribute__ ((__packed__)) cs_struct
+   {
+      uint8_t  csd_structure  :  2;
+      uint8_t  reserved1      :  6;
+      uint32_t unused1        :  24;
+      uint16_t ccc            :  12;
+      uint8_t  read_bl_len    :  4;
+      uint8_t  unused2        :  4;
+      uint8_t  reserved2      :  2;
+      uint16_t c_size         :  12;
+      uint16_t unused3        :  12;
+      uint8_t  c_size_mult    :  3;
+      uint8_t  erase_blk_en   :  1;
+      uint8_t  sector_size    :  7;
+      uint8_t  unused4        :  8;
+      uint8_t  reserved3      :  2;
+      uint8_t  unused5        :  3;
+      uint8_t  write_bl_len   :  4;
+      uint8_t  unused6        :  1;
+      uint8_t  reserved4      :  5;
+      uint8_t  unused7        :  6;
+      uint8_t  reserved5      :  2;
+      uint8_t  crc            :  7;
+      uint8_t  always1        :  1;
+   }; // csd_v1_t; __attribute__((__packed__));
+   // The __packed__ attribute is ignored...
+   //  likely because CFLAGS includes -fpack-struct
+   //  so then, maybe it'll work...
+   // Or because of:
+   // You may only specify this attribute on the definition of a `enum',
+   // `struct' or `union', not on a `typedef' which does not also define
+   // the enumerated type, structure or union.
+   // kinda vague...
+   // Either way, getting the wrong data... 's nowhere in the data-stream
+   // Almost as though it's wrapping the c_size around some other data
+   // like c_size = bits23:22, 15:8, 1:0... 
+
+   //The packed attribute _might_ need to be after each field... No...
+   //info gcc:
+   //Specifying this attribute for `struct' and `union' types is
+   //equivalent to specifying the `packed' attribute on each of the
+   //structure or union members.
+
+   //csd_v1_t *p_csd_v1 = (csd_v1_t *)(&(csdVal[1]));
+   //struct cs_struct *p_csd_v1;
+   //p_csd_v1 = &(csdVal[1]);
+
+   //Check the CSDv1.0
+   if((p_csd_v1->csd_structure != 0x00))
+   ...
+   uint16_t c_size = p_csd_v1->c_size;
+ */
+
+
+
+
+   //This doesn't seem to be working, and/or isn't reliable... (above)
+   // So let's hard-code checking of it...
+   //      bits:     byte: (disregarding 0xfe)
+   //      127:120   0
+   //      119:112   1
+   //      111:104   2
+   //      103:96    3
+   //      95:88     4
+   //      87:80     5 --  READ_BL_LEN: Bits83:80
+   //      79:72     6 \                                       //
+   //      71:64     7  >  C_SIZE: Bits73:62 (shift byte + 1)
+   //      63:56     8 /
+   //      55:48     9  \__ C_SIZE_MULT: Bits49:47
+   //      47:40     10 /
+/*
+   uint32_t c_size_manual = ((uint32_t)csdVal[7]<<16) | ((uint32_t)csdVal[8]<<8) | csdVal[9];
+   sprintf_P(string, PSTR("csm_extract1:0x%"PRIx32"\n\r"), c_size_manual);
+   puat_sendStringBlocking(string);
+
+   // So now we have bits 79:56... we don't want bits 79:74:
+   c_size_manual &= 0x03ffff;
+   // Now we have bits 73:56... shift out 61:56
+   c_size_manual >>= 6;
+
+   sprintf_P(string, PSTR("C_SIZE_MANUAL=%"PRIu32"\n\r"), c_size_manual);
+   puat_sendStringBlocking(string);
+
+   uint8_t read_bl_len_manual = csdVal[6] & 0x0f;
+   sprintf_P(string, PSTR("READ_BL_LEN_MANUAL=%"PRIu8"\n\r"),
+               read_bl_len_manual);
+   puat_sendStringBlocking(string);
+
+   uint16_t c_size_mult_manual = ((uint16_t)csdVal[10]<<8) | csdVal[11];
+   // Only need the first two bits of the upper byte...
+   c_size_mult_manual &= 0x03ff;
+   // And shift out bits 46:40
+   c_size_mult_manual >>= 7;
+   sprintf_P(string, PSTR("C_SIZE_MULT_MANUAL=%"PRIu16"\n\r"),
+                     c_size_mult_manual);
+   puat_sendStringBlocking(string);
+*/
+

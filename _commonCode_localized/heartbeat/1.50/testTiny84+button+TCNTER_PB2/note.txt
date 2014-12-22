@@ -1,0 +1,11 @@
+This (appears to be) is the pinout for the LCDdirect Tiny84 board:
+
+From LCDdirectLVDS.../makefile:
+#TINY84
+#This is ONLY for 6bitParallel (NOT LVDS)
+#This is not the normal pin for heartbeat (on the programming-header)
+# As that pin is used by blue1, was planning on shifting blue1, but that'd
+# interfere with MCK, and whatnot... this is easier.
+CFLAGS += -D'HEART_PINPORT=PORTB'
+CFLAGS += -D'HEART_PINNUM=PB2'
+

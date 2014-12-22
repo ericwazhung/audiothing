@@ -1,0 +1,595 @@
+#include "anaButtons.h" // Really this is just for puart...
+
+// Basic Usage:
+// (pieced-together from audioThing-35...
+//  it's a tiny bit more sophisticated)
+//  A lot of this could probably be moved here...
+//
+// main()
+// {
+//   while(1)
+//   {
+//      anaButtons_update();
+//      int32_t thisCompTime = anaButtons_getCompTime();
+//      static int32_t minButtonTime;
+//      
+//      if(!anaButtons_wasButtonPressed())
+//      {
+//          //The button was *just* released...
+//          if(minButtonTime < BUTTON_TIMEOUT)
+//          {
+//             //These values need to be determined manually
+//             // May be calculable, (T=RC - ish)
+//             if((minButtonTime >= AMIN) && (minButtonTime < AMAX))
+//                keyPressed = A;
+//             else if((minButtonTime >= BMIN) && (minButtonTime < BMAX))
+//                keyPressed = B;
+//             ...
+//             //To determine values:
+//             printf("mbt = %"PRIi32"\n", minButtonTime);
+//          }
+//          minButtonTime = INT32_MAX;
+//      }
+//
+//      //The button has *just* been pressed, disregard the first value
+//      if(buttonPressed && (minButtonTime == INT32_MAX))
+//         minButtonTime--;
+//
+//    }
+//
+//		//button handling should be done elsewhere, but this is just for
+//		//testing...
+//		if(thisCompTime>=0)
+//		{
+//			if(thisCompTime < minButtonTime)
+//				minButtonTime = thisCompTime;
+//		}
+
+
+// Another: "TESTING_ANABUTTONS"
+//	anaButtons_update();
+//	if((thisTime > nextTime) && newCompTime)
+//	{
+//	   //char string[30];
+//	   //sprintf_P(string, PSTR("anaButtonsTCNTS:%"PRIu32"\n\r"), 
+//	   //                anaButtons_getCompTime());
+//	   sprintf_P(stringBuffer, PSTR("Button: %"PRIu8"\n\r"),
+//	         anaButtons_getButton());
+//	   printStringBuff();
+//	   nextTime = thisTime + 250000;
+//	}
+
+
+
+
+//These notes made long-after coding... so may not match exactly...
+//......................                          .......................
+//  Microcontroller    .                          .                     .
+//                     .                          .  Button Array...    .
+//                 ^   .                          .                     .
+//                 |   .                          .                     .
+//                 \   .                          .                     .
+// Charge ---.     /   .                          .  E.G.:              .
+//           |     \   .                          .                     .
+//           o     /   . AIN0+  [AIN1-]           .                     .
+//          |¯-_   |   . (PA6)  [PB3]             .        __|__        .
+//    + ----|   >--+----------------------+-----------+---O     O----+  .
+//          |_-¯   |   .                  |       .   |              |  .
+//                 |   .                ¯¯¯¯¯     .   |      .       \  .
+//           _-¯|  |   .                _____     .   |      .       /  .
+//        _-¯ - |--'   . AIN2-   ^        |       .   |      .       \  .
+//       <      |      . (PA5)   |        |       .   |              /  .
+//        ¯-_ + |-----------.    \        V       .   |    __|__     |  .
+//           ¯-_|      .    |    /                .   `---O     O----+  .
+//                     .    |    \                .                  |  .
+//   Is it the drawing .    |    /                .                  \  .
+//   that's flipped?   .    |    |                .                  /  .
+//   Polarity....      .    +----+ 1.65V Ref      .                  \  .
+//   (Tiny861 was      .    |    |                .                  /  .
+//    drawn opposite)  .    |    \   [Bandgap     .                  |  .
+//                     .  ¯¯¯¯¯  /    =1.23V]     .                  V  .
+//                     .  _____  \                .                     .
+//                     .    |    /                .......................
+//                     .    |    |
+//                     .    V    V
+
+
+
+// There's something missing here... how does a resistance correspond to a
+// button? Probably a good idea to revisit audioThing35
+
+
+// Nokia Keys (KiloOhms):
+//
+//
+//               ----- (16)      > (12)
+//       C (7)              < (13)
+//      
+//       1 (8)     2 (18)      3 (11)
+//
+//       4 (9)     5 (19)      6 (4)
+//
+//       7 (10)    8 (20)      9 (5)
+//   
+//       * (6)     0 (2)       # (1)
+
+
+
+// a/o sdramThing3.0-0.9 (0.10):
+// Would be nice to have multiple simultaneously-pressed buttons as an
+// option.
+// As I recall, the Nokia keypad was wired in such a way that the
+// lowest-resistance key-path overrode all other keys.
+// Thus, only one button could be recognized at a time.
+// FURTHER, there was something to do with measuring the lowest value
+// possible... e.g. by pressing a 20kOhm button, there's no way the
+// resistance (even with bounce, etc) could be *lower* than 20kOhm... So
+// there was something to do with determining the *lowest* value, as a
+// means of debouncing... Is that here, or was that in audioThing's main
+// code?
+//
+// Is that same system usable in a multi-key-press setup?
+// e.g.
+// <-----+--.
+//       |  |            A  B  C  |  Resistance
+//     | O  \           ----------|------------
+// A  -|    /  4k        0  0  0  |  7k
+//     | O  \            0  0  1  |  6k
+//       |  |            0  1  0  |  5k
+//       +--+            0  1  1  |  4k
+//       |  |            1  0  0  |  3k
+//     | O  \            1  0  1  |  2k
+// B  -|    /  2k        1  1  0  |  1k
+//     | O  \            1  1  1  |  0 ohms
+//       |  |
+//       +--+
+//       |  |
+//     | O  \
+// C  -|    /  1k
+//     | O  \
+//       |  |
+//       +--'
+//       | <<<<<< Should a resistor be here?
+//     -----
+//      ---
+//       -
+//
+//   In this system multiple keys-pressed can be detected...
+//   
+//   The question remains, can this system be used with anaButtons?
+//   TODO: Because AIN0 *charges* the capacitor: 0ohms should not be an
+//   option... (the pin associated with AIN0 would drive high a pin
+//   connected straight to ground)
+//   
+
+
+
+//Connecting the Button/DAC array to AIN0 (PA6) (negative input)
+// AIN1 is PA5 (positive input) tied to a voltage-divider @ VCC/2
+//#define ANABUTTONS_PIN	PA6
+
+
+
+// Kinda hokey, just a number of loops...
+//#define CHARGE_TIME	0xf0
+
+uint8_t buttonPressed = FALSE;
+
+ANABUTTONS_INLINEABLE
+uint8_t anaButtons_wasButtonPressed(void)
+{
+	return buttonPressed;
+}
+
+
+uint8_t newCompTime = FALSE;
+tcnter_t compTime = 0;
+
+/* SONY RM-MC29F headphone-cord remote:
+        ___           ___
+       /   \         /   \
+      |  -  |       |  +  |
+       \___/         \___/
+           ___________
+          /           \
+         /   |> / ||   \
+        |               |
+        | |<<       >>| |
+        |       _       |
+         \     |_|     /
+          \___________/
+
+     |¯¯---__       __---¯¯|
+     |  -    |     |    +  |
+      ¯¯---__| VOL |__---¯¯
+
+
+		
+                                       mbt         220ohm	
+													(sdramThing3.0-_anaDigiTesting-2)
+#define NO_B				0  (open)		N/A
+#define VOL_PLUS_B		1	9.9k			123-128		119
+#define VOL_MINUS_B		2	8.4k			105-109		104
+#define PLUS_B				3	11.9k			147-153		142
+#define MINUS_B			4	5.17k			67-69			63
+#define PLAY_PAUSE_B		5	330 ohms		46-52			22
+#define STOP_B				6	7.1k			89-93			85
+#define FWD_B				7	3.65k			50-52			45
+#define REV_B				8	1k				22-23			16
+
+The mbt (minimumButtonTime) is dang-near linear with respect to resistance
+EXCEPT 330ohms which appears like 3.65k
+'scoping was similarly indecipherable, the only difference was that for 330
+the maximum voltage (when charging) was lower... which makes sense; the 
+load (10+mA) seems to have lowered the output voltage... 
+so it takes less time to discharge to the VinL threshold voltage.
+But wait... that ain't right... This seems to be taking *more* time (than
+1k).
+
+There is an internal capacitor, as I recall... could that be affecting it?
+
+The internal capacitor is in parallel with the 330ohm resistor (yup).
+Interesting: 22k in series causes all buttons to return mbt=5
+Must be overflow combined with som'n...?
+
+220ohm does better...
+Odd, just the jumper between the resistor and the button array (resistor
+shorted) causes the original values to decrease by 5
+Adding the resistor 
+So, 330ohms is still reading *higher* than 1kohms...
+but I've lost steam, despite its goofiness which could be interesting to
+pursue. For now, 220ohms+jumper = discernable values
+
+
+The buttons are wired such that the lowest-valued resistance *overrides*
+the others... e.g. by pressing Reverse and Vol+ the measured resistance
+will be that of Reverse, not some parallel/serial combination.
+
+        __|__      
+<--+---O     O----+
+   |              |
+   |      .       \
+   |      .       /
+   |      .       \
+   |              /
+   |    __|__     |
+   `---O     O----+
+                  |
+                  \
+                  /
+                  \
+                  /
+                  |
+                  V
+
+There may be a bit of confusion here, as physically the remote fits in my
+hand better upside-down, so, e.g. the FWD/REV buttons might be swapped in
+the code (possibly their definitions).
+The *measured resistance* is much more recent, a/o 0.20-1, and the
+orientation is as drawn... e.g. the >>| button (on the right in the 
+drawing) is 3.65k.
+Whether that matches the FWD_B definition (7) is uncertain (untested,
+recently).  Further, the values in the commented-out code are probably 
+no-longer valid, as they are implementation-dependent... (CPU Frequency,
+capacitor-value, bandgap vs. voltage-divider vs. analogComparator or
+digital I/O)
+*/
+
+/* This is an implementation for a specific device...
+   (The Sony CD-Remote)
+static __inline__ uint8_t anaButtons_getButton(void)
+{
+	if(!newCompTime)
+		return NO_B;
+
+	tcnter_t t = compTime;
+	newCompTime = FALSE;
+
+	if( (t>230) )
+		return NO_B;
+	//+ ~216-221 TCNTs
+	else if( (t>200) ) //&& (t<230) )
+		return PLUS_B;
+	//Vol+ ~180-182 TCNTs
+	else if( (t>170) ) //&& (t<190) )
+		return VOL_PLUS_B;
+	//Vol- ~152-156 TCNTs
+	else if( (t>140) ) // && (t<170) )
+		return VOL_MINUS_B;
+	//Stop ~ 128-133
+	else if( (t>120) ) //&& (t<140) )
+		return STOP_B;
+	//- ~95-97
+	else if( (t>90) ) // && (t<100) )
+		return MINUS_B;
+	//FWD ~68-71
+	else if( (t>65) ) // && (t<75) )
+		return FWD_B;
+
+
+	//This and REV are confusing, as well
+	// I'm *certain* I measured 330Ohms on Play/Pause
+	// and 1kOhms on REV, but they're returning opposite values for TCNTs...
+	//Play/Pause ~27-30
+	else if( (t>26) ) //&& (t<35) )
+		return PLAY_PAUSE_B;
+
+	//FWD and REV are confusing...
+	// The way it fits in *my* hand is apparently upside-down
+	// So the names here match the proper orientation (spelling upright)
+	//REV ~20-24
+	else if( (t>15) ) //&& (t<26) )
+		return REV_B;
+
+	else
+		return NO_B;
+}
+*/
+
+
+
+
+//Debouncing functions by reading t=RC multiple times as long as the button
+//is pressed. After the button is released, it returns the minimum measured
+//time value.
+// The idea being that a noisy/dirty contact in a button in series with a 
+// resistor could never cause a measured resistance *less* than the 
+// resistor-value, but it *could* cause a resistance *greater* than the 
+// resistor-value.
+//At the user-side, this results in a button not being registered until it
+//is released.
+// Returns a negative value if no measurement is registered
+// A positive value represents the number of tcnts between the end of the
+// capacitor-charging-cycle and the crossover of the threshold voltage...
+
+uint16_t anaB_samples = 0; //see note regarding "samples" below.
+//This is only valid immediately after getDebounced returns a value!
+uint16_t anaB_minSamples = 0;
+uint32_t anaB_measurementCount = 0;
+	
+ANABUTTONS_INLINEABLE 
+int32_t anaButtons_getDebounced(void)
+{
+ do
+ {
+	anaButtons_update();
+	int32_t thisCompTime = anaButtons_getCompTime();
+	static int32_t minButtonTime;
+	int32_t retVal = ANABUTTONS_NOBUTTON;
+
+	if(!anaButtons_wasButtonPressed())
+	{
+   	//The button was *just* released...
+   	if(minButtonTime < BUTTON_TIMEOUT)
+   	{
+   	   //These values need to be determined manually
+   	   // May be calculable, (T=RC - ish)
+   	   //if((minButtonTime >= AMIN) && (minButtonTime < AMAX))
+   	   // keyPressed = A;
+   	   //else if((minButtonTime >= BMIN) && (minButtonTime < BMAX))
+   	   // keyPressed = B;
+   	   //...
+   	   //To determine values:
+   	   //printf("mbt = %"PRIi32"\n", minButtonTime);
+   	   //char stringBuffer[20];
+   	   //sprintf_P(stringBuffer,
+         //   PSTR("mbt=%"PRIi32"\n"), minButtonTime);
+   	   //puat_sendStringBlocking(stringBuffer);
+#warning "This disregards the last sample, as well... good or bad?"
+			retVal = minButtonTime;
+   	}
+   	minButtonTime = INT32_MAX;
+	}
+
+	//The button has *just* been pressed, disregard the first value...
+	// (When no button is pressed, the capacitor discharges quite slowly, on
+	// the order of seconds. Meanwhile the tcnt is running... 
+	// So when the button is initially pressed, it cuts the open-circuit
+	// discharge time short, which could appear as a valid value, but
+	// way-larger than the actual value.
+	if(buttonPressed && (minButtonTime == INT32_MAX))
+	{
+		anaB_measurementCount = 0;
+	   minButtonTime--;
+	}
+	//button handling should be done elsewhere, but this is just for
+	// testing... (old note, is it still valid?)
+	//Track the minimum time measurement, this go-round...
+	if(thisCompTime>=0)
+	{
+	   if(thisCompTime < minButtonTime)
+		{
+			anaB_minSamples = anaB_samples;
+   	   minButtonTime = thisCompTime;
+		}
+		anaB_measurementCount++;
+
+	}
+	
+ }
+#if (defined(ANAB_BLOCKING) && ANAB_BLOCKING)
+ while (1);
+#else
+ while (0);
+#endif
+
+	return retVal;
+
+}
+
+// Generally this probably shouldn't be used (come on, int32?!)
+// but it's good for determining values...
+//Returns -1 if nothing's new
+ 
+ANABUTTONS_INLINEABLE
+int32_t	anaButtons_getCompTime(void)
+{
+	if(!newCompTime)
+	   return -1;
+
+
+	newCompTime = FALSE;
+
+	return compTime;
+}
+
+
+/*
+//Unused...
+tcnter_t anaButtons_getCompTime(void)
+{
+	if (newCompTime)
+	{
+		newCompTime = FALSE;
+		return compTime;
+	}
+	else
+		return 0xffff;
+}
+*/
+
+
+ANABUTTONS_INLINEABLE
+void anaButtons_update(void)
+{
+	static tcnter_t startTime = 0;
+	static uint8_t state=0;
+
+
+	//a/o 0.45b:
+	//
+	//
+	//
+	//
+	//Discard readings which didn't have at least a few updates before
+	//completion...
+	//e.g. when the update function is called with a long pause between
+	//e.g. due to another _update() function's taking quite some time for a
+	//state-transition.  
+	// There's a couple ways to accomplish this, and both may be wise...
+	// 1) Track the number of tcnts since the last update/sample-call
+	//    during the discharge-timer
+	//    -- (not so great if the tcnter source overflows multiple times)
+	// 2) Track the number of calls to update() during the discharge state
+	//    discard the value if there's not at least one intermediate sample
+	//    -- (there could easily be one at the start and a long delay after)
+	//
+	// (3?) For overflow detection: Reset a start-timer during each update?
+	//      Expect a certain number of TCNTs (minimum processing time for a
+	//      single main-loop) and discard if smaller...?
+	//      -- (very case-specific... is it helpful?)
+	//         (also, kinda taken-care-of by tcnter's overflow handling?)
+	static uint16_t samples=0;
+
+	switch(state)
+	{
+		//Charge the capacitor...
+		case 0:
+			setoutPORT(ANABUTTONS_PIN, ANABUTTONS_PORT);
+			setpinPORT(ANABUTTONS_PIN, ANABUTTONS_PORT);
+			state++;
+			break;
+		//Give it some time to make sure it's charged...
+		case 1:
+			{
+				static uint8_t chargeTime = 0;
+
+				if(chargeTime >= CHARGE_TIME)
+				{
+					state++;
+					chargeTime = 0;
+				}
+				else
+					chargeTime++;
+			}
+			break;
+		//Start discharging through the buttons...
+		case 2:
+			startTime = tcnter_get();
+			setinPORT(ANABUTTONS_PIN, ANABUTTONS_PORT);
+			clrpinPORT(ANABUTTONS_PIN, ANABUTTONS_PORT);	//Remove the pull-up
+		
+#if(!defined(ANABUTTONS_DIGITALIO) || !ANABUTTONS_DIGITALIO)	
+#ifdef __AVR_ATtiny861__
+#define ACSR_REG	ACSRA
+			ACSRA = (0<<ACD)	// Don't disable the anaComp
+#warning "This is a result of an older version... BandGap was unused on this device... (Why not?)"
+					| (0<<ACBG)	// Don't Use the internal voltage reference
+									//  for +input. See ADMUX: REFS2..0
+					| (0<<ACO)	// This is read-only...
+					| (1<<ACI)  // Clear the interrupt flag
+					| (0<<ACIE) // Don't enable the interrupt
+					| (0<<ACME)	// Don't use the ADC Multiplexer to select
+									//  the inputs...
+					| (1<<ACIS1)// With Below, select anaComp output Rising-edge
+					| (1<<ACIS0);//  for the interrupt-flag (don't care)
+			ACSRB = (0<<HSEL)	// Don't use hysteresis
+					| (0<<HLEV) //  Don't care about the hysteresis level
+					| (1<<ACM2)	// With Below, select AIN2 as the positive input
+					| (0<<ACM1)	//  AIN0 as negative  
+					| (0<<ACM0);// ??? This doesn't match the drawing...
+#elif (defined(__AVR_ATmega8515__))
+#define ACSR_REG ACSR
+			ACSR  = (0<<ACD)	// Don't disable the anaComp
+					| (1<<ACBG)	// DO USE the internal voltage reference
+									//  for +input.
+					| (0<<ACO)	// This is read-only...
+					| (1<<ACI)  // Clear the interrupt flag
+					| (0<<ACIE) // Don't enable the interrupt
+					| (0<<ACIC)	// Don't use the Timer1 Input Capture
+					| (1<<ACIS1)// Select anaComp output Rising-edge
+					| (1<<ACIS0);//  for the interrupt-flag (don't care)
+#else
+	#error "This MCU not yet supported..."
+#endif
+#endif
+			state++;
+			samples = 0;
+			break;
+		//Wait until the analog comparator switches state...
+		case 3:
+//Not sure if this works....
+//#define AINS_SWAPPED TRUE
+#if(!defined(ANABUTTONS_DIGITALIO) || !ANABUTTONS_DIGITALIO)	
+ #if(defined(AINS_SWAPPED) && AINS_SWAPPED)
+			//Not sure if this actually works... untested
+			if(!getbit(ACO, ACSR_REG))
+ #else
+			// The anaComp output should be positive when the capacitor has
+			// discharged below the positive input
+			if(getbit(ACO, ACSR_REG))
+ #endif
+#else //DigitalIO
+			if(!getpinPORT(ANABUTTONS_PIN, ANABUTTONS_PORT))
+#endif
+			{
+				newCompTime = TRUE;
+				compTime = tcnter_get() - startTime;
+				buttonPressed = TRUE;
+				//A double-buffer...
+				anaB_samples = samples;
+				state = 0;
+			}
+			else
+				samples++;
+
+			if( tcnter_get() - startTime > BUTTON_TIMEOUT )
+			{
+				buttonPressed = FALSE;
+
+				//doesn't this *require* state=0???
+				// It's nice that it doesn't inject a frequency all the time
+				// if no buttons are pressed, but this would cause a compTime >
+				// BUTTON_TIMEOUT... (0.45b)
+				// No, because threshold detection, above, doesn't break
+				// this is run after.
+				// newCompTime is set, but buttonPressed is not.
+			}
+			break;
+		//Shouldn't get here...
+		default:
+			break;
+	}
+}
+
+

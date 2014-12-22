@@ -1,0 +1,88 @@
+//POTENTIALLY USEFUL PINS
+//
+//                      ATmega328P (Useful pins)
+//                     ____________________
+//                    |         |_|        |
+//           /RESET --|  1 PC6      PC5 28 |--(SCL)
+//              RxD --|  2 PD0      PC4 27 |--(SDA)         
+//              TxD --|  3 PD1      PC3 26 |--(ADC3)       
+//                  --|  4 PD2      PC2 25 |--(ADC2)       
+//            (OC2B)--|  5 PD3      PC1 24 |--(ADC1)       
+//                  --|  6 PD4      PC0 23 |--(ADC0)            
+//             (VCC)--|  7 VCC      GND 22 |--(GND)         
+//             (GND)--|  8 GND     AREF 21 |--(AREF)   
+//           (XTAL1)--|  9 PB6     AVCC 20 |--(AVCC)
+//           (XTAL2)--| 10 PB7      PB5 19 |-- SCK
+//            (OC0B)--| 11 PD5      PB4 18 |-- MISO
+//       (OC0A/AIN0)--| 12 PD6      PB3 17 |-- MOSI
+//            (AIN1)--| 13 PD7      PB2 16 |--(SS/OC1B)
+//                  --| 14 PB0      PB1 15 |--(OC1A)
+//                    |____________________|
+
+
+
+//TRINKET-PRO PIN DEFINITIONS
+//
+//                      ATmega328P (Trinket-Pro DIP-clone)
+//                     ____________________
+//                    |         |_|        |
+//           /RESET --|* 1 PC6      PC5 28 |--(SCL)----------> A6
+//              RXD --|* 2 PD0      PC4 27 |--(SDA)----------> A5
+//              TXD --|* 3 PD1      PC3 26 |--(ADC3)---------> A3
+//  D2 <--------------|# 4 PD2      PC2 25 |--(ADC2)---------> A2
+//  D3 <------(OC2B)--|  5 PD3      PC1 24 |--(ADC1)---------> A1       
+//  D4 <-------(XCK)--|  6 PD4      PC0 23 |--(ADC0)---------> A0        
+//    +3V3 <---(VCC)--|  7 VCC      GND 22 |--(GND)---> GND         
+//     GND <---(GND)--|  8 GND     AREF 21 |--(AREF)--||--> GND
+//     <-----(XTAL1)--|  9 PB6     AVCC 20 |--(AVCC)--> +3V3
+//     <-----(XTAL2)--| 10 PB7      PB5 19 |-- SCK (D13) --/\/\/--|>|-->GND
+//  D5 <------(OC0B)--| 11 PD5      PB4 18 |-- MISO (D12)
+//  D6 <-(OC0A/AIN0)--| 12 PD6      PB3 17 |-- MOSI (D11)
+//  D7 <------(AIN1)--|#13 PD7      PB2 16 |--(SS/OC1B)------> D10
+//  D8 <--------------| 14 PB0      PB1 15 |--(OC1A)---------> D9
+//                    |____________________|
+//
+//MISSING: ADC6=A6, ADC7=A7 (Only on TQFP Package)
+//
+//NOTES:
+//
+//  D13/PB5/SCK tied to LED.
+//         Can't use external USBtinyISP due to current-draw
+//  D7/AIN1 tied to USB. 
+//         Can't use Analog Comparator with external reference 
+//         without disabling the ADC
+
+
+
+
+
+//Pins Needed (Some can be shared, some are by default):
+
+//Heart/Memo Button ......................................= PRG_MISO = PB4
+//
+//PUART:
+// pRx0 ..................................................= PRG_SCK  = PB5
+// pTx0 ..................................................= PRG_MOSI = PB3
+//
+//SPI devices (LCD/SD-Card, SPI pins definitely shared):
+// SPI_MOSI = SD_MOSI = LCD_SDATA ...................................= PD1
+// SPI_MISO = SD_MISO ...............................................= PD0
+// SPI_SCK  = SD_SCK  = LCD_SCK .....................................= PD4
+//                      LCD_DnC ............................arbitrary= PB1
+//                      LCD_nCS ............................arbitrary= PB0
+//                      LCD_nRST ...........................arbitrary= PB2
+//            SD_CS ........................................arbitrary= PD5
+//
+//Programming Header (Plausibly shared with SPI devices, but Not Now):
+// PRG_MOSI          ....................................      (see puart)
+// PRG_MISO          ....................................      (see heart)
+// PRG_SCK           ....................................      (see puart)
+//
+// Button (anaButtons: AIN0? Or digital... Using digital, can be moved)
+//        (AIN1/2?) ......................(relatively arbitrary AIN0)= PD6
+//
+// Audio In (ADC) ...................................(arbitrary ADC0)= PC0
+// Audio Out ? (PWM) ............................(arbitrary PWM OC2B)= PD3
+//
+
+

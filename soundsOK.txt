@@ -1,0 +1,31 @@
+a/o v52-0:
+v52's only change was replacing 'ADCL/H' reads with 'ADC'
+   and apparently didn't affect functionality
+v51-latest actually sounds OK despite odd-timing on printout
+v51-11 sounds shitty, and notably about half an octave shifted
+   That might make sense, if the fullCount of 2700/second was *not* due to
+   the puat printouts (which also seems to be the case)
+   (a/o v53: DUH. writingSD() handles printout, and has cli/sei around it)
+??? Why is the fullCount so large, when not noticed on the Tiny861?
+   ...v51-11 ctd:
+   2700/19200 is 14%, each octave is doubled in frequency, so it's an
+   exponential scale, 14% might be a couple/few notes...?
+   PRINTOUT occurs NON-spurradically
+
+Functional Changes between v51-11 and v52:
+ ADC <-- ADCL/H
+ (prior to v51-11: sei/cli removed from ISR)
+ tcnter_get() --> tcnter_isItTime() in printout
+   As I recall, this was done *because* printout was spurradic 
+      (prior to v51-11?)
+      And remains so
+ cirBuff_get() --> cirBuff_getSafe()
+   "Doesn't seem to affect the problems encountered"
+      re: spurradic printing? Or audio?
+ !!! SDWU_WRITE_SEVERAL_SAMPLES
+   clears the cirBuff in a single call to sd_writeUpdate()
+      introduction led to spurradic printout
+ (PRINT_BWandWBC=TRUE)
+   
+v53: re: spurradic printout:
+   writingSD() which handles periodic printout had an "if(fullcount)" DUH.

@@ -1,0 +1,54 @@
+//GENERALLY: I place the "heartbeat" LED on the MISO pin:
+//           (MISO is on this device is pin PB4)
+// Since the AVR has a high push/pull current, whereas an SPI-programmer
+//  likly doesn't, adding an LED to MISO is usually acceptable, whereas
+//  placing it on SCK or MOSI would cause the SPI-programmer output to sag.
+// HOWEVER: In this case, MISO is being used ALSO with the SD-Card, as well
+//  as the Nokia LCD, and in this case the Master is the AVR, not the
+//  device attached to it (usually just an SPI-programmer, in most my
+//  projects, which would be the Master, making the uC the Slave).
+//  NOTE TO SELF: The reason this wasn't a problem with the ATtiny861 is
+//   because that device has the ability to remap the default (programming)
+//   SPI port to another port (for the SD-Card/LCD). 
+// 
+// UNFORTUNATELY: The Trinket-Pro places the LED on SCK, which interferes
+//  with my SPI programmer... Fine for the bootloader-based programming,
+//  but my device doesn't (yet) have a bootloader.
+//  This, likely, would *not* interfere with one or two slave-devices
+//  attached to the Trinket-Pro's AVR, since, again, the AVR is the Master,
+//  in this case, with high push-pull current on SCK.
+//  Another note: Generally it's best to connect LEDs such that they're
+//  active-low (pulled-up via resistor to positive)... What if we decided
+//  to use the ATmega328 as a slave-device to another microcontroller with
+//  less push-current; plausibly the Rasberry Pi?
+//
+// So, for my needs... I'm a bit stumped where to place the heartbeat
+// indicator. In the long-run, maybe it makes sense to bump-up the
+// drive-current on my programmer, and put LEDs on all the SPI pins...
+// Then, in a case where the project interfaces with SPI slaves, using SCK
+// or MOSI for a heartbeat would be acceptable. (Of course, we'd also see
+// data-transactions)
+// But, ahh... My main purpose for placing the heartbeat on the
+// programming-header is to make for easy early-testing; including placing
+// a pushbutton (to ground) on that same pin...
+// Using such on a project which actually uses the SPI bus is no good,
+// pressing the button would interfere with transactions.
+// So, maybe, the long-run would be to add an additional pin to my
+// programming-header *just* for the heart/pushbutton....
+// Additionally: My polled-uar/t debug-header is connected to the
+// additional SPI pins... that won't work here, either. Rx from a PC would
+// interfere with SPI transactions, and Tx from the device to the PC would
+// toggle during SPI transactions, sending random data to the PC.
+
+//End Decision:
+
+// NOTES:
+//  SPI:
+//    Using the USART in SPI mode
+//     (as opposed to the dedicated SPI port, since I need it for SPI
+//      programming)
+//    TxDn = MOSI
+//    RxDn = MISO
+//    XCKn = SCK
+//   NOTE: This is *NOT* compatible with the FTDI programmer/debug header
+
