@@ -439,7 +439,7 @@ HEARTBEAT_LIB = $(COMDIR)/heartbeat/$(VER_HEARTBEAT)/heartbeat
 # interfere with things that need to happen quickly. (e.g. ADC values being
 # written to the SD-Card).
 # TODO: This needs to be explored and optimized...
-HEART_REMOVED = TRUE
+#HEART_REMOVED = TRUE
 
 
 ### DMS (the deci-millisecond (.0001 seconds) timer has been removed
@@ -477,8 +477,20 @@ CFLAGS += -D'HEART_PINPORT=PORTB'
 #  optional momentary-pushbutton to ground
 CFLAGS += -D'HEART_LEDCONNECTION=LED_TIED_HIGH'
 endif
+
 # The mega328p has the above pre-defined in its associated .mk file...
 # Can also *see* where it's at in pinoutTrinketPro.mk
+#THE 'pre-defined' DEFAULTS mentioned above can be overridden by
+#uncommenting these:
+#CFLAGS += -D'HEART_PINNUM=PB1'
+#CFLAGS += -D'HEART_PINPORT=PORTB'
+
+#Really, it's best if it's LED_TIED_HIGH as shown in the schematic.
+#If you *have to* use LED_TIED_LOW, it should still work, but it's been
+# *years* since that code has been tested. 
+#FURTHER: Doing-so will not allow for a pushbutton to be attached to the
+#         heartbeat pin.
+#CFLAGS += -D'HEART_LEDCONNECTION=LED_TIED_LOW'
 
 
 

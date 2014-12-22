@@ -362,6 +362,18 @@
 
 // ***** anaButtons / Nokia Keypad *****
 //
+//  THIS WILL LIKELY NOT WORK without a bit of hacking and experimentation,
+//  which is not well-documented.
+//
+//  AS-IS: Just wire-up PD6 through a 0.1uF capacitor to ground.
+//
+//            0.1uF
+//  PD6 ><-----||-----> GND
+//
+//
+//
+//  For the brave:
+//
 //  A matrix-keypad can be wired-up to a single digital I/O pin via the
 //  'anaButtons' interface.
 //
@@ -376,6 +388,17 @@
 //  resistance/capacitance values. A regular 4x4 matrix could be 
 //  wired as below.
 //
+//  NOTE: The anaButtons "buttonTime" measurements will *likely* vary from
+//  device-to-device, especially if, e.g., you use a different F_CPU, or
+//  low-precision resistors. So, implementation of anaButtons requires 
+//  running the test-program, located in
+//   _commonCode_localized/anaButtons/0.50/testMega328P+NonBlocking/
+//  then changing the associated if() statements in this directory's main.c
+//  UNFORTUNATELY: This has yet to be well-documented.
+//  SO REALISTICALLY: The implementation of anaButtons in audioThing is a
+//  bit of work.
+//
+//  INSTEAD: Just connect a capacitor between PD6 and ground.
 //
 //                                    
 //  PD6 ><----+---------+-------*-------*-------*-------*   These are
