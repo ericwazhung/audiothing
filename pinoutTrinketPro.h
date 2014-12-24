@@ -15,23 +15,7 @@
 //VOLTAGE: 3.3V
 //
 
-// ###### CRYSTAL OSCILLATOR ###############################
-// #                                                       #
-// # IMPORTANT NOTE: IF THIS IS A NEW CHIP!                #
-// # DO NOT RUN 'make fuse' until this bit is soldered-up! #
-// #########################################################
-//
-// Pin 9 (XTAL1)  ------+-----||-->GND
-//                      |    22pF    
-//                   -------     
-//           16MHz     ===
-//           Crystal -------
-//                      |    22pF              
-// Pin 10 (XTAL2) ------+-----||-->GND
 
-
-
-//
 //###########################
 //#  AUDIOTHING  PINOUT:    #
 //###########################
@@ -67,13 +51,129 @@
 //    Using the USART in SPI mode
 //     (as opposed to the dedicated SPI port, since I need it for SPI
 //      programming)
-//    TxDn = MOSI
-//    RxDn = MISO
-//    XCKn = SCK
+//    TxD0 -> MOSI
+//    RxD0 -> MISO
+//    XCK0 -> SCK
 //   NOTE: This is *NOT* compatible with the FTDI programmer/debug header
 //  USB:
 //    The USB pins are unused in this project, so should *plausibly* still
 //    work with the default TrinketPro bootloader.
+
+
+
+
+// ***** POWER *****
+
+// If using a TrinketPro 3.3V, you should be able to use the on-board
+// power (voltage-regulator) as this circuit shouldn't draw too much
+// current (right?). You can then, probably, disregard this section.
+// But it might be worthwhile to read the following:
+//
+// It's common-practice, and for good reason, to decouple the
+// power-supply... add 0.1uF capacitors as close as possible between the
+// power-pins of each device. Also, not a bad idea to have a larger
+// capacitor at the entry of the power-source to the PCB (22uF? Larger?)
+// (I'm lazy, haven't done this, it seems fine. I'm also running off a
+// battery, which is a lot like a capacitor and not prone to e.g.
+// switching-noise from a switching-powersupply. Also, it has short leads.
+// Adding a larger capacitor at the input is a good idea.)
+
+// When completed, 
+// This device runs on a Li-Ion battery from an old cell-phone
+// The battery has three pins
+//
+// + ~3.7V
+// T "Thermal" (May be serial-data. Regardless: Necessary for Charging)
+// - GND
+//
+// These three pins are exposed at a connector outside the device in order
+// to charge the battery. So, in order to charge the device, the three 
+// pins are connected to the old (and otherwise mostly dead) cell-phone 
+// *that the battery came from*.
+//
+// + and - are connected to the audioThing circuits via a voltage-regulator
+// The TrinketPro includes this voltage-regulator already, but I dun have a
+// TrinketPro, so had to use parts on-hand. One nice side-effect is that
+// the voltage-regulator has an "Enable" input, which may later be used to
+// push-button power-up, and software-power-down (especially when the
+// battery is low).
+// Also, this same design can be used to individually switch power to
+// different devices for power-saving (e.g. the LCD) and/or power-cycling
+// (e.g. I have an SD card that doesn't initialize without a power-cycle).
+//
+//                                  3.0V Regulator
+//                                   _______________
+//                                  |               |
+//  To       .-------+----+-----+---| Vin      Vout |----+---+--> +3V3 out
+// "Charger" |    +  |    |     |   |               |    |   |
+//           |     -----  |     |   |               |    /   |
+//           | .--T ---   |     O   | Enable  'GND' | 1k \  --- 1uF
+//   + 1 >---' |   -----  |    /    |_______________|    /  ---
+//   T 2 <-----'    ---   |   /         |        |       |   |
+//   - 3 >---.       |    |     O-------+        '-------+---+
+//           |       |    |             |                |   |
+//           |       |   --- 0.1uF      /(optional)      /   |
+//           |       |   ---            \ 100k           \  --- 1uF
+//           |       |    |             /         100ohm /  ---
+//           |       |    |             |                |   |
+//           '-------+----+-------------+----------------+---+---> GND
+//
+//                  ^^^         ^^^
+//                Li-Ion       Power
+//                Battery      Switch
+//
+//
+// AVCC/AREF:
+//   AVCC and AREF should both be connected to .1uF capacitors to GND
+//   AVCC should, additionally, be connected to VCC3V3
+//   Ideally, it would be isolated from the digital supply, but the
+//   system's entirely functional if it's tied directly to the same supply.
+
+
+
+
+// ###### CRYSTAL OSCILLATOR ###############################
+// #                                                       #
+// # IMPORTANT NOTE: IF THIS IS A NEW CHIP!                #
+// # DO NOT RUN 'make fuse' until this bit is soldered-up! #
+// #########################################################
+//
+// If using a TrinketPro, this will already have been soldered-up.
+// (the TrinketPro3.3V has a 12MHz crystal. It *should* work but with a
+//  reduced sampling-rate.
+// ***Your best-bet is to modify "F_CPU" in 'makefile' accordingly.***
+// *** and suffer reduced-sample-rate's effects until I can modify ***
+// *** audioThing and audioThing-desktop, accordingly (see TODO)   ***
+//  Other options include (NOT TESTED): 
+//   Replace the 12MHz crystal on a TrinketPro3.3V with a 16MHz crystal.
+//      Pro: higher/correct sample rate. 
+//      Con: must be programmed via an external SPI programmer.
+//           and/or reloaded with the 5V (16MHz) bootloader.
+//   Replace the 5V regulator on a TrinketPro5V with a 3.3V regulator.
+//      Pro: correct sample rate, can still use the bootloader to program.
+//      Con: There may be other circuitry-changes necessary (?)
+//   Use Level-Shifters (especially between the SD-Card and Atmega)
+//      Pro: Probably ideal, actually, since 16MHz @3.3V is overclocking,
+//           regardless of the particular device.
+// CURRENTLY:
+// audioThing-Desktop (the desktop-application that plays-back these files)
+//  ASSUMES a 16MHz crystal, resulting in roughly 19.2KS/s. So, playback
+//  of recordings from an audioThing device will be sped-up, and time
+//  measurements will be wrong).
+//  TODO: There's no reason the device couldn't indicate the sample-rate
+//        on the SD-Card! TODO
+
+// Pin 9 (XTAL1)  ------+-----||-->GND
+//                      |    22pF    
+//                   -------     
+//           16MHz     ===
+//           Crystal -------
+//                      |    22pF              
+// Pin 10 (XTAL2) ------+-----||-->GND
+
+
+
+//
 
 
 
@@ -127,7 +227,34 @@
 #define Tx0PORT   _PGM_MOSI_PORT_NAME_ //e.g. PORTA
 
 
-//The heartbeat pin definition is in the makefile...
+//The heartbeat pin definition can be overridden in the makefile...
+// "HEART_PINNUM" and "HEART_PINPORT"
+
+
+// **** Heartbeat ****
+//
+// The "Heartbeat" can serve several purposes, especially for 
+// debugging/developing:
+//  LED:
+//  * Fades in and out smoothly if there's enough free CPU cycles
+//    Or choppily if the CPU is heavily-loaded
+//  * Can be used for error-indication (blinks a certain number of times)
+//  Button (Momentary):
+//    Can be used for any purpose, but currently acts as a 'memo' button.
+//
+//                             LED   220-1Kohm
+// PRG_MISO/PB4 ><------+------|<|----/\/\/\-----> VCC3V3
+//                      |      
+//                      O |
+//                        |- Pushbutton
+//                      O |
+//                      |
+//                      V
+//                     GND
+
+
+
+
 
 
 
@@ -339,28 +466,6 @@
 //                                            GND
 
 
-// **** Heartbeat ****
-//
-// The "Heartbeat" can serve several purposes, especially for 
-// debugging/developing:
-//  (And may be *disabled*... see makefile: 'HEART_REMOVED')
-//  LED:
-//  * Fades in and out smoothly if there's enough free CPU cycles
-//    Or choppily if the CPU is heavily-loaded
-//  * Can be used for error-indication (blinks a certain number of times)
-//  Button (Momentary):
-//    Can be used for any purpose, but currently acts as a 'memo' button.
-//
-//                             LED   330-1Kohm
-// PRG_MISO/PB4 ><------+------|<|----/\/\/\-----> VCC3V3
-//                      |      
-//                      O |
-//                        |- Pushbutton
-//                      O |
-//                      |
-//                      V
-//                     GND
-//
 
 // ***** anaButtons / Nokia Keypad *****
 //
@@ -441,62 +546,6 @@
 //        capacitor to 3V3, EVEN WHEN a button is pressed.   V
 //                                                          GND
 
-// ***** POWER *****
-//
-// It's common-practice, and for good reason, to decouple the
-// power-supply... add 0.1uF capacitors as close as possible between the
-// power-pins of each device. Also, not a bad idea to have a larger
-// capacitor at the entry of the power-source to the PCB (22uF? Larger?)
-//
-// This device runs on a Li-Ion battery from an old cell-phone
-// The battery has three pins
-//
-// + ~3.7V
-// T "Thermal" (May be serial-data. Regardless: Necessary for Charging)
-// - GND
-//
-// These three pins are exposed at a connector outside the device in order
-// to charge the battery. The three pins are connected to the old (and
-// otherwise mostly dead) cell-phone that the battery came from.
-//
-// + and - are connected to the devices via a voltage-regulator.
-// The TrinketPro includes this voltage-regulator already, but I dun have a
-// TrinketPro, so had to use parts on-hand. One nice side-effect is that
-// the voltage-regulator has an "Enable" input, which may later be used to
-// push-button power-up, and software-power-down (especially when the
-// battery is low).
-// Also, this same design can be used to individually switch power to
-// different devices for power-saving (e.g. the LCD) and/or power-cycling
-// (e.g. I have an SD card that doesn't initialize without a power-cycle).
-//
-//                                  3.0V Regulator
-//                                   _______________
-//                                  |               |
-//  To       .-------+----+-----+---| Vin      Vout |----+---+--> +3V3 out
-// "Charger" |    +  |    |     |   |               |    |   |
-//           |     -----  |     |   |               |    /   |
-//           | .--T ---   |     O   | Enable  'GND' | 1k \  --- 1uF
-//   + 1 >---' |   -----  |    /    |_______________|    /  ---
-//   T 2 <-----'    ---   |   /         |        |       |   |
-//   - 3 >---.       |    |     O-------+        '-------+---+
-//           |       |    |             |                |   |
-//           |       |   --- 0.1uF      /(optional)      /   |
-//           |       |   ---            \ 100k           \  --- 1uF
-//           |       |    |             /         100ohm /  ---
-//           |       |    |             |                |   |
-//           '-------+----+-------------+----------------+---+---> GND
-//
-//                  ^^^         ^^^
-//                Li-Ion       Power
-//                Battery      Switch
-//
-//
-// AVCC/AREF:
-//   AVCC and AREF should both be connected to .1uF capacitors to GND
-//   AVCC should, additionally, be connected to VCC3V3
-//   Ideally, it would be isolated from the digital supply, but the
-//   system's entirely functional if it's tied directly to the same supply.
-//
 
 
 #endif

@@ -13,7 +13,13 @@ TARGET = audioThing
 #MCU = attiny861
 MCU = atmega328p
 
+### The only CPU speed tested is 16MHz
+# Though I've done my best to make sure that 12MHz will work (via
+# simulations, etc).
+# If you choose a *larger* value than 16MHz, then you've better look into
+# various TCNT and BIT_TCNT things below.
 FCPU = 16000000UL
+#FCPU = 12000000UL
 
 
 ## Default FUSE overrides ##
@@ -261,13 +267,13 @@ endif
 #  The relied-on commonThing will be included by *the first* of the various
 #  commonThings listed... which can lead to version-issues.
 # e.g.
-#  heartbeat may include tcnter 0.50
-#  polled_uat may include tcnter 0.40
+#  heartbeat may include tcnter 0.30
+#  polled_uat may include tcnter 0.20
 # 
-# If heartbeat is included first, tcnter will be 0.50
-# But if polled_uat is included first, tcnter will be 0.40
+# If heartbeat is included first, tcnter will be 0.30
+# But if polled_uat is included first, tcnter will be 0.20
 # FOR THE MOST PART newer versions are backwards-compatible
-# So either include heartbeat first, or explicitly list VER_TCNTER=0.50
+# So either include heartbeat first, or explicitly list VER_TCNTER=0.30
 # before either heartbeat or polled_uat are included.
 
 
@@ -358,7 +364,32 @@ include $(CIRBUFF_LIB).mk
 
 
 # Polled UAR/T stuff:
-# TCNTER options should be defined via heartbeat...
+# MOST TCNTER options should be defined via heartbeat...
+# (or tcnter)
+#a/o v62:
+# OVERRIDING the default (CLKDIV64)
+# The faster the clock runs, the more-often tcnter_update() must be called
+# Rather, the clock cannot overflow more than once per tcnter_update()
+# Currently (at 16MHz) I'm getting a loop-count (while(1) in main) of
+# ~20000, 16MHz/8/256 = 7812
+# So, there shouldn't be much trouble with this...
+# (Though, don't forget, some functions may take a lot longer to return to
+#  the main loop on occasion, so this needs some testing!)
+# THE REASON FOR THIS:
+#  CLKDIV64 (TCNTER's Default) results in a huge baud-rate error fraction
+#  when using a 12MHz crystal. I dont have a 12MHz crystal to test, so the
+#  best I can do is run this on 16 and make sure it seems stable... And it
+#  does.
+CFLAGS += -D'TCNTER_AVRTIMER_CLKDIV=CLKDIV8'
+# This needs to be TRUE:
+# The error is ~"BIT_TCNTs near 255 won't work, but this is conservative"
+# at 16MHz we get a BIT_TCNT of 208, and smaller with 12MHz
+# It's running OK on my 16MHz.
+CFLAGS += -D'PUAT_OVERRIDE_BIT_TCNT_ERROR=TRUE'
+
+
+
+
 #CFLAGS += -D'TCNTER_SOURCE_VAR=(TCNT0L)'
 #Should only be necessary for tcnts which are in a variable...
 #CFLAGS += -D'TCNTER_SOURCE_EXTERNED=TRUE'
@@ -371,7 +402,7 @@ include $(CIRBUFF_LIB).mk
 #####
 # A/O v50: This "magic number" appears to be the result of:
 # 16MHz (the Tiny861's F_CPU)
-# / 64 (CLKDIV64... where's that at?)
+# / 64 (CLKDIV64... where's that at?) TCNTER_AVRTIMER_CLKDIV
 # = 249600 TCNTS/sec
 # /9600bps = 26
 # Now, why was I looking into this...? Oh yeah...
@@ -380,7 +411,10 @@ include $(CIRBUFF_LIB).mk
 #   the spi bit-rate...
 #   So, WithTimer() SPI transactions were running at ~250kbps (see below)
 #Yes, we're still working with PUAR/T:
-CFLAGS += -D'BIT_TCNT=26'
+#CFLAGS += -D'BIT_TCNT=26'
+CFLAGS += -D'BIT_TCNT=(F_CPU/(1<<(TCNTER_AVRTIMER_CLKDIV))/9600)'
+##This was just for simulating 12MHz at 16MHz... seems OK.
+#CFLAGS += -D'BIT_TCNT=(16000000UL/(1<<(TCNTER_AVRTIMER_CLKDIV))/9600)'
 # Don't use pua/r to update/init tcnter, it will be done in main.c
 CFLAGS += -D'TCNTER_STUFF_IN_MAIN=TRUE'
 # Similarly, don't use heartbeat update/init for tcnter...
@@ -395,7 +429,7 @@ CFLAGS += -D'HEART_TCNTER_UPDATES_AND_INIT=FALSE'
 # system
 # Likewise, the ultimate math used may round things improperly... We'll see
 # These override the extreme (default) values in usart_spi
-CFLAGS += -D'USART_SPI_SLOW_BAUD_REG_VAL=(SPI_BRR_FROM_BAUD(F_CPU/64))'
+CFLAGS += -D'USART_SPI_SLOW_BAUD_REG_VAL=(SPI_BRR_FROM_BAUD(F_CPU/(1<<(TCNTER_AVRTIMER_CLKDIV))))'
 # The fast baud-rate was determined purely by the speed of the USI...
 # But, for the sake of initial-testing, let's try to match that.
 # Actually, for some reason, it's got a NOP... why?
@@ -480,11 +514,12 @@ CFLAGS += -D'HEART_PINPORT=PORTB'
 CFLAGS += -D'HEART_LEDCONNECTION=LED_TIED_HIGH'
 endif
 
-# The mega328p has the above pre-defined in its associated .mk file...
-# Can also *see* where it's at in pinoutTrinketPro.mk
+# The mega328p has the above pre-defined to the PGM_MISO_PIN/PORT 
+# in its associated .mk file...
+# Also, see the schematic in pinoutTrinketPro.h
 #THE 'pre-defined' DEFAULTS mentioned above can be overridden by
-#uncommenting these:
-#CFLAGS += -D'HEART_PINNUM=PB1'
+#uncommenting these and changing as appropriate:
+#CFLAGS += -D'HEART_PINNUM=PB4'
 #CFLAGS += -D'HEART_PINPORT=PORTB'
 
 #Really, it's best if it's LED_TIED_HIGH as shown in the schematic.
@@ -492,6 +527,8 @@ endif
 # *years* since that code has been tested. 
 #FURTHER: Doing-so will not allow for a pushbutton to be attached to the
 #         heartbeat pin.
+#### a/o heartbeat 2.00 THIS IS NO LONGER VALID (?)
+#### Look into heartbeat.h, the changelogs for v2.00, to see the new method
 #CFLAGS += -D'HEART_LEDCONNECTION=LED_TIED_LOW'
 
 
@@ -542,7 +579,7 @@ include $(POLLED_UAR_LIB).mk
 
 CFLAGS += -D'PUAT_SENDSTRINGBLOCKING_ENABLED=TRUE'
 
-VER_POLLED_UAT = 0.70
+VER_POLLED_UAT = 0.77
 POLLED_UAT_LIB = $(COMDIR)/polled_uat/$(VER_POLLED_UAT)/polled_uat
 include $(POLLED_UAT_LIB).mk
 
@@ -570,6 +607,12 @@ ERRORHANDLING_HDR = $(COMDIR)/errorHandling/$(VER_ERRORHANDLING)/
 COM_HEADERS += $(ERRORHANDLING_HDR)
 #No "_ERRORHANDLING_HEADER_" ?
 # Where is that used, timerCommon? Shouldn't that be changed? TODO
+
+
+VER_STRINGIFY = 0.10
+STRINGIFY_HDR = $(COMDIR)/__std_wrappers/stringify/$(VER_STRINGIFY)/
+COM_HEADERS += $(STRINGIFY_HDR)
+CFLAGS += -D'_STRINGIFY_HEADER_="$(STRINGIFY_HDR)/stringify.h"'
 
 
 include $(COMDIR)/_make/reallyCommon2.mk

@@ -396,8 +396,11 @@
 // NOT ONLY does it allow loading of keyboard-data to the audio-samples, 
 // but it
 // ALSO INDICATES that the usage-table needs to be updated on the SDCard
-// WITHOUT THIS, there is no memo-taking. No usage-table.
+// WITHOUT THIS, there is NO MEMO-TAKING. No usage-table.
 // (a/o v50: I really don't remember how this works)
+// (a/o v61: kbSample_sendByte() and memoUpdate() take care of this...
+//  see notes elsewhere)
+//THIS MUST BE TRUE.
 #define KB_TO_SAMPLE TRUE
 
 
@@ -507,7 +510,7 @@
 // again at 5 minutes
 // (It might actually start at *one* minute, then increase by 5
 // thereafter?)
-#define MEMO_TIMEOUT (2500000)   //10sec
+#define MEMO_TIMEOUT (10*TCNTER_SEC) //(2500000)   //10sec
 
 
 

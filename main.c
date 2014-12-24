@@ -150,6 +150,12 @@ uint8_t availableChunks;
 //In S/s. Currently 19230S/s
 #define SAMPLE_RATE (F_CPU/ADC_CLKDIV/ADC_CALC_CYCLES)
 
+//a/o v60: The SD-Card will have a format-header indicating the sample-rate
+//  THIS REQUIRES audioThing-desktop v7p20+
+//#include _STRINGIFY_HEADER_
+//PGM_P sampleRateString = PSTR(STRINGIFY(SAMPLE_RATE));
+//STRINGIFY(SAMPLE_RATE) stringifies the values, separated by divisions...
+// It might be doable, but I'm drawing a blank.
 
 
 #define UT_EEPROM_START_BYTE  FONTBYTES
@@ -159,7 +165,6 @@ uint8_t availableChunks;
             eeprom_update_byte(((byteNum) + UT_EEPROM_START_BYTE), (val))
 #define eeprom_write_utByte(byteNum, val) \
             eeprom_write_byte(((byteNum) + UT_EEPROM_START_BYTE), (val))
-
 
 
 
@@ -1017,11 +1022,35 @@ void sd_writeUsageTable(void)
    rt_xfer(0xfe);
 
    // Write the "formatted" indicator...
-   for(i=0; i<(BLOCKSIZE-USAGETABLE_SIZE); i++)
+      //a/o v60: We'll store the sample-rate in the format-header
+      // How about starting 8 bytes from the end...
+      // "19230" is six... (+null)
+   for(i=0; i<(BLOCKSIZE-USAGETABLE_SIZE-8); i++)
    {
       rt_xfer(i);
    }
 
+   //Write the sample-rate
+   // pad the remainder with '\0'
+   uint8_t nullFound = FALSE;
+   sprintf_P(stringBuffer, PSTR("%"PRIu16), (uint16_t)SAMPLE_RATE);
+
+   for(i=0; i<8; i++)
+   {
+      uint8_t character;
+
+      if(!nullFound)
+      {
+         character = stringBuffer[i];
+
+         if(character == '\0')
+            nullFound = TRUE;
+      }
+      else
+         character = '\0';
+
+      rt_xfer(character);
+   }
 
    availableChunks = 0;
 
@@ -1165,7 +1194,11 @@ static __inline__ void spi_sd_readTable(void)
 #endif
 
 #if(BLOCKSIZE-USAGETABLE_SIZE <= 256)
-      if( byteIn != i )
+      //a/o v60:
+      //Don't test bytes in the sampleRate portion of the format-header
+      // (last 8 bytes)
+      // But still print them, in PRINT_USAGETABLE
+      if( (i<(BLOCKSIZE-USAGETABLE_SIZE-8)) && (byteIn != i) )
 #else
 #error "NYI"
       // Later we might want to get more sophisticated...
@@ -1406,6 +1439,11 @@ uint16_t sdWU_state = SDWU_BOOT; // BEGIN_WRITING;
 
 
 
+//a/o v61
+//WEIRD... Did I just completely delete the Handspring Keyboard's code from
+//audioThing?
+// Sure, it's dead, but delete the code completely without throwing it in
+// _old or something?!
 
 
 
@@ -1422,6 +1460,11 @@ unsigned char rxByte;
 // (a/o v50: Is that "But also" still true? Seems hokey... or does it have
 //  to do with its value being 3, as explained below?)
 // (This is all handled in sd_writeUpdate() )
+// a/o v61: it *is* hokey... memoUpdate() doesn't do *anything* as far as
+//          recording a memo to the SD card *unless* bytePositionToSend=1
+//          This is now handled via two calls:
+//              memoUpdate(key==MEMO_KEY);
+//              kbSample_sendChar(key);
 //Track the position _to_be_written_
 // e.g. 0 = nothing to be written
 //      1 = low nibble
@@ -1684,7 +1727,7 @@ void writingSD(void)
       
          static uint32_t loopCount = 0;
    
-         if(tcnter_isItTime(&lastTime, 250000))
+         if(tcnter_isItTime(&lastTime, 1*TCNTER_SEC)) //250000))
          {
             //This is confusing... and probably the reason for v51-12
             //through v53:
@@ -1793,6 +1836,44 @@ void oldOldCirBufADCTesting(void)
 
 
 
+#if (defined(KB_TO_SAMPLE) && KB_TO_SAMPLE)
+//NEITHER OF THESE SHOULD BE IN INTERRUPTS.
+static int16_t kbBuffer = -1;
+
+void kbSample_sendChar(char character)
+{
+   kbBuffer = character;
+}
+
+//a/o v61: kbSample_update() needs to be called in main
+// this checks if there's data to be sent along with samples
+// and sends them to sdWU() when it's ready...
+// There's a *one byte* buffer, here... which should be plenty for most
+// keyboards/typists. BUT e.g. maybe not enough if there's two inputs
+// e.g. heartButton *and* NKP...
+void kbSample_update(void)
+{
+   //This was stolen from nkp_update()
+   //rxByte should only be updated when bytePositionToSend == 0
+   // but what if we receive one when another's still loading?
+   // realistically, shouldn't happen much. But not a bad idea to back it
+   // up.
+   // Probably would be wiser to handle this at the receiving end...
+   // but that's NYI.
+   // -1 indicates there's nothing waiting.
+   //static int16_t rxBuffer = -1;
+
+   //(Shouldn't this be kbBuffer>=0?)
+   if((kbBuffer>0) && (bytePositionToSend == 0))
+   {
+      rxByte = kbBuffer;
+      bytePositionToSend = 1;
+      kbBuffer = -1;
+   }
+     
+
+}
+#endif
 
 #if(defined(NKP_ENABLED) && NKP_ENABLED)
 /* Measurements:
@@ -1823,24 +1904,6 @@ void oldOldCirBufADCTesting(void)
 void nkp_update(void)
 {
 
-#if (defined(KB_TO_SAMPLE) && KB_TO_SAMPLE)
-   //rxByte should only be updated when bytePositionToSend == 0
-   // but what if we receive one when another's still loading?
-   // realistically, shouldn't happen much. But not a bad idea to back it
-   // up.
-   // Probably would be wiser to handle this at the receiving end...
-   // but that's NYI.
-   // -1 indicates there's nothing waiting.
-   static int16_t rxBuffer = -1;
-
-
-   if((rxBuffer>0) && (bytePositionToSend == 0))
-   {
-      rxByte = rxBuffer;
-      bytePositionToSend = 1;
-      rxBuffer = -1;
-   }
-#endif
    int32_t buttonTimeVal = anaButtons_getDebounced();
 
    //Button was released...
@@ -1954,7 +2017,8 @@ void nkp_update(void)
       memoUpdate(key=='I');
 
 #if(defined(KB_TO_SAMPLE) && KB_TO_SAMPLE)
-      rxBuffer = key;
+      kbSample_sendChar(key);
+      //rxBuffer = key;
 #endif
    }
 
@@ -2077,6 +2141,15 @@ int main(void)
    nlcd_redrawCharacters();
 #endif
 
+#define PRINT_SAMPLERATE TRUE
+#if(defined(PRINT_SAMPLERATE) && PRINT_SAMPLERATE)
+   //print_P(sampleRateString);
+   sprintf_P(stringBuffer, PSTR("%"PRIu16"S/s\n\r"),
+                                           (uint16_t)SAMPLE_RATE);
+   printStringBuff();
+#endif
+
+
 #define PRINT_SD_INIT   TRUE
 #if(defined(PRINT_SD_INIT) && PRINT_SD_INIT)
    print_P(PSTR("\n\n\rsd_init()\n\r"));
@@ -2118,6 +2191,7 @@ int main(void)
 #elif (defined(PRINT_GO_RETURN) && PRINT_GO_RETURN)
    print_P(PSTR("\n\r"));
 #endif
+
 
 // tcnter_update();
 
@@ -2182,8 +2256,15 @@ int main(void)
       uint8_t heartButton = heart_getButton();
 
       if(!lastHeartButtonVal && heartButton)
+      {
+         //TODO: This is a bit hokey, memoUpdate doesn't really do anything
+         //except calculations unless kbSample_sendChar() is also called
          memoUpdate(TRUE);
-        
+
+#if(defined(KB_TO_SAMPLE) && KB_TO_SAMPLE)
+         kbSample_sendChar('*');
+#endif
+      }       
       lastHeartButtonVal = heartButton;
 
 
@@ -2218,6 +2299,9 @@ int main(void)
 #endif
 
 
+#if (defined(KB_TO_SAMPLE) && KB_TO_SAMPLE)
+      kbSample_update();
+#endif
       //THESE ARE MUTUALLY EXCLUSIVE
       // Basically it should always be WRITING_SD, except for testing...
 #if (defined(WRITING_SD) && WRITING_SD)
