@@ -6,6 +6,8 @@
  */
 
 
+
+
 //a/o v51-12:
 //Quick test, try to write *all* samples in the circular-buffer
 //immediately
@@ -786,13 +788,13 @@ void haltError(uint8_t errNum)
    // necessary... so it fills up the cirBuff and once it's full
    // audio passthrough is stopped...
 
-   set_heartBlink(errNum);
+   heart_blink(errNum);
    while(1)
    {
 #if(!defined(_DMSTIMER_HEADER_))
          tcnter_update();
 #endif
-         heartUpdate();
+         heart_update();
    }
 }
 
@@ -804,7 +806,7 @@ void pauseIndicate(uint8_t indicateNum)
    //The timer's running at about 300kHz...
 // uint32_t count;
 
-   set_heartBlink(indicateNum);
+   heart_blink(indicateNum);
 
 // uint8_t i = 0;
 
@@ -812,7 +814,7 @@ void pauseIndicate(uint8_t indicateNum)
 
    dmsWait(time);
 // while(dmsGetTime() < endTime)
-//    heartUpdate();
+//    heart_update();
 /*
    for(count=0; count < countMax; count++)
    {
@@ -828,12 +830,12 @@ void pauseIndicate(uint8_t indicateNum)
             if(i==30)
             {
                i=0;
-               heartUpdate();
+               heart_update();
             }
          }
    }
 */
-   set_heartBlink(0);
+   heart_blink(0);
 }
 #endif
 
@@ -1979,8 +1981,8 @@ int main(void)
 // adcFR_init();
    //This should be OK now that HEART_DMS=FALSE...
    // which is no longer relevent anyhow...
-   init_heartBeat();
-   setHeartRate(0);  //Override WDT indication, etc.
+   heart_init();
+   heart_setRate(0);  //Override WDT indication, etc.
 // dmsWait(5*DMS_SEC);
    //haltError(0); //0x12);
 
@@ -2033,7 +2035,7 @@ int main(void)
          printByte(rxByte);
 
       //Might interfere with puart...
-      heartUpdate();
+      heart_update();
    }
 
    _delay_ms(2000);
@@ -2091,9 +2093,9 @@ int main(void)
    pwmTimer_init();
 #endif
 
-   //init_heartBeat();
+   //heart_init();
 
-// setHeartRate(0);  
+// heart_setRate(0);  
 
    cirBuff_init(&adcCirBuff, ADC_CIRBUFF_SIZE, arrayForADCCirBuff);
 
@@ -2159,7 +2161,32 @@ int main(void)
    {
       tcnter_update();
 
-      heartUpdate();
+      heart_update();
+      
+      //Use the heartbeat's pushbutton for the 'memo' key
+      // (in addition to any that may be implemented elsewhere, e.g. on the
+      //  Nokia's keypad).
+      static uint8_t lastHeartButtonVal;
+
+      //BUT we only want a 'memo' *once* for each *press*, 
+      // not once for each *loop*
+      //
+      //NOTE: This does *not* handle bounce.
+      // heart_getButton has been found to be relatively bounce-free
+      // since the heartbeat LED uses the same port, it helps smooth thing
+      // up a bit, and also prevents uber-high-speed sampling
+      // (the pin is only polled *once per loop*, and currently we're
+      // running about Whoa WTF... DUHHH!!
+
+//#warning "heart_getButton interferes with heart, and is slow"
+      uint8_t heartButton = heart_getButton();
+
+      if(!lastHeartButtonVal && heartButton)
+         memoUpdate(TRUE);
+        
+      lastHeartButtonVal = heartButton;
+
+
 
 
       //Many of the following are *options*
@@ -2908,13 +2935,14 @@ void pwmTimer_init(void)
 
    setoutPORT(PD3, PORTD);
 
+   //This is the whole reason I made haltError(), duh...
    if(error)
    {
-      set_heartBlink(2);
+      heart_blink(2);
       while(1)
       {
          tcnter_update();
-         heartUpdate();
+         heart_update();
       }
    }
 
@@ -3105,7 +3133,7 @@ static __inline__ void setupNextBlock(void)
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/55-git/main.c
+ * /home/meh/_avrProjects/audioThing/57-heart2/main.c
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

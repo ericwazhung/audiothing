@@ -557,7 +557,7 @@ void puat_update(uint8_t puatNum)
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/55-git/_commonCode_localized/polled_uat/0.70/polled_uat.c
+ * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/polled_uat/0.70/polled_uat.c
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

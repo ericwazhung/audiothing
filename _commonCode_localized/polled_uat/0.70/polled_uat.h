@@ -333,7 +333,7 @@ void puat_sendStringBlocking_P(uint8_t, char stringBuffer[], PGM_P P_string);
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/55-git/_commonCode_localized/polled_uat/0.70/polled_uat.h
+ * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/polled_uat/0.70/polled_uat.h
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

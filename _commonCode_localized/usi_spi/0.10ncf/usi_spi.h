@@ -112,7 +112,7 @@ uint8_t spi_transferByte(uint8_t txByte);
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/55-git/_commonCode_localized/usi_spi/0.10ncf/usi_spi.h
+ * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/usi_spi/0.10ncf/usi_spi.h
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

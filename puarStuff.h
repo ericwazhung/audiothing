@@ -7,6 +7,8 @@
 
 
 
+
+
 #include "pinout.h"
 
 //a/o v54: Most of the notes, here, are irrelevent, regarding the
@@ -126,7 +128,7 @@ extern __inline__ void puar_initInput(uint8_t puarNum)
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/55-git/puarStuff.h
+ * /home/meh/_avrProjects/audioThing/57-heart2/puarStuff.h
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

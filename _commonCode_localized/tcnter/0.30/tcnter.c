@@ -385,7 +385,7 @@ uint8_t tcnter_isItTime(tcnter_t *startTime, tcnter_t deltaTime)
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/55-git/_commonCode_localized/tcnter/0.30/tcnter.c
+ * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/tcnter/0.30/tcnter.c
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

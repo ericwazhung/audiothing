@@ -6,6 +6,8 @@
  */
 
 
+
+
 #include "projInfo.h"   //Don't include in main.h 'cause that's included in other .c's?
 #include "main.h"
 
@@ -845,10 +847,10 @@ void haltError(uint8_t errNum)
    // necessary... so it fills up the cirBuff and once it's full
    // audio passthrough is stopped...
 
-   set_heartBlink(errNum);
+   heart_blink(errNum);
    while(1)
    {
-         heartUpdate();
+         heart_update();
    }
 }
 
@@ -860,7 +862,7 @@ void pauseIndicate(uint8_t indicateNum)
    //The timer's running at about 300kHz...
 // uint32_t count;
 
-   set_heartBlink(indicateNum);
+   heart_blink(indicateNum);
 
 // uint8_t i = 0;
 
@@ -868,7 +870,7 @@ void pauseIndicate(uint8_t indicateNum)
 
    dmsWait(time);
 // while(dmsGetTime() < endTime)
-//    heartUpdate();
+//    heart_update();
 /*
    for(count=0; count < countMax; count++)
    {
@@ -884,12 +886,12 @@ void pauseIndicate(uint8_t indicateNum)
             if(i==30)
             {
                i=0;
-               heartUpdate();
+               heart_update();
             }
          }
    }
 */
-   set_heartBlink(0);
+   heart_blink(0);
 }
 #endif
 
@@ -1559,8 +1561,8 @@ int main(void)
 // adcFR_init();
    //This should be OK now that HEART_DMS=FALSE...
    // which is no longer relevent anyhow...
-   init_heartBeat();
-   setHeartRate(0);  //Override WDT indication, etc.
+   heart_init();
+   heart_setRate(0);  //Override WDT indication, etc.
 // dmsWait(5*DMS_SEC);
    //haltError(0); //0x12);
 
@@ -1633,7 +1635,7 @@ int main(void)
          puat_sendByte(0, rxByte);
 
       //Might interfere with puart...
-      heartUpdate();
+      heart_update();
    }
 
    _delay_ms(2000);
@@ -1644,9 +1646,9 @@ int main(void)
 
    pwmTimer_init();
 
-   //init_heartBeat();
+   //heart_init();
 
-// setHeartRate(0);  
+// heart_setRate(0);  
 
    cirBuff_init(&myCirBuff, BUFFSIZE, buffer);
 
@@ -1692,7 +1694,7 @@ int main(void)
    while(1)
    {
    // uint8_t heartState;
-   // heartState = heartUpdate();
+   // heartState = heart_update();
       tcnter_update();
       tcnter_t thisTime = tcnter_get();
       static tcnter_t nextTime = 0;
@@ -2051,7 +2053,7 @@ int main(void)
          addSample(&myCirBuff);
       }
 #endif
-      //heartUpdate();
+      //heart_update();
    }
 }
 
@@ -2176,7 +2178,7 @@ uint8_t spi_sd_CMD16[] = {0x40|16, 0, 0,
 #define R1_IDLE            0
 #define R1_INVALID_COMMAND 2
 
-//This should be called BEFORE init_heartBeat or init_dmsTimer
+//This should be called BEFORE heart_init or init_dmsTimer
 //CURRENTLY Output->FALL Sample->RISE
 // Appears to be correct...
 
@@ -3768,7 +3770,7 @@ uint32_t extractBitsFromU8Array(uint8_t highBit, uint8_t lowBit,
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/55-git/_old/main_u16TCNBug.c
+ * /home/meh/_avrProjects/audioThing/57-heart2/_old/main_u16TCNBug.c
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

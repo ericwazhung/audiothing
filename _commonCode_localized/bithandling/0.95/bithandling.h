@@ -6,10 +6,12 @@
  */
 
 
-//bitHandling 0.95-8
+//bitHandling 0.95-9
 //TODO: Don't Forget .94-18!
 //TODO: and .94_...-5!
 //
+//.95-9  a/o heart v2.00, audioThing v57
+//       adding setPinStatePORT(pin, port, H/L/Z/PU)
 //.95-8  a/o resolutionDetector:
 //       adding ispinPORT() (simplified getpinPORT(), should compile
 //       smaller... unless the optimizer's really smart?)
@@ -547,6 +549,58 @@ int32_t shiftRightI32(int32_t value, uint8_t shift)
 #define writepinPORT(Pxn, PORTx, value) \
       ((value) ? setpinPORT((Pxn),(PORTx)):clrpinPORT((Pxn),(PORTx)))
 
+
+//There're four possibilities for a pin
+// (as determined by its PORT and DDR values)
+// High, Low, Z, and Pulled-Up
+//  (PIN can still be read in any of these states, so "input" isn't really
+//   a port-state)
+// (Plausibly: there may be a time when getPinStatePORT could be useful
+//  TODO: Revise these states to match e.g. (DDRn | PORTn<<1) ? )
+// NOTE: This is a pretty large bit of inline-code UNLESS it gets
+// optimized, which it should if it's given *constants* as arguments
+// IOW: Don't use this for non-constants, turn it into a function first.
+// (could just create a wrapper for this?)
+// NOTE2: This does *not* (yet?) take into consideration TRANSITIONS
+//        e.g. what was the previous port-state, and which would be the
+//        best order to go about switching to the next)
+// NOTE3: PINSTATE_LOW=0 and PINSTATE_HIGH=1 can be used to compare to a 
+//        pin input-value (e.g. if(getpinPORT(...) == PINSTATE_LOW))
+//        It's kinda hokey, since PINSTATE and PINVAL are different
+//        concepts, but PINVAL doesn't exist. IT IS used this way, in
+//        heartbeat 2.00
+#define PINSTATE_LOW    0  //Don't change this without looking at NOTE3
+#define PINSTATE_HIGH   1  //Ditto
+#define PINSTATE_Z      2
+#define PINSTATE_PU     3
+#define setPinStatePORT(pin, port, state) \
+   ({ \
+      switch(state) \
+      { \
+         case PINSTATE_HIGH: \
+            setoutPORT(pin, port); \
+            setpinPORT(pin, port); \
+            break; \
+         case PINSTATE_LOW: \
+            setoutPORT(pin, port); \
+            clrpinPORT(pin, port); \
+            break; \
+         case PINSTATE_Z: \
+            setinPORT(pin, port); \
+            clrpinPORT(pin, port); \
+            break; \
+         case PINSTATE_PU: \
+         default: \
+            setinpuPORT(pin, port); \
+            break; \
+      } \
+      {}; \
+    })
+
+
+
+
+
 //Time to remove this message... It's useful, but it's also
 //deeply-ingrained in my brain, and the error it generates is obvious
 //and it doesn't seem to have any odd consequences in other cases.
@@ -816,7 +870,7 @@ void toBinString(char* stringOut, uint8_t length, int32_t value)
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/55-git/_commonCode_localized/bithandling/0.95/bithandling.h
+ * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/bithandling/0.95/bithandling.h
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

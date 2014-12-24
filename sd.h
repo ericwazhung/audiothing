@@ -6,6 +6,8 @@
  */
 
 
+
+
 #ifndef __SD_H__
 #define __SD_H__
 
@@ -186,7 +188,7 @@ static __inline__ int32_t spi_sd_readU16(void);
 #define R1_IDLE            0
 #define R1_INVALID_COMMAND 2
 
-//This should be called BEFORE init_heartBeat or init_dmsTimer
+//This should be called BEFORE heart_init or init_dmsTimer
 //CURRENTLY Output->FALL Sample->RISE
 // Appears to be correct...
 
@@ -382,7 +384,7 @@ uint32_t extractBitsFromU8Array(uint8_t highBit, uint8_t lowBit,
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/55-git/sd.h
+ * /home/meh/_avrProjects/audioThing/57-heart2/sd.h
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

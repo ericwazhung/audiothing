@@ -6,6 +6,8 @@
  */
 
 
+
+
 #ifndef __PINOUT_TRINKETPRO_H__
 #define __PINOUT_TRINKETPRO_H__
 
@@ -560,7 +562,7 @@
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/55-git/pinoutTrinketPro.h
+ * /home/meh/_avrProjects/audioThing/57-heart2/pinoutTrinketPro.h
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

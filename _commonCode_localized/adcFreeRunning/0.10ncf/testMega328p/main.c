@@ -157,7 +157,7 @@ PSTR("\n\r      to blocking serial transfers.\n\r"));
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/55-git/_commonCode_localized/adcFreeRunning/0.10ncf/testMega328p/main.c
+ * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/adcFreeRunning/0.10ncf/testMega328p/main.c
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *
