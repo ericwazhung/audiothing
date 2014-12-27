@@ -9,19 +9,19 @@
    header[] = "";
 #elif (defined(PROJINFO_SHORT) && PROJINFO_SHORT)
  const uint8_t __attribute__ ((progmem)) \
-   header[] = "audioThing62 2014-12-24 12:41:07";
+   header[] = "audioThing64 2014-12-27 07:41:54";
 #else //projInfo Not Shortened nor overridden
  const uint8_t __attribute__ ((progmem)) \
-   header0[] = " /home/meh/_avrProjects/audioThing/62-FCPUnonEffects ";
+   header0[] = " /home/meh/_avrProjects/audioThing/64-merging63notesWith62.5 ";
  const uint8_t __attribute__ ((progmem)) \
-   header1[] = " Wed Dec 24 12:41:07 PST 2014 ";
+   header1[] = " Sat Dec 27 07:41:54 PST 2014 ";
  const uint8_t __attribute__ ((progmem)) \
    headerOpt[] = " WDT_DIS=TRUE ";
 #endif
 
 //For internal use...
 //Currently only usable in main.c
-#define PROJ_VER 62
+#define PROJ_VER 64
 #define COMPILE_YEAR 2014
 
 #endif

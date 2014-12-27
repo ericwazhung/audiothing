@@ -50,7 +50,7 @@
 // This is the BLOCKSIZE as it would be represented by (1<<BLOCKSIZE_SHIFT)
 #define BLOCKSIZE_SHIFT (DESHIFT(BLOCKSIZE))
 
-#if(BLOCKSIZE_SHIFT >= 10)
+#if(BLOCKSIZE_SHIFT != 9)
 #error "BLOCKSIZE should be 512.. This'll cause some math issues..."
 #endif
 
@@ -146,8 +146,19 @@ void spi_sd_initSizeSpecs(void)
    __attribute__((__always_inline__));
 
 //This is CMD58, but only returns the CCS value...
-uint8_t spi_sd_getCCS(void);
-#define spi_sd_cmd58()  spi_sd_getCCS()
+// (In other words, the voltage-ranges are NOT TESTED)
+//If doGetCCS is true, then it will return -1 until the power-up-status bit
+//is no longer "busy" (the CCS bit is invalid until power-up-status is not
+//busy)
+// Thus, allowing-for calling this within a loop.
+//This change, addition of the doGetCCS argument, is unnecessary. It
+//doesn't do anything.
+//RETURNS: -1 if the card is still busy powering-up
+//         0 if the CCS bit is 0 (standard-capacity card)
+//         1 if the CCS bit is 1 (high-capacity card)
+#define DO_GET_CCS   TRUE
+#define DONT_GET_CCS FALSE
+int8_t spi_sd_sendCMD58(uint8_t doGetCCS);
 
 //Note csdv1 is not the same as sd_v1
 static __inline__
@@ -157,7 +168,51 @@ void spi_sd_csdv1_calcBlocksizeBlocks(void)
 static __inline__
 void spi_sd_csdv2_calcBlocksizeBlocks(void)
    __attribute__((__always_inline__));
+
+
+// This is my code-flow... attempting to combine various branch-pieces of
+// Figures 7-1 and 7-2
+//
 // spi_sd_init()
+//  spi_init()
+//  port directions
+//  delay 20ms
+//  toggle the clock several times (transferByte(0xff))
+//  |
+//  send CMD0
+//   repeat until valid R1 response (0x01)
+//  |
+//  send CMD8
+//  |
+//  CommandIsLegal?
+//   |
+//   n--v1finish()
+//   |   58and41(FALSE)
+//   |    sendCMD58(DONT_GET_CCS)
+//   |   /sendEmptyCommand(55)
+//   |   |aCMD41_setHCS(FALSE)
+//   |   \sendCommand(ACMD41)
+//   |   (repeat until initialized)
+//   |
+//   y--v2finish()
+//       58and41(HCS_ENABLED)
+//        sendCMD58(DONT_GET_CCS)
+//       /sendEmptyCommand(55)
+//       |aCMD41_setHCS(HCS_ENABLED)
+//       \sendCommand(ACMD41)
+//       (repeat until initialized)
+//
+//       sendCMD58(DO_GET_CCS)
+//
+//  initSizeSpecs()
+//   high-capacity?
+//    |
+//    n--cv1Calc()
+//    |
+//    y--cv2Calc()
+
+// This flow-chart is old, and a bit over-simplified...
+//    spi_sd_init()
 //      |
 //   cardVersion?
 //    /v1     \v2
@@ -176,6 +231,171 @@ void spi_sd_csdv2_calcBlocksizeBlocks(void)
 //    /          \                  //
 // cv1Calc      cv2Calc
 //   
+
+
+
+// SD Card Physical Layer Specification Version 3.00:
+// Contains two figures for SPI initialization (Figures 7-1 and 7-2).
+// These two figures are basically the same, but with different details
+// Here I try to combine them
+
+
+// Redrawn from Figure 7-1:
+//
+// This whole block is basically nothing more than Power On (see F7-2)
+// .....................................................................
+// .             {In SD Bus mode} ("from any state except inactive")   .
+// .                    |                                              .
+// .                    V                                              .
+// .                  CMD0                                             .
+// . Power On           |                                              .
+// .        \           V                                              .
+// .         ----> {Idle State}    ----> (SD Bus operation modes)      .
+// .                    |                  (irrelevent for SPI)        .
+// .....................................................................
+//                      |
+//                      V
+//                    CMD0 + /CS asserted    (switch to SPI mode)
+//                      |
+//                      V
+//              {SPI Operation Mode}
+//                      |
+//  CMD0                |
+//  (from any state     |
+//   in SPI mode) ----->|
+//                      |    This drawing disregards CMD8-invalid
+//                      |    which indicates the Card Version (1.x vs 2.x)
+//                      |    See figure 7-2.          vvvvvvvvvvvvvvvvvvv
+// .....................|................................................
+// .                    V                                               .
+// .                  CMD8  ("It is mandatory for the host compliant to .
+// . non-supported   /  |     Physical Spec Version 2.00 to send CMD8") .
+// . voltage range `/   |                                               .
+// ................/....|................................................
+//                v     |                                               
+//   {CARD UNUSABLE}    |
+//   {BY THIS HOST}     |
+//             ^        V
+//              \____CMD58 (Read OCR) ("Not Mandatory... it is
+//                   /  |               recommended ... for voltage range")
+//        invalid   /   |
+//        command `/    |
+//                v     |                    / 1: Executing Internal 
+//{NOT SD MEMORY CARD}  |   __              |     Intialization Process
+//            ^         V  V  \             |  2: High Capacity Cards:
+//             \_____ACMD41    |`Card Busy <     A: CMD8 was not issued
+//                      |  \__/             |       Prior to ACMD41
+//                      |                   |    B: ACMD41 was issued with
+//                      |                    \      HCS=0
+// .....................|.................................................
+// .                    V                                                .
+// .                 CMD58 (Get CCS) ("Host shall issue CMD58 [here] to get
+// .                    |              card capacity information (CCS)") .
+// .                    |                                                .
+// .....................|.................................................
+//                      |           CMD58, here, is *not* shown for Ver 1.x
+// ^^^^^^^^^^^^^^^^^^^  |           cards in Figure 7-2.
+// Card Identification  |
+// Mode                 |
+// ^^^^^^^^^^^^^^^^^^^  |
+//______________________|_________________________________________________
+//                      |
+// vvvvvvvvvvvvvvvvvvv  |
+// Data Transfer        |
+// Mode                 |
+// vvvvvvvvvvvvvvvvvvv  V
+
+
+//NOTE: CMD1 should not be used... (see original  Figure 7-1)
+
+
+
+// Redrawn from Figure 7-2: SPI Mode Initialization Flow
+//
+//                  Power On
+//                      |
+//                      V
+//                    CMD0 + /CS asserted    (switch to SPI mode)
+//                      |
+//                      V
+//                    CMD8
+//                   /    \
+// Illegal Command -/      \- Response received without "illegal command"
+//                 /        \
+//                V          V
+// GOTO:      {Ver 1.x}  {Ver 2.x+}
+//
+// (see the appropriate flow-chart continuation, below)
+
+
+//                  {Ver 1.x}
+//                      |
+//                      |
+//                      |                                               
+//   {CARD UNUSABLE}    |
+//   {BY THIS HOST}     |
+//             ^        V
+//              \____CMD58 (Read OCR) ("Not Mandatory... it is
+//                   /  |               recommended ... for voltage range")
+//        invalid   /   |
+//        command `/    |
+//                v     |                    
+//{NOT SD MEMORY CARD}  |   __                  
+//            ^         V  V  \             / Executing Internal     
+//             \_____ACMD41*   |`Card Busy <  Intialization Process   
+//                      |  \__/             \ "Card returns
+//                      |                      in_idle_state=1" WTF?!
+//   "Card returns      |                      
+//    in_idle_state=0" `|   *NOTE: ACMD41's argument, here = 0x0 
+//  THIS CAN"T BE RIGHT |
+//                      V
+//          [ Ver 1.x Standard Capacity SD Card ]
+
+
+
+//                  {Ver 2.x+}
+//                      |
+//                      |
+//                <CMD8 Response>
+//non-supported   /     |
+//voltage range `/      |-Compatible voltage range
+// OR           |       | AND check-pattern correct
+//Check-pattern |       |
+//error         |       |
+//              |       |   THIS SECTION IS IDENTICAL to the {Ver 1.x} 
+//              |       |   flow-chart EXCEPT ACMD41's argument: HCS=1
+//              |       |   (And potential reasons for ACMD41 'busy' )
+// .............|.......|.................................................
+// .            v       |                                                .
+// . {CARD UNUSABLE}    |                                                .
+// . {BY THIS HOST}     |                                                .
+// .           ^        V                                                .
+// .            \____CMD58 (Read OCR) ("Not Mandatory... it is recommended
+// .                 /  |               ... for voltage range")          .
+// .      invalid   /   |                                                .
+// .      command `/    |                                                .
+// .              v     |                                                .
+// . {NOT SD MEM CARD}  |   __                SEE Figure 7-1.            .
+// .          ^         V  V  \             / Executing Internal         .
+// .           \_____ACMD41*   |`Card Busy <  Intialization Process      .
+// .                    |  \__/             \ "Card returns              .
+// .                    |                      in_idle_state=1" WTF?!    .
+// . "Card returns      |                                                .
+// .  in_idle_state=0" `|   *NOTE: ACMD41's argument, here, with HCS = 1 .
+// .THIS CAN"T BE RIGHT |       (THIS host supports High-Capacity cards) .
+// .                    |                                                .
+// .....................|.................................................
+//                      |
+//                    CMD58 (Get CCS)
+//                    /   \
+//            CCS=0 -/     \- CCS=1
+//                  /       \
+//                 v         v
+// [         Ver 2.00+ ]  [ Ver 2.00+              ]
+// [ Standard Capacity ]  [ High/Extended Capacity ]
+//
+
+
 void spi_sd_sendEmptyCommand(uint8_t cmdNum);
 void spi_sd_sendCommand(uint8_t *command, uint8_t length);
 //CAREFUL with this one... see definition
@@ -186,7 +406,7 @@ uint8_t spi_sd_getRemainingResponse(uint8_t *buffer, uint8_t delayBytes,
 //This tests whether there *is* an R1 response, not whether the response is
 // "Valid command" (right?)
 //R1 responses always have 0 in bit 7
-#define r1ResponseValid(response)   (!getbit(7, (response)))
+#define r1ResponseVerify(response)   (!getbit(7, (response)))
 
 #define r1CommandIsLegal(response) \
                (!getbit(R1_INVALID_COMMAND, (response)))
@@ -332,7 +552,7 @@ static __inline__ int32_t spi_sd_readU16(void)
 // THESE BIT VALUES ARE FOR CMD8, NOT the response
 // ffsample/avr/mmc.c says it's 0x87 (which is what I get)
 // 0x48 = Transmission bit: 0x40 | CMD8: 0x08
-// 0xAA is arbitrary (?)
+// 0xAA is arbitrary (?) Check Pattern
 // 0x01 = voltage 2.7-3.6
 uint8_t spi_sd_CMD8[] = {0x48, 0, 0, 1, 0xAA, CRC_TO_BE_CALCD}; //5}; //0x0f};
 //NOTE: Illegal Commands apparently don't check CRC...
@@ -502,7 +722,8 @@ void spi_sd_init(void)
          haltError(0x77);
    }
 
-   //It should respond with 0x01, to indicate that it's in the idle state
+   //We get here when it's responded with 0x01,
+   // to indicate that it's in the idle state
 
 #warning "TBR:"
    clrpinPORT(SD_CS_pin, SD_CS_PORT);
@@ -515,7 +736,7 @@ void spi_sd_init(void)
    cmd8_responseBuffer[0]=spi_sd_getR1response(FALSE);
 
    //If CMD8 is received and processed by a card supporting it,
-   // it repies with an R7 response, which is an R1 *immediately* followed
+   // it replies with an R7 response, which is an R1 *immediately* followed
    // by four additional bytes (immediacy is assumed by Figure 7-12)
    //IMMEDIACY ASSUMED:  ------------v  v----Should be 4???
    //spi_sd_getRemainingResponse(NULL, 0, 0);
@@ -545,7 +766,7 @@ void spi_sd_init(void)
    // A LOT OF ASSUMPTIONS HERE:  TODO
    //       NOT CHECKING other R1 error bits!
    //       NOT CHECKING R7 response is as expected
-   if(r1ResponseValid(cmd8_responseBuffer[0]))
+   if(r1ResponseVerify(cmd8_responseBuffer[0]))
    {
       //if(!getbit(R1_INVALID_COMMAND, (cmd8_responseBuffer[0])))
       if(r1CommandIsLegal(cmd8_responseBuffer[0]))
@@ -579,8 +800,20 @@ void spi_sd_v1_finishInit(void)
 void spi_sd_v2_finishInit(void)
 {
    spi_sd_58andA41(HCS_ENABLED);
+
+   int8_t ccsVal;
+
+   while( 0 > (ccsVal = spi_sd_sendCMD58(DO_GET_CCS)) ) {}   
+
+   sd_hc = ccsVal; //spi_sd_sendCMD58(DO_GET_CCS);
    
-   sd_hc = spi_sd_getCCS();
+#define PRINT_SD_HC  TRUE
+#if(defined(PRINT_SD_HC) && PRINT_SD_HC)
+   sprintf_P(stringBuffer, PSTR("sd_hc=%"PRIu8"\n\r"), sd_hc);
+   printStringBuff();
+#endif   
+
+
 
    //At this point, we've completed Figure 7-2 "SPI Mode Initialization"
    // but still need to determine card size, etc.
@@ -592,8 +825,20 @@ void spi_sd_v2_finishInit(void)
 // and might in fact return different values each time...
 // (depending on the init-state)
 //RETURNS: True if the card's CCS bit is 1 (high/extended capacity card)
-// Also called as spi_sd_cmd58()
-uint8_t spi_sd_getCCS(void)
+//         WILL RETURN -1 if the card's power-up status is busy
+//                        so this can be called in a loop
+//  NOTE: "power-up status = Busy" may have less to do with loopability
+//  than originally thought. It has been reimplemented here, but when it
+//  was called in a loop in v63 at the *first* call to CMD58, it got stuck
+//  in the loop. SO: power-up status may have more to do with the position
+//  in the initialization-sequence, in which case looping may get stuck
+//  permanently... Regardless, as/of v62.5 that particular loop was
+//  removed, and the second call to sendCMD58 (which only occurs for v2+
+//  cards) is still looped, but doesn't seem to be loop*ing*
+//  TODO: this might benefit from looking into this bit's purpose further.
+//        NOTE2: It doesn't seem to be very-well documented, nor does it
+//        seem to be tested in the SPI Physical Spec's SPI flow-charts...
+int8_t spi_sd_sendCMD58(uint8_t doGetCCS)
 {
    uint8_t cmd58_response[7];
 
@@ -608,13 +853,118 @@ uint8_t spi_sd_getCCS(void)
 
    spi_sd_getRemainingResponse(&(cmd58_response[1]), 0, 4);
 
+   //notes a/o v62.5 (From v63):
+   //The remaining response is the Operating Conditions Register (OCR)
+   //(32bits)
+   // which defines CCS and the voltage-range. It also indicates the
+   // power-up status, and should probably be handled slightly differently,
+   // in order to verify this bit first.
 
-   if(r1ResponseValid(cmd58_response[0]))
+   //NOTE: Section 4.9.4 is NOT relevent for SPI
+   //      see section 7.3.1.3/7.3.2.4:
+   //
+//7.3.1.3
+//   CMD58: READ_OCR
+
+// bit:  39 .... 32 31 ....................... 0
+//      |    R1    |       32bit OCR            |
+// Byte: \    0   / \  1  /\  2  /\  3  /\  4  /   (cmd58_response[Byte])
+
+//
+//
+//p92 (104) Section 5.1:
+//   OCR bit position   OCR Fields Definition
+// Byte 4
+//   0-3      0-3       reserved                              \        //
+//   4        4         reserved                              .
+//   5        5         reserved                              .
+//   6        6         reserved                              .
+//   7        7         Reserved for Low Voltage Range        .
+// Byte 3                                                     .
+//   8        0         reserved                              .
+//   9        1         reserved                              .
+//   10       2         reserved                              .
+//   11       3         reserved                              .
+//   12       4         reserved                              . VDD
+//   13       5         reserved                              . Voltage
+//   14       6         reserved                              . Window
+//   15       7         2.7-2.8                               .
+// Byte 2                                                     . HIGH=
+//   16       0         2.8-2.9                               . Supported
+//   17       1         2.9-3.0                               .
+//   18       2         3.0-3.1                               .
+//   19       3         3.1-3.2                               .
+//   20       4         3.2-3.3                               .
+//   21       5         3.3-3.4                               .
+//   22       6         3.4-3.5                               .
+//   23       7         3.5-3.6                               /
+// Byte 1
+//   24       0         Switching to 1.8V Accepted (S18A)
+//   25-29    1-5       reserved
+//   30       6         Card Capacity Status (CCS) VALID ONLY when b31=1
+//   31       7         Card power up status bit (busy) (LOW = powering up)
+//
+// CCS (Bit30): 0 indicates a standard-capacity card. 1 = High Capacity/XC
+
+
+
+#define PRINT_OCR TRUE
+#if(defined(PRINT_OCR) && PRINT_OCR)
+   static char oldResponse[7];
+   uint8_t responseDiffers = FALSE;
+
+   uint8_t i;
+   for(i=0; i<7; i++)
+   {
+      if( oldResponse[i] != cmd58_response[i] )
+         responseDiffers = TRUE;
+
+      oldResponse[i] = cmd58_response[i];
+   }
+
+   if(responseDiffers)
+   {
+      //Both cards (2GB and 8GB) are returning 0x00 ff 80 00
+      //This is the entire list of operating-voltages
+      // BUT NOT showing that the power-up status is correct
+      // and therefore NOT showing the CCS bit.
+      sprintf_P(stringBuffer, PSTR("OCR: 0x%"PRIx8" %"PRIx8" %"PRIx8" %"
+                                       PRIx8"\n\r"),
+                           cmd58_response[1], cmd58_response[2],
+                           cmd58_response[3], cmd58_response[4]);
+      printStringBuff();
+   }
+   else
+   {
+      static uint8_t count = '0';
+      printByte(count);
+      printByte(0x08); //backspace
+      count++;
+      if(count > '9')
+         count = '0';
+   }
+#endif
+
+
+
+   if(r1ResponseVerify(cmd58_response[0]))
    {
       if(r1CommandIsLegal(cmd58_response[0]))
       {
-         //CCS is in OCR30 (bit 7 of the r3 response, or the second byte)
-         return getbit(7, cmd58_response[1]);
+         //CCS is in OCR30 (bit 6 of the r3 response, in byte 1)
+         //CCS is only valid when the power-up-status bit is 1...
+         // Odd note: previous versions to v62.5/v63 returned bit 7
+         // (power-up status) instead of bit 6 (CCS) *as the CCS* by
+         //  mistake.
+         // So it should've (and did) only work with SD-HC cards
+
+         //v63-1 and v62.5-som'n implemented returning -1
+         //Return -1 if the power-up-status is 'busy'
+         if(!getbit(7, cmd58_response[1]))
+            return -1;
+         //Return the CCS (only valid if bit 7 is 1)
+         else  
+            return getbit(6, cmd58_response[1]);
       }
       else //Communication error?
          haltError(0x03);
@@ -623,7 +973,8 @@ uint8_t spi_sd_getCCS(void)
       haltError(0x03);
 
    //Shouldn't get here, but the optimizer might not see it that way...
-   return 0;
+   //return 0 has been changed to return -1 a/o v64. It shouldn't matter...
+   return -1;
 }
 
 
@@ -640,15 +991,22 @@ void spi_sd_58andA41(uint8_t hcsEnabled)
 
    //See SD Spec Physical Layer 3 Final... Figure 7-2
 /* CMD58 is Not mandatory... only necessary for voltage range...
-   see spi_sd_cmd58()->getCCS()
+   see spi_sd_sendCMD58getCCS()->getCCS()
 */
    //Was this re: cmd58????
    /* This might only be necessary for detecting a card type...
       and setting operating conditions different than default
       NO: it's used on newer cards, CMD1 was used prior...
    */
-#warning "CMD58 was ignored for v1 cards... now it's implemented... they need to be retested"
-   spi_sd_cmd58();
+//This should be taken-care-of a/o v62.5/63, and certainly by v64...
+//#warning "CMD58 was ignored for v1 cards... now it's implemented... they need to be retested"
+   
+   //HERE we're ONLY reading CMD58 to get the voltage-range
+   // BUT the voltage-range is NOT YET TESTED
+   // AND the voltage-range is available regardless of whether the
+   // power-up-status bit is 1 or 0, so there's no need to wait for a
+   // non-negative return-value.
+   spi_sd_sendCMD58(DONT_GET_CCS);
 
    //Not sure why to initialize this to 0xff, but it was that way before,
    //as well (before moving to 58andA41())
@@ -662,7 +1020,7 @@ void spi_sd_58andA41(uint8_t hcsEnabled)
 
    //Try ACMD41 until it's no longer idle...
    // ACMDs are preceded with CMD55 (not shown in flow-chart, de-facto)
-   while((!r1ResponseValid(r1Response) || getbit(R1_IDLE, r1Response)))
+   while((!r1ResponseVerify(r1Response) || getbit(R1_IDLE, r1Response)))
 //       && (attempts < 100))
    {  
 //    attempts++;
@@ -1056,13 +1414,21 @@ uint8_t spi_sd_getR1response(uint8_t getRemaining)
    }
 
 
+#define PRINT_R1 TRUE
 #if(defined(PRINT_R1) && PRINT_R1)
-   sprintf_P(stringBuffer, PSTR("R1:0x%"PRIx8"\n\r"),
+#define PRINT_R1_NON_IDLE TRUE
+#if(defined(PRINT_R1_NON_IDLE) && PRINT_R1_NON_IDLE)
+   if(r1Response != 0x01)
+#endif
+   {
+      sprintf_P(stringBuffer, PSTR("R1:0x%"PRIx8"\n\r"),
                                        r1Response);
-   printStringBuff();
+      printStringBuff();
+   }
 #endif
 
 
+   //a/o v63: the "CMD8" example is no longer relevent.
    //This should only be true when we're not expecting any...
    // e.g. CMD8, since we haven't yet implemented a host for devices
    // which support it... this'll just clear the response out, in 
