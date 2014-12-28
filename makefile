@@ -44,7 +44,7 @@ CFLAGS += -D'_PROJINFO_OVERRIDE_'
 else
 ifeq ($(MCU), atmega328p)
 #For atmega328p ONLY:
-# Use the crystal-oscillator (16MHz)
+# Use the external crystal (usually 16MHz or 12MHz)
 FUSEL = 0xff
 
 # EESAVE is not yet enabled for the atmega328p

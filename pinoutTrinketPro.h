@@ -208,14 +208,38 @@
 // Most devices don't yet have it implemented, so must put actual pin/port
 // names here (The commented pin/port names are from another device!)
 //Likewise: If you decide to use different pins than those on the
-// programming-header, type them here (e.g. the FTDI header?):
+// programming-header, type them here 
+// (e.g. the FTDI header? CURRENTLY NOT AN OPTION, the USART is used by SPI
+//  for the SD-Card and the Nokia LCD, if attached)
 
-//The polled-uart (PUART) is a 9600bps UART at 3.3V TTL levels
+//The polled-uart (PUART) is a 9600bps bit-banged UART at 3.3V TTL levels
 // To connect to an RS-232 port, use an approprate level-shifter
-// To connect to a USB to TTL-Serial converter, make sure it outputs 3.3V
-//  TTL signals.
+// To connect to a USB to TTL-Serial converter make sure it supports 3.3V
+//  TTL signals. 
 //pRx0 and pTx0 are relative to the microcontroller
 // (so connect pRx0 to the PC's Tx, and pTx0 to the PC's Rx)
+
+
+
+//CURRENTLY only the Tx0 pin is used, Rx0 can be left unwired.
+//
+//  PB3/pTx0 >----------------> RxD on a TTL-serial to USB adapter
+//                              (This pin could most-likely be connected 
+//                               to an FTDI adapter)
+//
+// OR, via TTL-to-RS-232 level-shifter:
+//
+//               e.g. Max232
+//  PB3/pTx0 >--------|>o-------> RxD on an RS-232 port.
+//
+//
+//
+// MAKE SURE there's a shared-ground between the devices!
+// (Most-likely V+ needn't be connected between audioThing and the PC's
+//  serial-adapter; a USB-to-TTL-serial adapter will most-likely get its
+//  power from USB, and audioThing is already powered).
+
+
 
 //These pins can be relocated anywhere (they needn't be shared with the
 //programming-header)
@@ -280,11 +304,18 @@
 // The SD-Card should be disabled during Reset and BootLoading
 // (The AVR's pull-ups are not enabled during Reset)
 //
+// This pinout is for a full-size SD-Card. The easiest method for wiring is
+// to use a microSD card, with a full-size SD-Card adapter, and solder
+// directly to the adapter's pins. Note to use a low temperature
+// soldering-iron, and/or work as quickly as possible, so as not to melt 
+// the plastic. Some plastic-meltage is fine, (if a bit smelly) 
+// but you don't want to short anything out...
+//
 //      +3V3      +3V3
 //        ^         ^   .=======================
 //        |         |   | | N/C  ||
 //        |         |   | |------||
-// PD0 <--|------------ | | MISO ||
+// PD0 <--|------------ | | MISO ||      Full-Size
 //        |         |   |========||      SD-Card
 //        |      .----- | | GND  ||      SPI pinout
 //        |      |  |   |========||      (SD-Card is the 'Slave' device)
@@ -371,10 +402,18 @@
 
 
 
-//BUTTON_PIN on PA6/AIN0, when used...
+//BUTTON_PIN on PD6, when used...
 //This pin can be relocated anywhere. Just modify this definition and wire
 //as appropriate.
-#define BUTTON_PIN      PD6
+//'BUTTON_PIN' IS POORLY-NAMED!
+// It should be ANABUTTONS_PIN
+// This is *not* the pushbutton shared with the heartbeat
+// The *actual* definition is in 'makefile':
+// e.g.:
+//ifeq ($(MCU), atmega328p)
+//CFLAGS += -D'ANABUTTONS_PIN=PD6'
+//CFLAGS += -D'ANABUTTONS_PORT=PORTD'
+//endif
 
 
 
@@ -470,7 +509,7 @@
 // ***** anaButtons / Nokia Keypad *****
 //
 //  THIS WILL LIKELY NOT WORK without a bit of hacking and experimentation,
-//  which is not well-documented.
+//  which is not yet well-documented.
 //
 //  AS-IS: Just wire-up PD6 through a 0.1uF capacitor to ground.
 //

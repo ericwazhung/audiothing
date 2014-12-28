@@ -78,11 +78,11 @@
 // PRG_MISO          ....................................      (see heart)
 // PRG_SCK           ....................................      (see puart)
 //
-// Button (anaButtons: AIN0? Or digital... Using digital, can be moved)
-//        (AIN1/2?) ......................(relatively arbitrary AIN0)= PD6
+// anaButtons Matrix: (AIN0? Or digital... Using digital, can be moved)
+//        (AIN1/2?) ......(relatively arbitrary. AINn is unnecessary)= PD6
 //
-// Audio In (ADC) ...................................(arbitrary ADC0)= PC0
-// Audio Out ? (PWM) ............................(arbitrary PWM OC2B)= PD3
+// Audio In (ADC) ..................................(arbitrary: ADC0)= PC0
+// Audio Out ? (PWM) ...........................(arbitrary PWM: OC2B)= PD3
 //
 
 

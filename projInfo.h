@@ -9,12 +9,12 @@
    header[] = "";
 #elif (defined(PROJINFO_SHORT) && PROJINFO_SHORT)
  const uint8_t __attribute__ ((progmem)) \
-   header[] = "audioThing64 2014-12-27 07:41:54";
+   header[] = "audioThing64 2014-12-28 01:35:25";
 #else //projInfo Not Shortened nor overridden
  const uint8_t __attribute__ ((progmem)) \
    header0[] = " /home/meh/_avrProjects/audioThing/64-merging63notesWith62.5 ";
  const uint8_t __attribute__ ((progmem)) \
-   header1[] = " Sat Dec 27 07:41:54 PST 2014 ";
+   header1[] = " Sun Dec 28 01:35:25 PST 2014 ";
  const uint8_t __attribute__ ((progmem)) \
    headerOpt[] = " WDT_DIS=TRUE ";
 #endif

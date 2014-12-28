@@ -1549,7 +1549,7 @@ void memoUpdate(uint8_t memoPressed)
 #if(!defined(PRINT_MEMOMINS_ONLY) || !PRINT_MEMOMINS_ONLY)
                      "chu%"PRIu8"ctm%"PRIu8
 #endif
-                     ),
+                     "\n\r"),
                   memoMinutes
 #if(!defined(PRINT_MEMOMINS_ONLY) || !PRINT_MEMOMINS_ONLY)
                   , memoChunks, chunksToMark
