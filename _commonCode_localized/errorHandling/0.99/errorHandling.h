@@ -22,21 +22,21 @@
 
 
 #if !(__ERR_DISABLE__)
- #define ERR_HANDLE(function)          \
- {                               \
-   if(uint8_t err_val = (function))    \
-      return err_val;                  \
+ #define ERR_HANDLE(function)				\
+ {											\
+	if(uint8_t err_val = (function))		\
+		return err_val;						\
  }
 
  #define ERR_HANDLE_NUM(num, function)    \
  {                                        \
-   uint8_t err_val = (function);          \
-   if(err_val)                            \
-      return ((num<<4) | err_val);        \
+	uint8_t err_val = (function);          \
+	if(err_val)                            \
+		return ((num<<4) | err_val);        \
  }
 #else
- #define ERR_HANDLE(function)       (function)
- #define ERR_HANDLE_NUM(num, function) (function)
+ #define ERR_HANDLE(function)			(function)
+ #define ERR_HANDLE_NUM(num, function)	(function)
 #endif
 
 //Problem 1:
@@ -48,7 +48,7 @@
 // if(test)
 // {
 //   if((fn()))
-//    return 2;
+//		return 2;
 // }; <<<<-----
 // else...
 //BUT:
@@ -134,7 +134,7 @@
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/errorHandling/0.99/errorHandling.h
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/errorHandling/0.99/errorHandling.h
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

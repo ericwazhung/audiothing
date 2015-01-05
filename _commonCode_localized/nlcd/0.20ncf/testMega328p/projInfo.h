@@ -95,7 +95,7 @@
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/nlcd/0.20ncf/testMega328p/projInfo.h
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/nlcd/0.20ncf/testMega328p/projInfo.h
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

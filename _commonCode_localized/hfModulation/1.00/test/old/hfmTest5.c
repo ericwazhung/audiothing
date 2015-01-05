@@ -13,44 +13,44 @@
 
 int main(void)
 {
-   hfm_t hfmThing;
+	hfm_t hfmThing;
 
-   hfm_setup(&hfmThing, 30, 50);
+	hfm_setup(&hfmThing, 30, 50);
 
-   int i;
+	int i;
 
-   printf("Go!\n");
-   printf("\n");
+	printf("Go!\n");
+	printf("\n");
 
-   //int k;
-   //for(k=1; k>=-2; k-=2)
-   //{
-   int j;
-   for(j=0; j<=11; j++)
-   {
-      int k = (j > 5) ? 11-j : j;
+	//int k;
+	//for(k=1; k>=-2; k-=2)
+	//{
+	int j;
+	for(j=0; j<=11; j++)
+	{
+		int k = (j > 5) ? 11-j : j;
 
-      printf("%d/%d:", k, 5);
+		printf("%d/%d:", k, 5);
 
-      hfm_setup(&hfmThing, k, 5);
+		hfm_setup(&hfmThing, k, 5);
 
-   for(i=0; i<=73; i++)
-   {
-      //int output = hfm_nextOutput(&hfmThing);
+	for(i=0; i<=73; i++)
+	{
+		//int output = hfm_nextOutput(&hfmThing);
 
-      //if(output)
-      // printf("#\n");
-      //else
-      // printf("\n");
+		//if(output)
+		//	printf("#\n");
+		//else
+		//	printf("\n");
 
-      //hfm_setPower&hfmThing, i);
-      printf("%c", (hfm_nextOutput(&hfmThing) ? '#' : ' '));
-   }
-      printf("\n");
-   }
-   //}
+		//hfm_setPower&hfmThing, i);
+		printf("%c", (hfm_nextOutput(&hfmThing) ? '#' : ' '));
+	}
+		printf("\n");
+	}
+	//}
 
-   printf("\n");
+	printf("\n");
 }
 /* mehPL:
  *    I would love to believe in a world where licensing shouldn't be
@@ -113,7 +113,7 @@ int main(void)
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/hfModulation/1.00/test/old/hfmTest5.c
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/hfModulation/1.00/test/old/hfmTest5.c
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

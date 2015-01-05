@@ -26,26 +26,26 @@
 //                  Promotion issues may occur, watch casts.
 //                  See cTools/unsignedSubtraction.c
 //                             next=5, get=7, last=6
-//             Create "wrappableTimeCompare()" macro?
+//					Create "wrappableTimeCompare()" macro?
 //             Also usable in dms, etc...
 //0.30-6 adding TCNT_UPDATE_ONCE_PER_OVERFLOW:
-//       and tcnter_overflowUpdate()
+//			and tcnter_overflowUpdate()
 //       ...
 //       LCDdirectLVDS77 attempts to call tcnter_update() only once per
-//       timer-overflow (in the interrupt)
+//			timer-overflow (in the interrupt)
 //       So it's quite likely that each tcnter_update() occurs at or around
 //       the same TCNT value. (which might explain why the heart isn't
 //       fading).
 //0.30-5 Checking if TCNTER_MS is <= 0
 //0.30-4 TCNTER_INITS_TIMER is configured by default IF timerCommon is not
-//       included in the makefile before tcnter is...
+//			included in the makefile before tcnter is...
 //       This is a bit hokey... (what if timerCommon is included *after*?)
 //       TODO: Figure this out.
 //0.30-3 PWM161 wasn't handled...
 //0.30-2 8V2, not V28
 //       Adding tcnter_wait(tcnts)
 //0.30-1 moving TCNTER_AVRTIMER_CLKDIV to tcnter.h so it can be used by
-//       e.g. heartbeat to calculate timings...
+//			e.g. heartbeat to calculate timings...
 //0.30  tcnter on an AVR will most-likely use a timer, e.g. timer0
 //      so should set some defaults, not have to explicitly include
 //      timerCommon in the project's makefile, etc.
@@ -56,7 +56,7 @@
 //0.20-10 Replacing tests' makefiles with those that refer to tcnter
 //        properly... a/o/ala anaButtons 0.50
 //0.20-9 adding this TODO: Apparently math doesn't work with
-//       tcnter_source_t = uint16_t???
+//			tcnter_source_t = uint16_t???
 //       And looking into it...
 //0.20-8 a/o polled_uar/0.40/avrTest...
 //       adding some Usage notes...
@@ -74,7 +74,7 @@
 //       e.g. TCNTER OVERFLOW VAL = _DMS_OCR_VAL_ requires dmsTimer.h
 //       so CFLAGS+=-D'_SPECIALHEADER_FOR_TCNTER_=_DMSTIMER_HEADER_'
 //0.20-1 inlining...
-//          SEE NOTES in .c before using inlining
+//				SEE NOTES in .c before using inlining
 //          and experiment and stuff
 //0.20 TCNTER_SOURCE_MAX renamed to TCNTER_SOURCE_OVERFLOW_VAL
 //0.10-3 fixing names in test (to match 0.10-1 changes)
@@ -89,12 +89,12 @@
 //   Doesn't use interrupts (no lag-times, etc.)
 //0.10-4 
 //       Looking into running-tcnt
-//          myTcnter and nextTcnter now implemented
+//				myTcnter and nextTcnter now implemented
 //          Fixes potential issues with multi-TCNTs per update
 //            Aiding cumulative-error fixing
 //            (Next time was dependent on the time of the current update)
 //0.10-3 test app using makefile...
-//       cleanup
+//			cleanup
 //0.10-1 More mods, test app
 //0.10 First Version stolen and modified heavily from usi_uart 0.22-3
 
@@ -123,7 +123,7 @@
  //Moved here so it can be referenced elsewhere for determining timings...
  #ifndef TCNTER_AVRTIMER_CLKDIV
   #ifdef __AVR_AT90PWM161__
-   // This is the only option on the PWM161
+	// This is the only option on the PWM161
    #define TCNTER_AVRTIMER_CLKDIV CLKDIV1
   #else
    //This choice is arbitrary...
@@ -147,16 +147,16 @@
 
 
 #if((TCNTS_PER_SECOND/1000) > 0)
- #define TCNTS_PER_MS      (TCNTS_PER_SECOND/1000)
- #define TCNTER_MS         (TCNTS_PER_MS)
+ #define TCNTS_PER_MS		(TCNTS_PER_SECOND/1000)
+ #define TCNTER_MS			(TCNTS_PER_MS)
 #else
  #warning "TCNTS_PER_MS <= 0, so TCNTER_MS is disabled"
 #endif
 
-#define TCNTER_SEC         (TCNTS_PER_SECOND)
+#define TCNTER_SEC			(TCNTS_PER_SECOND)
 
 #if((TCNTS_PER_SECOND/10000) > 0)
- #define TCNTER_DMS        (TCNTS_PER_SECOND/10000)
+ #define TCNTER_DMS			(TCNTS_PER_SECOND/10000)
 #else
  #warning "TCNTER_DMS <= 0, so disabled"
 #endif
@@ -178,7 +178,7 @@
 
 #ifndef tcnter_source_t
  #ifdef __AVR_AT90PWM161__
-  #define tcnter_source_t  uint16_t
+  #define tcnter_source_t	uint16_t
  #else
   #define tcnter_source_t   uint8_t
  #endif
@@ -217,7 +217,7 @@ void tcnter_init(void);
 void tcnter_update(void);
 
 #if(defined(TCNT_UPDATE_ONCE_PER_OVERFLOW) && \
-            TCNT_UPDATE_ONCE_PER_OVERFLOW)
+		      TCNT_UPDATE_ONCE_PER_OVERFLOW)
 void tcnter_overflowUpdate(void);
 #endif
 
@@ -244,17 +244,17 @@ extern volatile tcnter_t tcnter_myTcnter;
 
 static __inline__
 uint8_t tcnter_isItTime8V2(tcnter8_t *startTime, tcnter8_t deltaTime,
-                              uint8_t dontAllowCumulation)
+										uint8_t dontAllowCumulation)
 {
    tcnter8_t thisDelta = (uint8_t)tcnter_myTcnter - (uint8_t)(*startTime);
 
    if(thisDelta >= deltaTime)
    {
-      if(dontAllowCumulation)
-         *startTime = (uint8_t)tcnter_myTcnter - (thisDelta - deltaTime);
+		if(dontAllowCumulation)
+      	*startTime = (uint8_t)tcnter_myTcnter - (thisDelta - deltaTime);
       else
-         *startTime = (uint8_t)tcnter_myTcnter;
-      return TRUE;
+			*startTime = (uint8_t)tcnter_myTcnter;
+		return TRUE;
    }
    else
       return FALSE;
@@ -262,16 +262,16 @@ uint8_t tcnter_isItTime8V2(tcnter8_t *startTime, tcnter8_t deltaTime,
 
 static __inline__
 uint8_t tcnter_isItTimeV2(tcnter_t *startTime, tcnter_t deltaTime,
-                              uint8_t dontAllowCumulation)
+										uint8_t dontAllowCumulation)
 {
    tcnter_t thisDelta = tcnter_myTcnter - *startTime;
 
    if(thisDelta >= deltaTime)
    {
-      if(dontAllowCumulation)
-         *startTime = tcnter_myTcnter - (thisDelta - deltaTime);
+		if(dontAllowCumulation)
+      	*startTime = tcnter_myTcnter - (thisDelta - deltaTime);
       else
-         *startTime = tcnter_myTcnter;
+			*startTime = tcnter_myTcnter;
       return TRUE;
    }
    else
@@ -313,11 +313,11 @@ uint8_t tcnter_isItTimeV2(tcnter_t *startTime, tcnter_t deltaTime,
 // init();
 // while(1)
 // {
-//    update();
+//		update();
 //    ...
-//    if(tcnter_get() >= nextTime)
-//       nextTime += delay;
-//       ...
+//		if(tcnter_get() >= nextTime)
+//			nextTime += delay;
+//			...
 // }
 //
 //  This should probably be changed to be #defined application-specifically
@@ -385,7 +385,7 @@ uint8_t tcnter_isItTimeV2(tcnter_t *startTime, tcnter_t deltaTime,
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/tcnter/0.30/tcnter.h
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/tcnter/0.30/tcnter.h
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

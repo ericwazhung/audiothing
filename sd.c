@@ -8,6 +8,8 @@
 
 
 
+
+
 #include "sd.h"
 
 
@@ -1697,7 +1699,7 @@ uint32_t extractBitsFromU8Array(uint8_t highBit, uint8_t lowBit,
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/sd.c
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/sd.c
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

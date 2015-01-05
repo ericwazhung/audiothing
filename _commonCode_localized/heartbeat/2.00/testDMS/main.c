@@ -11,12 +11,12 @@
 void main(void)
 {
 
-   heart_init();
+	heart_init();
 
-   while(1)
-   {
-      heart_update();
-   }
+	while(1)
+	{
+		heart_update();
+	}
 }
 
 /* mehPL:
@@ -80,7 +80,7 @@ void main(void)
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/heartbeat/2.00/testDMS/main.c
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/heartbeat/2.00/testDMS/main.c
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

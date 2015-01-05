@@ -8,6 +8,8 @@
 #
 #
 #
+#
+#
 TARGET = audioThing
 
 #MCU = attiny861
@@ -131,8 +133,8 @@ OSCCAL_SET = FALSE
 # These are the paths to the main (shared) code...
 # They might be overridden in the block below (if using Local)
 # (Basically, if you're not me, then this WILL be overridden below)
-COMREL = ../../..
-COMDIR = $(COMREL)/_commonCode
+CENTRAL_COMREL = ../../..
+CENTRAL_COMDIR = $(COMREL)/_commonCode
 
 
 
@@ -146,7 +148,7 @@ COMDIR = $(COMREL)/_commonCode
 #   to copy all used commonCode to this subdirectory                     #
 #   We can also use 'make LOCAL=TRUE ...' to build from that code,       #
 #     rather than that in _commonCode                                    #
-LOCAL_COM_DIR = _commonCode_localized
+LOCAL_COMDIR = _commonCode_localized
 #                                                                        #
 #                                                                        #
 # If use_LocalCommonCode.mk exists and contains "LOCAL=1"                #
@@ -169,7 +171,10 @@ LOCAL_MK = __use_Local_CommonCode.mk
 # OVERRIDE the main one...                                               #
 ifeq ($(LOCAL), 1)
 COMREL = ./
-COMDIR = $(LOCAL_COM_DIR)
+COMDIR = $(LOCAL_COMDIR)
+else
+COMREL = $(CENTRAL_COMREL)
+COMDIR = $(CENTRAL_COMDIR)
 endif
 #                                                                        #
 ################# TO HERE ################################################
@@ -615,7 +620,7 @@ COM_HEADERS += $(STRINGIFY_HDR)
 CFLAGS += -D'_STRINGIFY_HEADER_="$(STRINGIFY_HDR)/stringify.h"'
 
 
-include $(COMDIR)/_make/reallyCommon2.mk
+include $(COMDIR)/_make/reallyCommon3.mk
 
 
 #/* mehPL:
@@ -679,7 +684,7 @@ include $(COMDIR)/_make/reallyCommon2.mk
 # *    and add a link at the pages above.
 # *
 # * This license added to the original file located at:
-# * /home/meh/_avrProjects/audioThing/57-heart2/makefile
+# * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/makefile
 # *
 # *    (Wow, that's a lot longer than I'd hoped).
 # *

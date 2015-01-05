@@ -29,8 +29,8 @@
 #define Rx0PORT   PORTB
 
 //Making it more pin-compatible with sdramThing3.0...
-#define Tx0pin    PB0      //MOSI
-#define Tx0PORT   PORTB
+#define Tx0pin		PB0		//MOSI
+#define Tx0PORT	PORTB
 
 
 //These are no longer valid a/o anaDigi... and it's in the makefile anyhow
@@ -43,7 +43,7 @@
 //On the 8515 this is PB3...
 // Actually, these need to be in the makefile...
 //#define ANABUTTONS_PIN PB3
-//#define ANABUTTONS_PORT  PORTB
+//#define ANABUTTONS_PORT	PORTB
 
 
 
@@ -110,7 +110,7 @@
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/anaButtons/0.50/testTiny861+NonBlocking/pinout.h
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/anaButtons/0.50/testTiny861+NonBlocking/pinout.h
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

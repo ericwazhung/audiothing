@@ -60,17 +60,17 @@
 
 //Left in main...
 //#define BUTTON_IN_SAMPLE TRUE
-//#define TESTING_ANACOMP  TRUE
+//#define TESTING_ANACOMP	TRUE
 
 
 //Connecting the Button/DAC array to AIN0 (PA6) (negative input)
 // AIN1 is PA5 (positive input) tied to a voltage-divider @ VCC/2
-//#define BUTTON_PIN PA6
+//#define BUTTON_PIN	PA6
 
 
 
 // Kinda hokey, just a number of loops...
-//#define CHARGE_TIME   0xf0
+//#define CHARGE_TIME	0xf0
 
 uint8_t buttonPressed = FALSE;
 
@@ -78,15 +78,15 @@ uint8_t newCompTime = FALSE;
 tcnter_t compTime = 0;
 
 /*
-#define NO_B            0
-#define VOL_PLUS_B      1
-#define VOL_MINUS_B     2
-#define PLUS_B          3
-#define MINUS_B         4
-#define PLAY_PAUSE_B    5
-#define STOP_B          6
-#define FWD_B           7
-#define REV_B           8
+#define NO_B				0
+#define VOL_PLUS_B		1
+#define VOL_MINUS_B		2
+#define PLUS_B				3
+#define MINUS_B			4
+#define PLAY_PAUSE_B		5
+#define STOP_B				6
+#define FWD_B				7
+#define REV_B				8
 */
 
 // This isn't necessary...
@@ -96,69 +96,69 @@ tcnter_t compTime = 0;
 // However, it's NOT smart enough not to give warnings
 //  e.g. "something's static, but in an inline function..."
 #if((defined(BUTTON_IN_SAMPLE) && BUTTON_IN_SAMPLE) \
-      || (defined(TESTING_ANACOMP) && TESTING_ANACOMP) \
-      || (defined(NKP_ANACOMP_TESTING) && NKP_ANACOMP_TESTING))
+		|| (defined(TESTING_ANACOMP) && TESTING_ANACOMP) \
+		|| (defined(NKP_ANACOMP_TESTING) && NKP_ANACOMP_TESTING))
 static __inline__ uint8_t anaComp_getButton(void)
 {
-   if(!newCompTime)
-      return NO_B;
+	if(!newCompTime)
+		return NO_B;
 
-   tcnter_t t = compTime;
-   newCompTime = FALSE;
+	tcnter_t t = compTime;
+	newCompTime = FALSE;
 
-   if( (t>230) )
-      return NO_B;
-   //+ ~216-221 TCNTs
-   else if( (t>200) ) //&& (t<230) )
-      return PLUS_B;
-   //Vol+ ~180-182 TCNTs
-   else if( (t>170) ) //&& (t<190) )
-      return VOL_PLUS_B;
-   //Vol- ~152-156 TCNTs
-   else if( (t>140) ) // && (t<170) )
-      return VOL_MINUS_B;
-   //Stop ~ 128-133
-   else if( (t>120) ) //&& (t<140) )
-      return STOP_B;
-   //- ~95-97
-   else if( (t>90) ) // && (t<100) )
-      return MINUS_B;
-   //FWD ~68-71
-   else if( (t>65) ) // && (t<75) )
-      return FWD_B;
+	if( (t>230) )
+		return NO_B;
+	//+ ~216-221 TCNTs
+	else if( (t>200) ) //&& (t<230) )
+		return PLUS_B;
+	//Vol+ ~180-182 TCNTs
+	else if( (t>170) ) //&& (t<190) )
+		return VOL_PLUS_B;
+	//Vol- ~152-156 TCNTs
+	else if( (t>140) ) // && (t<170) )
+		return VOL_MINUS_B;
+	//Stop ~ 128-133
+	else if( (t>120) ) //&& (t<140) )
+		return STOP_B;
+	//- ~95-97
+	else if( (t>90) ) // && (t<100) )
+		return MINUS_B;
+	//FWD ~68-71
+	else if( (t>65) ) // && (t<75) )
+		return FWD_B;
 
 
-   //This and REV are confusing, as well
-   // I'm *certain* I measured 330Ohms on Play/Pause
-   // and 1kOhms on REV, but they're returning opposite values for TCNTs...
-   //Play/Pause ~27-30
-   else if( (t>26) ) //&& (t<35) )
-      return PLAY_PAUSE_B;
+	//This and REV are confusing, as well
+	// I'm *certain* I measured 330Ohms on Play/Pause
+	// and 1kOhms on REV, but they're returning opposite values for TCNTs...
+	//Play/Pause ~27-30
+	else if( (t>26) ) //&& (t<35) )
+		return PLAY_PAUSE_B;
 
-   //FWD and REV are confusing...
-   // The way it fits in *my* hand is apparently upside-down
-   // So the names here match the proper orientation (spelling upright)
-   //REV ~20-24
-   else if( (t>15) ) //&& (t<26) )
-      return REV_B;
+	//FWD and REV are confusing...
+	// The way it fits in *my* hand is apparently upside-down
+	// So the names here match the proper orientation (spelling upright)
+	//REV ~20-24
+	else if( (t>15) ) //&& (t<26) )
+		return REV_B;
 
-   else
-      return NO_B;
+	else
+		return NO_B;
 }
 
 
 // Generally this probably shouldn't be used (come on, int32?!)
 // but it's good for determining values...
 //Returns -1 if nothing's new
-static __inline__ int32_t  anaComp_getCompTime(void)
+static __inline__ int32_t	anaComp_getCompTime(void)
 {
-   if(!newCompTime)
-      return -1;
+	if(!newCompTime)
+	   return -1;
 
 
-   newCompTime = FALSE;
+	newCompTime = FALSE;
 
-   return compTime;
+	return compTime;
 }
 
 
@@ -166,86 +166,86 @@ static __inline__ int32_t  anaComp_getCompTime(void)
 //Unused...
 tcnter_t anaComp_getCompTime(void)
 {
-   if (newCompTime)
-   {
-      newCompTime = FALSE;
-      return compTime;
-   }
-   else
-      return 0xffff;
+	if (newCompTime)
+	{
+		newCompTime = FALSE;
+		return compTime;
+	}
+	else
+		return 0xffff;
 }
 */
 extern __inline__ void anaComp_update(void)
 {
-   static tcnter_t startTime = 0;
-   static uint8_t state=0;
+	static tcnter_t startTime = 0;
+	static uint8_t state=0;
 
-   switch(state)
-   {
-      //Charge the capacitor...
-      case 0:
-         setoutPORT(BUTTON_PIN, PORTA);
-         setpinPORT(BUTTON_PIN, PORTA);
-         state++;
-         break;
-      //Give it some time to make sure it's charged...
-      case 1:
-         {
-            static uint8_t chargeTime = 0;
+	switch(state)
+	{
+		//Charge the capacitor...
+		case 0:
+			setoutPORT(BUTTON_PIN, PORTA);
+			setpinPORT(BUTTON_PIN, PORTA);
+			state++;
+			break;
+		//Give it some time to make sure it's charged...
+		case 1:
+			{
+				static uint8_t chargeTime = 0;
 
-            if(chargeTime >= CHARGE_TIME)
-            {
-               state++;
-               chargeTime = 0;
-            }
-            else
-               chargeTime++;
-         }
-         break;
-      //Start discharging through the buttons...
-      case 2:
-         startTime = tcnter_get();
-         setinPORT(BUTTON_PIN, PORTA);
-         clrpinPORT(BUTTON_PIN, PORTA);   //Remove the pull-up
-         ACSRA = (0<<ACD)  // Don't disable the anaComp
-               | (0<<ACBG) // Don't Use the internal voltage reference
-                           //  for +input. See ADMUX: REFS2..0
-               | (0<<ACO)  // This is read-only...
-               | (1<<ACI)  // Clear the interrupt flag
-               | (0<<ACIE) // Don't enable the interrupt
-               | (0<<ACME) // Don't use the ADC Multiplexer to select
-                           //  the inputs...
-               | (1<<ACIS1)// With Below, select anaComp output Rising-edge
-               | (1<<ACIS0);//  for the interrupt-flag (don't care)
-         ACSRB = (0<<HSEL) // Don't use hysteresis
-               | (0<<HLEV) //  Don't care about the hysteresis level
-               | (1<<ACM2) // With Below, select AIN2 as the positive input
-               | (0<<ACM1) //  AIN0 as negative  
-               | (0<<ACM0);    
-         state++;
-         break;
-      //Wait until the analog comparator switches state...
-      case 3:
-         // The anaComp output should be positive when the capacitor has
-         // discharged below the positive input
-         if(getbit(ACO, ACSRA))
-         {
-            newCompTime = TRUE;
-            compTime = tcnter_get() - startTime;
-            buttonPressed = TRUE;
-            state = 0;
-         }
+				if(chargeTime >= CHARGE_TIME)
+				{
+					state++;
+					chargeTime = 0;
+				}
+				else
+					chargeTime++;
+			}
+			break;
+		//Start discharging through the buttons...
+		case 2:
+			startTime = tcnter_get();
+			setinPORT(BUTTON_PIN, PORTA);
+			clrpinPORT(BUTTON_PIN, PORTA);	//Remove the pull-up
+			ACSRA = (0<<ACD)	// Don't disable the anaComp
+					| (0<<ACBG)	// Don't Use the internal voltage reference
+									//  for +input. See ADMUX: REFS2..0
+					| (0<<ACO)	// This is read-only...
+					| (1<<ACI)  // Clear the interrupt flag
+					| (0<<ACIE) // Don't enable the interrupt
+					| (0<<ACME)	// Don't use the ADC Multiplexer to select
+									//  the inputs...
+					| (1<<ACIS1)// With Below, select anaComp output Rising-edge
+					| (1<<ACIS0);//  for the interrupt-flag (don't care)
+			ACSRB = (0<<HSEL)	// Don't use hysteresis
+					| (0<<HLEV) //  Don't care about the hysteresis level
+					| (1<<ACM2)	// With Below, select AIN2 as the positive input
+					| (0<<ACM1)	//  AIN0 as negative  
+					| (0<<ACM0);    
+			state++;
+			break;
+		//Wait until the analog comparator switches state...
+		case 3:
+			// The anaComp output should be positive when the capacitor has
+			// discharged below the positive input
+			if(getbit(ACO, ACSRA))
+			{
+				newCompTime = TRUE;
+				compTime = tcnter_get() - startTime;
+				buttonPressed = TRUE;
+				state = 0;
+			}
 
-         if( tcnter_get() - startTime > BUTTON_TIMEOUT )
-         {
-            buttonPressed = FALSE;
-         }
+			if( tcnter_get() - startTime > BUTTON_TIMEOUT )
+			{
+				buttonPressed = FALSE;
+			}
 
-         break;
-      //Shouldn't get here...
-      default:
-         break;
-   }
+			break;
+		//Shouldn't get here...
+		default:
+			break;
+	}
 }
 
 #endif //BUTTON_IN_SAMPLE || TESTING_ANACOMP
@@ -312,7 +312,7 @@ extern __inline__ void anaComp_update(void)
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/anaButtons/0.50/oldStuff/anaButtons.c
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/anaButtons/0.50/oldStuff/anaButtons.c
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

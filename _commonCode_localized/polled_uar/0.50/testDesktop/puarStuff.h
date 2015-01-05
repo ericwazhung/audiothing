@@ -11,13 +11,13 @@ extern int lineVal[];
 
 extern __inline__ uint8_t puar_readInput(uint8_t puarNum)
 {
-   // CFLAGS += -D'getbit(...)=(lineVal)'
-      return lineVal[puarNum];
+	// CFLAGS += -D'getbit(...)=(lineVal)'
+	   return lineVal[puarNum];
 }  
 
 extern __inline__ void puar_initInput(uint8_t puarNum)
 {
-   //Nothing to do, really... could print something.  
+ 	//Nothing to do, really... could print something.	
 }  
 
 /* mehPL:
@@ -81,7 +81,7 @@ extern __inline__ void puar_initInput(uint8_t puarNum)
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/polled_uar/0.50/testDesktop/puarStuff.h
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/polled_uar/0.50/testDesktop/puarStuff.h
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

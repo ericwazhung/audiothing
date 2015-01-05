@@ -30,11 +30,11 @@
 // programming-header, type them here:
 
 #define Rx0pin    _PGM_SCK_PIN_NAME_
-#define Rx0PORT   _PGM_SCK_PORT_NAME_
+#define Rx0PORT	_PGM_SCK_PORT_NAME_
 
 
-#define Tx0pin    _PGM_MOSI_PIN_NAME_ //PA6     //MOSI
-#define Tx0PORT   _PGM_MOSI_PORT_NAME_ //PORTA
+#define Tx0pin		_PGM_MOSI_PIN_NAME_ //PA6		//MOSI
+#define Tx0PORT	_PGM_MOSI_PORT_NAME_ //PORTA
 
 
 // The button-array is connected to PD6
@@ -124,7 +124,7 @@
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/anaButtons/0.50/testMega328p+NonBlocking/pinout.h
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/anaButtons/0.50/testMega328p+NonBlocking/pinout.h
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

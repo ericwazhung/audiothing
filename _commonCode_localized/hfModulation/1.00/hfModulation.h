@@ -14,17 +14,17 @@
 //       v0.94-1.00 were completely broken.
 //       Revisiting 0.93-1.00 for fixing...
 //-------------
-   //high frequency modulation .94-3
-   //.94-3: HOLY SHIT
-   //       .94 was broken, completely. Only discovered in 1.00.
-   //       adding tests and fixing.
-   //       TODO: Fix requires setup to set desiredSum to zero
-   //             This implies there may be setPower changes which may not
-   //             be effective!
-   //             (This particular instance might be due to being run on a
-   //              PC where new variables aren't inited to 0...
-   //              Since, in most AVR cases, the hfm_t variable will be
-   //              static and thus initted to 0, no?)
+	//high frequency modulation .94-3
+	//.94-3: HOLY SHIT
+	//       .94 was broken, completely. Only discovered in 1.00.
+	//       adding tests and fixing.
+	//       TODO: Fix requires setup to set desiredSum to zero
+	//             This implies there may be setPower changes which may not
+	//             be effective!
+	//             (This particular instance might be due to being run on a
+	//              PC where new variables aren't inited to 0...
+	//              Since, in most AVR cases, the hfm_t variable will be
+	//              static and thus initted to 0, no?)
 //-------------
 //1.00-2 Looking into increasing-power HFM
 //       a/o LCDdirectLVDS-60 for possibly doing gradients by
@@ -77,68 +77,68 @@
 //#include "../../bithandling/0.93/bithandling.h"
 
 /*
-   if power=102 (2 * 255/5) ==> 2/5
-      
-   DesiredSum is always incremented by desired (power)
-      (currently, it's incremented immediately on entry)
-   RunningSum is only incremented when desiredSum > runningSum (on entry)
+	if power=102 (2 * 255/5) ==> 2/5
+		
+	DesiredSum is always incremented by desired (power)
+	   (currently, it's incremented immediately on entry)
+	RunningSum is only incremented when desiredSum > runningSum (on entry)
 
-            --entry--                         --exit--
-   step     desS  runS   desS<?>runS  output  
-   0        102   0         >         on      (runS -> 255)
-   1        204   255       <         off     (runS = no change)
-   2        306   255       >         on      (runS -> 510)
-   3        408   510       <         off     (runS = no change)
-   4        510   510       ==        off     (runS = no change)
+	         --entry--                         --exit--
+	step     desS  runS   desS<?>runS  output  
+	0        102   0		    >         on      (runS -> 255)
+	1        204   255       <         off     (runS = no change)
+	2        306   255       >         on      (runS -> 510)
+	3        408   510       <         off     (runS = no change)
+	4        510   510       ==        off     (runS = no change)
   (5)      (102) (0)       (>)       (on)     (...)
-   (repeats)
+	(repeats)
 
-   As can be seen, in five cycles, the output is on for two (2/5 = 102/255)
+	As can be seen, in five cycles, the output is on for two (2/5 = 102/255)
 
 
    Prior to 0.94:
    A change of power (desired) would reset both desired and running sums
-   (so if power is updated often enough at small and/or equal values, 
-     it may never light an LED!)
+	(so if power is updated often enough at small and/or equal values, 
+	  it may never light an LED!)
 
-   Two considerations:
-    1) Don't reset desired/running sums when equal (step 5, above)
-       (use wraparound/overflow integer math?)
-       This seems difficult... and doesn't really serve a purpose
-       I thought it'd save a step, but the math is more complicated
-       e.g. power 2/3, desired 0-3 desired/runningSum 0-7:
-         2 > 0 on
-         4 > 3 on
-         6 = 6 off
-         0 ? 6 ?????
-         There must be a way (using subtraction? differentials?)
-         but it's not relevent to this, is it?
+	Two considerations:
+	 1) Don't reset desired/running sums when equal (step 5, above)
+	    (use wraparound/overflow integer math?)
+		 This seems difficult... and doesn't really serve a purpose
+		 I thought it'd save a step, but the math is more complicated
+		 e.g. power 2/3, desired 0-3 desired/runningSum 0-7:
+		 	2 > 0 on
+			4 > 3 on
+			6 = 6 off
+			0 ? 6 ?????
+			There must be a way (using subtraction? differentials?)
+			but it's not relevent to this, is it?
     2) Removal of reset during setPower...
-       Not thoroughly thought-out... then again neither was reset 
-         apparently
+	 	 Not thoroughly thought-out... then again neither was reset 
+		 	apparently
 
 
 
-   NOW: (.94-2)
+	NOW: (.94-2)
 
-   step   desS      output  desS+=des - (on ? 255 : 0)
-   0      102  > 0  on      desS+=102-255 = -51
-   1      -51  < 0  off     desS+=102 = 51
-   2      51   > 0  on      desS+=102-255 = -102
-   3      -102 < 0  off     desS+=102 = 0
-   4      0    = 0  off     desS+=102 = 102
-   (5 same as step 0)
+	step   desS      output  desS+=des - (on ? 255 : 0)
+	0      102  > 0  on      desS+=102-255 = -51
+	1      -51  < 0  off     desS+=102 = 51
+	2      51   > 0  on      desS+=102-255 = -102
+	3      -102 < 0  off     desS+=102 = 0
+	4      0    = 0  off     desS+=102 = 102
+	(5 same as step 0)
 
  
-   NOW: (1.00) power=3, maxPower=5
-   desS        output   desS += power - (on ? maxPower : 0)
-   0     =0    off      desS += 3 - 0 = 3
-   3     >0    on       desS += 3 - 5 = 6 - 5 = 1
-   1     >0    on       desS += 3 - 5 = 4 - 5 = -1
-   -1    <0    off      desS += 3 - 0 = 2
-   2     >0    on       desS += 3 - 5 = 5 - 5 = 0
-   ----------------
-   0  repeat
+	NOW: (1.00)	power=3, maxPower=5
+	desS			output	desS += power - (on ? maxPower : 0)
+	0		=0		off		desS += 3 - 0 = 3
+	3		>0		on			desS += 3 - 5 = 6 - 5 = 1
+	1		>0		on			desS += 3 - 5 = 4 - 5 = -1
+	-1		<0		off		desS += 3 - 0 = 2
+	2		>0		on			desS += 3 - 5 = 5 - 5 = 0
+	----------------
+	0	repeat
  
  
  
@@ -146,7 +146,7 @@
 
 
 // Basic usage:
-//    hfm_t whatever;
+// 	hfm_t whatever;
 //    hfm_setup(&whatever, power, maxPower);
 //
 //    while(1)
@@ -168,21 +168,21 @@
 
 typedef volatile struct
 {
-// uint16_t runningSum; //in place of average...
-   int16_t desiredSum;  //in place of average...
-   uint8_t   maxPower;     //AKA power divisor... (usually 255) 
-// uint8_t  stepNumber; //number of the current step... resets to 0 when the average output power = the desired. e.g. power=51, stepNum:0-4
-   uint8_t  power;         //Desired power; 0-maxPower -> 0-100% -> 0-1 -> 0/maxPower - maxPower/maxPower
-   // POWER is best NOT Read, since power>maxPower is set to maxPower
+//	uint16_t runningSum;	//in place of average...
+	int16_t desiredSum;	//in place of average...
+	uint8_t	 maxPower;		//AKA power divisor... (usually 255) 
+//	uint8_t  stepNumber;	//number of the current step... resets to 0 when the average output power = the desired. e.g. power=51, stepNum:0-4
+	uint8_t  power;			//Desired power; 0-maxPower -> 0-100% -> 0-1 -> 0/maxPower - maxPower/maxPower
+	// POWER is best NOT Read, since power>maxPower is set to maxPower
 }  hfm_t;
 
 #if (!defined(__HFMODULATION_REMOVED__) || !__HFMODULATION_REMOVED__)
 void hfm_setup(hfm_t *modulator, uint8_t power, uint8_t maxPower);
 
-void hfm_setPower(hfm_t *modulator, uint8_t power);
+void hfm_setPower(hfm_t	*modulator, uint8_t power);
 
 //Returns 0 if the "output" should be "off" in this cycle
-//      1 if the "output" should be "on"  in this cycle
+//		  1 if the "output" should be "on"  in this cycle
 uint8_t hfm_nextOutput(hfm_t *modulator);
 #else
 #define hfm_setup(a,b,c) (0)
@@ -251,7 +251,7 @@ uint8_t hfm_nextOutput(hfm_t *modulator);
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/hfModulation/1.00/hfModulation.h
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/hfModulation/1.00/hfModulation.h
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

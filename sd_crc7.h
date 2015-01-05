@@ -8,6 +8,8 @@
 
 
 
+
+
 #include <stdio.h>
 #include <inttypes.h>
 //#include "../_commonCode/bithandling/0.94/bithandling.h"
@@ -173,7 +175,7 @@ uint8_t sd_generateCRC7(uint8_t dataIn[], uint8_t dataLength)
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/sd_crc7.h
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/sd_crc7.h
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

@@ -19,30 +19,30 @@
 
 int main(int argc, char *argv[])
 {
-   printf("Call with, e.g. 'thisProgram /dev/cu.usbserial'\n");
-   
-   char * fileString = argv[1];
-   printf("File: '%s'\n",fileString);
-   
-   FILE *fid;
-   fid = fopen(fileString, "rb");
-   if ( fid == NULL )
-   {
-      printf("Unable to open file\n");
-      return 1;
-   }
+	printf("Call with, e.g. 'thisProgram /dev/cu.usbserial'\n");
+	
+	char * fileString = argv[1];
+	printf("File: '%s'\n",fileString);
+	
+	FILE *fid;
+	fid = fopen(fileString, "rb");
+	if ( fid == NULL )
+	{
+	   printf("Unable to open file\n");
+	   return 1;
+	}
 
 
-   while(1)
-   {
-      uint8_t data;
+	while(1)
+	{
+		uint8_t data;
 
-      fread(&data, sizeof(uint8_t), 1, fid);
+		fread(&data, sizeof(uint8_t), 1, fid);
 
-      char dataChar = hsSKB_toChar(data);
-      if(dataChar != 0)
-         printf("KB: 0x%"PRIx8" = Key: '%c'\n", data, hsSKB_toChar(data));
-   }
+		char dataChar = hsSKB_toChar(data);
+		if(dataChar != 0)
+			printf("KB: 0x%"PRIx8" = Key: '%c'\n", data, hsSKB_toChar(data));
+	}
 
 
 }
@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/hsStowawayKB/0.20ncf/test/test1.c
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/hsStowawayKB/0.20ncf/test/test1.c
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

@@ -22,84 +22,84 @@ extern uint8_t keyMapUnshifted[];
 
 int main(int argc, char *argv[])
 {
-   printf("Call with, e.g. 'thisProgram /dev/cu.usbserial'\n");
-   printf("   (sizeof(keymapUnshifted)=%d)\n", sizeof(keyMapUnshifted));
+	printf("Call with, e.g. 'thisProgram /dev/cu.usbserial'\n");
+	printf("   (sizeof(keymapUnshifted)=%d)\n", sizeof(keyMapUnshifted));
 
-   stdinNB_init();
+	stdinNB_init();
 
-   char * fileString = argv[1];
-   printf("File: '%s'\n",fileString);
-   
-   FILE *fid;
-   fid = fopen(fileString, "rb");
-   if ( fid == NULL )
-   {
-      printf("Unable to open file\n");
-      return 1;
-   }
+	char * fileString = argv[1];
+	printf("File: '%s'\n",fileString);
+	
+	FILE *fid;
+	fid = fopen(fileString, "rb");
+	if ( fid == NULL )
+	{
+	   printf("Unable to open file\n");
+	   return 1;
+	}
 
-   uint8_t minChar=0xff;
-   uint8_t maxChar=0x00;
+	uint8_t minChar=0xff;
+	uint8_t maxChar=0x00;
 
-   int i;
+	int i;
 
-   for(i=0; i<0x200; i++)
-   {
-      //Skip Shifts and CapsLock
-      if(((i&0xff)==0x018) || ((i&0xff)==0x058) || ((i&0xff)==0x059))
-         continue;
+	for(i=0; i<0x200; i++)
+	{
+		//Skip Shifts and CapsLock
+		if(((i&0xff)==0x018) || ((i&0xff)==0x058) || ((i&0xff)==0x059))
+			continue;
 
-      //Send Shift...
-      if(i==0x100)
-         hsSKB_toChar(0x58);
+		//Send Shift...
+		if(i==0x100)
+			hsSKB_toChar(0x58);
 
-      char dataChar = hsSKB_toChar(i&0xff);
-      if(dataChar && (dataChar < minChar))
-         minChar = dataChar;
-      if(dataChar > maxChar)
-         maxChar = dataChar;
-   }
+		char dataChar = hsSKB_toChar(i&0xff);
+		if(dataChar && (dataChar < minChar))
+			minChar = dataChar;
+		if(dataChar > maxChar)
+			maxChar = dataChar;
+	}
 
-   //Clear Shift
-   hsSKB_toChar(0xd8);
+	//Clear Shift
+	hsSKB_toChar(0xd8);
 
-   printf("min/max outputs from hsSKB_toChar():\n");
-   printf("minChar=0x%"PRIx8" maxChar=0x%"PRIx8"\n", minChar, maxChar);
+	printf("min/max outputs from hsSKB_toChar():\n");
+	printf("minChar=0x%"PRIx8" maxChar=0x%"PRIx8"\n", minChar, maxChar);
 
-   uint8_t minData=0xff;
-   uint8_t maxData=0x00;
+	uint8_t minData=0xff;
+	uint8_t maxData=0x00;
 
-   printf("\nNow receiving KB input, press 'q' and return on this keyboard to exit.\n"
-         "Must also press any key on the Stowaway Keyboard, afterwards.\n");
+	printf("\nNow receiving KB input, press 'q' and return on this keyboard to exit.\n"
+			"Must also press any key on the Stowaway Keyboard, afterwards.\n");
 
-   int quit = 0;
+	int quit = 0;
 
-   while(!quit)
-   {
-      uint8_t data;
+	while(!quit)
+	{
+		uint8_t data;
 
-      fread(&data, sizeof(uint8_t), 1, fid);
+		fread(&data, sizeof(uint8_t), 1, fid);
 
-      if(data < minData)
-         minData = data;
-      if(data > maxData)
-         maxData = data;
+		if(data < minData)
+			minData = data;
+		if(data > maxData)
+			maxData = data;
 
-      char dataChar = hsSKB_toChar(data);
-      if(dataChar != 0)
-         printf("KB: 0x%"PRIx8" = Key: '%c'\n", data, hsSKB_toChar(data));
+		char dataChar = hsSKB_toChar(data);
+		if(dataChar != 0)
+			printf("KB: 0x%"PRIx8" = Key: '%c'\n", data, hsSKB_toChar(data));
 
-      errno_handleError("Unhandled Error.", 0);
+		errno_handleError("Unhandled Error.", 0);
 
-      int kbChar = stdinNB_getChar();
+		int kbChar = stdinNB_getChar();
 
-      if(kbChar == 'q')
-         quit=1;
-   }
+		if(kbChar == 'q')
+			quit=1;
+	}
 
-   printf("min/max inputs from the Stowaway Keyboard:\n");
-   printf("minData=0x%"PRIx8" maxData=0x%"PRIx8"\n", minData, maxData);
-   return 0;
+	printf("min/max inputs from the Stowaway Keyboard:\n");
+	printf("minData=0x%"PRIx8" maxData=0x%"PRIx8"\n", minData, maxData);
+	return 0;
 }
 
 /* mehPL:
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/hsStowawayKB/0.20ncf/test/test2.c
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/hsStowawayKB/0.20ncf/test/test2.c
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

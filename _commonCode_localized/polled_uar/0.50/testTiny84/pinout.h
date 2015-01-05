@@ -31,8 +31,8 @@
 #define Rx0PORT   PORTA
 
 //Making it more pin-compatible with sdramThing3.0...
-#define Tx0pin    PA6      //MOSI
-#define Tx0PORT   PORTA
+#define Tx0pin		PA6		//MOSI
+#define Tx0PORT	PORTA
 
 
 
@@ -99,7 +99,7 @@
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/polled_uar/0.50/testTiny84/pinout.h
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/polled_uar/0.50/testTiny84/pinout.h
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

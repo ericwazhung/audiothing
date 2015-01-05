@@ -29,7 +29,7 @@
 #include _HEARTBEAT_HEADER_
 #include _POLLED_UAT_HEADER_
 #include <stdio.h> //necessary for sprintf_P...
-                  // See notes in the makefile re: AVR_MIN_PRINTF
+						// See notes in the makefile re: AVR_MIN_PRINTF
 #include <util/delay.h>
 
 //For large things like this, I prefer to have them located globally (or
@@ -40,60 +40,60 @@ char stringBuffer[80];
 int main(void)
 {
 
-   init_heartBeat();
+	init_heartBeat();
 
-   tcnter_init();
-   puat_init(0);
+	tcnter_init();
+	puat_init(0);
 
-   // If you're *only* using the tcnter for puat, it's entirely safe to do
-   // something like this... BUT, there are various things which may use
-   // tcnter in the background without your realizing (puar, for instance)
-   // So don't get in the habit of doing this unless you're really on top
-   // of things.
+	// If you're *only* using the tcnter for puat, it's entirely safe to do
+	// something like this... BUT, there are various things which may use
+	// tcnter in the background without your realizing (puar, for instance)
+	// So don't get in the habit of doing this unless you're really on top
+	// of things.
 
-   //(Also, should put this in a PSTR() rather than a RAM-based
-   //character array...)
+	//(Also, should put this in a PSTR() rather than a RAM-based
+	//character array...)
 /*
-   char hello[] = "Hello World\n\r";
-   char* character = hello;
+	char hello[] = "Hello World\n\r";
+	char* character = hello;
 
-   setHeartRate(16);
+	setHeartRate(16);
 
-   //Nothing can be received during this loop...
-   while(*character != '\0')
-   {
-      puat_sendByte(0, *character);
-      character++;
-      while(puat_dataWaiting(0))
-      {
-         tcnter_update();
-         puat_update(0);
-         heartUpdate();
-      }
-   }
+	//Nothing can be received during this loop...
+	while(*character != '\0')
+	{
+		puat_sendByte(0, *character);
+		character++;
+		while(puat_dataWaiting(0))
+		{
+			tcnter_update();
+			puat_update(0);
+			heartUpdate();
+		}
+	}
 */
-   puat_sendStringBlocking_P(0, stringBuffer, 
-                              PSTR("\n\ranaButtons Values:\n\r"));
+	puat_sendStringBlocking_P(0, stringBuffer, 
+										PSTR("\n\ranaButtons Values:\n\r"));
 
-   setHeartRate(0);
+	setHeartRate(0);
 
-// adc_takeInput(0);
-// adc_init();
-// adc_select(0);
+//	adc_takeInput(0);
+//	adc_init();
+//	adc_select(0);
 
-// adc_startConversion();
+//	adc_startConversion();
 
-   static dms4day_t startTime = 0;
+	static dms4day_t startTime = 0;
 
-   while(1)
-   {
-      tcnter_update();
-      puat_update(0);
+	while(1)
+	{
+		tcnter_update();
+		puat_update(0);
 
-      
-      heartUpdate();
+		
+		heartUpdate();
 
-      int32_t buttonTimeVal = anaButtons_getDebounced();
+		int32_t buttonTimeVal = anaButtons_getDebounced();
 
       if(buttonTimeVal >= 0)
       {
@@ -111,9 +111,9 @@ int main(void)
       }
 
 
-   }
+	}
 
-   return 0;
+	return 0;
 }
 
 /* mehPL:
@@ -177,7 +177,7 @@ int main(void)
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/anaButtons/0.50/testPWM161/main.c
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/anaButtons/0.50/testPWM161/main.c
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

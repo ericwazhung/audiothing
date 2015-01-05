@@ -6,7 +6,15 @@
 # */
 #
 #
-#reallyCommon2.mk -someNum...
+#
+#
+#
+#
+#reallyCommon3.mk -someNum...
+
+
+# Changing over from reallyCommon2 to reallyCommon3:
+# COMDIR in the makefile should now be CENTRAL_COMDIR, etc.
 
 # Changing over from reallyCommon to reallyCommon2:
 #  Add to makefile: (Uncomment indented commentted lines)
@@ -14,29 +22,38 @@
 # as well, regarding PRINTF and STDIO and code-size)
 
 #New a/o LCDdirectLVDSv128:
-# If COMDIR/COMREL isn't defined, use SYSTEM_COMDIR/COMREL
-# NOTE: COMDIR/COMREL should be replaced with SYSTEM_COMDIR/COMREL
+# If COMDIR/COMREL isn't defined, use CENTRAL_COMDIR/COMREL
+# NOTE: COMDIR/COMREL should be replaced with CENTRAL_COMDIR/COMREL
 # in makefiles... But this should still be backwards-compatible
 
-#  This goes roughly after (SYSTEM_)COMDIR=...
-################# SHOULD NOT CHANGE THIS BLOCK... FROM HERE ############## 
+#  This goes roughly after (CENTRAL_)COMDIR=...
+# THIS CANNOT BE A MAKEFILE-SNIPPET IN COMDIR (duh) because COMDIR isn't
+# yet set!
+
+
+### THIS MUST BE IN YOUR MAKEFILE NEAR THE TOP 
+# AFTER CENTRAL_COMDIR/COMREL definitions
+# uncomment and unindent the indented lines:
+
+################# SHOULD NOT CHANGE THIS BLOCK... FROM HERE ##############
 #                                                                        #
 # This stuff has to be done early-on (e.g. before other makefiles are    #
 #   included..                                                           #
 #                                                                        #
 #                                                                        #
-# If this is defined, we can use 'make copyCommon'                       #
-#   to copy all used commonCode to this subdirectory                     #
-#   We can also use 'make LOCAL=TRUE ...' to build from that code,       #
-#     rather than that in _commonCode                                    #
- #LOCAL_COM_DIR = _commonCode_localized
+# LOCAL_COMDIR is the subdirectory of this project-directory where       #
+#   _commonCode can be located for local usage.                          #
+# (Unless you're me, this is most-likely where this project's            #
+#  _commonCode is located)                                               #
+ #LOCAL_COMDIR = _commonCode_localized
 #                                                                        #
 #                                                                        #
-# If use_LocalCommonCode.mk exists and contains "LOCAL=1"                #
-# then code will be compiled from the LOCAL_COM_DIR                      #
+# If the file __use_Local_CommonCode.mk exists and contains "LOCAL=1"    #
+# then code will be compiled from the LOCAL_COMDIR                       #
 # This could be slightly more sophisticated, but I want it to be         #
 #  recognizeable in the main directory...                                #
-# ONLY ONE of these two files (or neither) will exist, unless fiddled with 
+# ONLY ONE of these two files (or neither) will exist, unless fiddled with
+# AND SHOULD contain 'LOCAL=0' and 'LOCAL=1', respectively.              #
  #SHARED_MK = __use_Shared_CommonCode.mk
  #LOCAL_MK = __use_Local_CommonCode.mk
 #                                                                        #
@@ -45,20 +62,39 @@
 #                                                                        #
 #                                                                        #
 #                                                                        #
-#Location of the _common directory, relative to here...                  #
-# this should NOT be an absolute path...                                 #
+#COMREL/COMDIR: 
+# The *actual* *used* _commonCode directory is in the variable "COMDIR"  #
+# COMREL and COMDIR are automatically assigned the values from either    #
+#  CENTRAL_COMREL/COMDIR or LOCAL_COMREL/COMDIR as appropriate.          #
+# COMDIR will be used in all references to _commonCode, throughout this  #
+#  makefile
 # COMREL is used for compiling common-code into _BUILD...                #
-# These are overriden if we're using the local copy                      #
-# OVERRIDE the main one...                                               #
  #ifeq ($(LOCAL), 1)
  #COMREL = ./
- #COMDIR = $(LOCAL_COM_DIR)
+ #COMDIR = $(LOCAL_COMDIR)
  #else
- #COMREL = $(SYSTEM_COMREL)
- #COMDIR = $(SYSTEM_COMDIR)
+ #COMREL = $(CENTRAL_COMREL)
+ #COMDIR = $(CENTRAL_COMDIR)
  #endif
 #                                                                        #
 ################# TO HERE ################################################
+
+
+#For backwards compatibility with COMDIR rather than CENTRAL_COMDIR:
+#NO! This won't work!
+# COMDIR may be set to LOCAL_COMDIR long before we get here...
+#ALSO: CENTRAL_COMDIR is used, if not-defined, to warn about upgrading to
+# it... among other things?
+#ifneq ($(LOCAL),1)
+#ifndef CENTRAL_COMDIR
+#CENTRAL_COMDIR = $(COMDIR)
+#endif
+#ifndef CENTRAL_COMREL
+#CENTRAL_COMREL = $(COMREL)
+#endif
+#else
+
+
 
 
 #
@@ -175,13 +211,13 @@ COM_MAKE += $(reallyCommonFile)
 #  which may not be too happy if the project folder's been moved
 #  or extracted from a tarball...
 #ifdef LOCAL
-#COMDIR=$(LOCAL_COM_DIR)
+#COMDIR=$(LOCAL_COMDIR)
 #COMREL=./
 #endif
 
 
 # If use_LocalCommonCode.mk exists and contains "LOCAL=1"
-# then code will be compiled from the LOCAL_COM_DIR
+# then code will be compiled from the LOCAL_COMDIR
 # This could be slightly more sophisticated, but I want it to be
 #  recognizeable in the main directory...
 # ONLY ONE of these two files (or neither) will exist, unless fiddled with	
@@ -262,7 +298,7 @@ BUILD_DIR = _BUILD
 # This should be in the project make-file
 # AND IT SHOULD NEVER BE REFERENCED IF NOT DEFINED
 # otherwise who knows where things'll be placed
-#LOCAL_COM_DIR = _commonCode_localized
+#LOCAL_COMDIR = _commonCode_localized
 
 
 # THE FOLLOWING SHOULD BE RENAMED!!!!
@@ -472,10 +508,16 @@ endif
 
 #This is an attempt at trying to figure out whether to use myrm.sh or rm
 #MYRMEXISTS = $(shell if [ -e /Users/meh/myexecs/myrm.sh ] ; then echo 1 ; else echo 0 ; fi )
-MYRMEXISTS = $(shell which myrm.sh > /dev/null ; echo $? )
+#This doesn't work, apparently...
+# It works (with ifeq 1, below) when myrm.sh *does* exist, 
+# but not when it doesn't.
+#MYRMEXISTS = $(shell which myrm.sh > /dev/null ; echo $? )
+MYRMLOCATION = $(shell which myrm.sh)
+
 
 #ifeq ($(MYRMEXISTS),0)
-ifeq ($(MYRMEXISTS),1)
+#ifeq ($(MYRMEXISTS),1)
+ifeq ($(MYRMLOCATION),)
 REMOVE = rm -r -f
 else
 #REMOVE = /Users/meh/myexecs/myrm.sh --dont-ls-subdirs -r -f
@@ -507,8 +549,8 @@ endif
 endif
 
 FINISH = echo Errors: none
-BEGIN = echo -------- begin --------
-END = echo --------  end  --------
+BEGIN_SEPARATOR = echo -------- begin --------
+END_SEPARATOR = echo --------  end  --------
 
 
 
@@ -555,6 +597,10 @@ COMDIR_ABS := $(abspath $(COMDIR))
 RSYNCABLE_COMMON_STUFF := \
 		$(patsubst $(COMDIR_ABS)/%,$(COMDIR_ABS)/./%,$(COMMON_STUFF_ABS))
 
+# a/o reallyCommon3.mk:
+# We now have rC3-scripts/
+RSYNCABLE_COMMON_STUFF += \
+		$(patsubst $(COMDIR_ABS)/%,$(COMDIR_ABS)/./%,$(COMDIR_ABS)/_make/rC3-scripts)
 
 
 
@@ -564,6 +610,21 @@ RSYNCABLE_COMMON_STUFF := \
 
 
 
+#Check if CENTRAL_COMDIR exists
+# If not, there's no reason to bombard users with messages about which
+# directory is being used...
+ifneq ($(wildcard $(CENTRAL_COMDIR)),)
+
+ifeq ($(LOCAL), 1)
+endLocalizationMessage = endLocal
+else
+endLocalizationMessage = endCentral
+endif
+
+else
+# CENTRAL_COMDIR doesn't exist, so don't bombard the user with messages
+endLocalizationMessage = 
+endif
 
 
 ###############################################
@@ -586,6 +647,8 @@ endif
 
 # This is a target-specific variable... 
 # Personally, I think this is confusing, as it looks like a target
+
+
 
 ###############
 # Added a/o LCDrevisited2012-27, in order to figure out who was calling
@@ -611,6 +674,7 @@ endif
 #
 includes: ALL_CFLAGS += -M
 
+
 .PHONY: includes
 includes: $(TARGETS) includesMessage
 
@@ -621,7 +685,7 @@ includesMessage:
 #
 ###############
 
-#Could be handy if modified for computer... (see avr.mk)
+#Could be handy if modified for computer... (see avrCommon.mk)
 #.PHONY: projInfo
 #projInfo:
 #	@echo -n ""
@@ -630,32 +694,50 @@ includesMessage:
 # Eye candy.
 .PHONY: begin
 begin:
-	-@$(BEGIN)
+	-@$(BEGIN_SEPARATOR)
 
 .PHONY: finished
 finished:
 	-@$(FINISH)
 
-.PHONY: end
-end:
-	-@$(END)
-ifeq ($(LOCAL), 1)
-	@echo ""
-	@echo " You're Compiling Locally! Changes in the system-wide _commonCode/ directory"
-	@echo " will not be reflected Here!"
-	@echo " (use 'make ... LOCAL=0' or 'make delocalize')"
-	@echo " (This message is irrelevent for distributed copies. Keep it localized!)"
-	@echo ""
-else
-	@echo ""
-	@echo " You're using the source in the main _commonCode directory..."
-	@echo "  Hopefully you didn't do anything stupid there while you were"
-	@echo "  away from this project... Or better-yet, hopefully you have"
-	@echo "  run 'make copyCommon' prior to plausibly doing something stupid"
-	@echo " Weee!"
-	@echo ""
-endif
 
+.PHONY: endLocal
+endLocal:
+	@echo ""
+	@echo "You're using the LOCALIZED _commonCode source in: "
+	@echo "  '$(LOCAL_COMDIR)'"
+	@echo "  ('$(abspath $(LOCAL_COMDIR))')"
+	@echo "  Changes in the centralized directory:"
+	@echo "  '$(CENTRAL_COMDIR)'"
+	@echo "   ('$(abspath $(CENTRAL_COMDIR))')"
+	@echo "  will not be reflected in this project!"
+	@echo "  (To change this, run 'make delocalize')"
+	@echo "  (To override temporarily, run 'make ... LOCAL=0')"
+	@echo ""
+
+
+.PHONY: endCentral
+endCentral:
+	@echo ""
+	@echo "You're using the CENTRALIZED _commonCode source in:"
+	@echo "  '$(CENTRAL_COMDIR)'"
+	@echo "   ('$(abspath $(CENTRAL_COMDIR))')"
+	@echo "  (To use code in '$(LOCAL_COMDIR)', run 'make localize')"
+	@echo "  (To override temporarily, run 'make ... LOCAL=1')"
+	@echo ""
+
+
+.PHONY: endSeparator
+endSeparator:
+	-@$(END_SEPARATOR)
+
+.PHONY: end
+end: endSeparator endWarnings $(endLocalizationMessage)
+
+
+.PHONY: endWarnings
+endWarnings:
+	@echo "$(END_WARNINGS)"
 
 # Display size of file.
 .PHONY: sizebefore
@@ -765,27 +847,34 @@ $(BUILD_DIR)/%.d : %.c
 
 
 ifneq ($(LOCAL), 1)
-ifdef LOCAL_COM_DIR
+ifdef LOCAL_COMDIR
 
 
-.PHONY: $(LOCAL_COM_DIR)
-$(LOCAL_COM_DIR):
+.PHONY: $(LOCAL_COMDIR)
+$(LOCAL_COMDIR):
 	@echo "Localizing CommonFiles:" ; \
-	if [ ! -d "$(LOCAL_COM_DIR)" ] ; then \
-	 mkdir $(LOCAL_COM_DIR) ; \
+	if [ ! -d "$(LOCAL_COMDIR)" ] ; then \
+	 mkdir $(LOCAL_COMDIR) ; \
 	 rsync -avR --exclude=_BUILD $(RSYNCABLE_COMMON_STUFF) \
-	 										$(LOCAL_COM_DIR) ; \
+	 										$(LOCAL_COMDIR) ; \
 	else \
 	 echo "" ; \
-	 echo " HEY!!! $(LOCAL_COM_DIR) already exists, not going to overwrite it." ; \
+	 echo "#############################################################################" ;\
+	 echo "# HEY!!! '$(LOCAL_COMDIR)/' already exists, not going to overwrite it." ; \
+	 echo "# If you're sure you want to overwrite it with stuff from:" ;\
+	 echo "   '$(CENTRAL_COMDIR)'" ;\
+	 echo "    ('$(abspath $(CENTRAL_COMDIR))')" ;\
+	 echo "# Then delete $(LOCAL_COMDIR) AND __use_Local_CommonCode.mk" ;\
+	 echo "# And re-run 'make localize' " ;\
+	 echo "#############################################################################" ;\
 	 echo "" ; \
 	fi
 
 .PHONY: copyCommon
 copyCommon:
-	@$(REMOVE) $(LOCAL_COM_DIR)
-	@mkdir $(LOCAL_COM_DIR)
-	@rsync -avR --exclude=_BUILD $(RSYNCABLE_COMMON_STUFF) $(LOCAL_COM_DIR)
+	@$(REMOVE) $(LOCAL_COMDIR)
+	@mkdir $(LOCAL_COMDIR)
+	@rsync -avR --exclude=_BUILD $(RSYNCABLE_COMMON_STUFF) $(LOCAL_COMDIR)
 
 ifdef LOCALIZABLE_OTHERS
 ifdef OTHERS_DIR
@@ -963,80 +1052,83 @@ openDir:
 
 
 
-ifdef LOCAL_COM_DIR
+ifdef LOCAL_COMDIR
 #Just because I'm localizing, doesn't mean I want to use the current
 # stuff from _commonCode, hopefully this will be smart enough to recognize
-# that $(LOCAL_COM_DIR) already exists, in that case
-#  and doesn't try to update it...
+# that $(LOCAL_COMDIR) already exists, in that case
+#  and doesnt try to update it...
 #  NOPE... 
 .PHONY: localize
-localize: $(LOCAL_COM_DIR) localizeFile localizeOthers
+ifneq ($(LOCAL), 1)
+localize: begin $(LOCAL_COMDIR) localizeOthers setUseLocalFile finished endSeparator endLocal
+else
+localize:
+	@echo ""
+	@echo "You are already running localized"
+	@echo ""
+endif
 
 
 #Should only be called from make localize
-# mrm doesn't pay attention to -f
+# mrm doesnt pay attention to -f
 # so instead of $(REMOVE) we use /bin/rm
-.PHONY: localizeFile
-localizeFile: 
+.PHONY: setUseLocalFile
+setUseLocalFile: 
 	@/bin/rm -f $(SHARED_MK)
 	@echo "### BEST NOT MODIFY THIS FILE, use 'make (de)localize' instead" \
 		> $(LOCAL_MK)
 	@echo "# When this is 1, we'll use the files in " \
 		>> $(LOCAL_MK)
-	@echo "# $(LOCAL_COM_DIR)" >> $(LOCAL_MK)
+	@echo "# $(LOCAL_COMDIR)" >> $(LOCAL_MK)
 	@echo "# instead of the main _commonCode directory" \
 		>> $(LOCAL_MK)
 	@echo "# Its value can be overriden by e.g. 'make ... LOCAL=0'" \
 		>> $(LOCAL_MK)
 	@echo "LOCAL=1" >> $(LOCAL_MK)
-	@echo ""
-	@echo "Now using commonCode in $(LOCAL_COM_DIR)"
-	@echo "      Don't forget to 'make copyCommon LOCAL=0'!"
-	@echo ""
 
 
+ifeq ($(LOCAL),1)
 .PHONY: delocalize
-delocalize:
-	@/bin/rm -f $(LOCAL_MK)
-	@echo "### BEST NOT MODIFY THIS FILE, use 'make (de)localize' instead" \
-		> $(SHARED_MK)	
-	@echo "# When this is 1, we'll use the files in " \
-		>> $(SHARED_MK)
-	@echo "# $(LOCAL_COM_DIR)" >> $(SHARED_MK)
-	@echo "# instead of the main _commonCode directory" \
-		   >> $(SHARED_MK)
-	@echo "# Its value can be overriden by e.g. 'make ... LOCAL=0'" \
-		   >> $(SHARED_MK)
-	@echo "LOCAL=0" >> $(SHARED_MK)
-	@echo ""
-	@echo " Now using commonCode in the main _commonCode directory"
-	@echo "      Don't forget to 'make copyCommon' at some point..."
-	@echo ""
-ifdef SYSTEM_COMDIR
-	@echo "Checking whether local files differ from system-wide:" ;\
-	 diffOut="`diff -rq $(LOCAL_COM_DIR) $(SYSTEM_COMDIR)`" ;\
-	 IFS=$$'\n';\
-	 for line in $$diffOut ;\
-	 do \
-		if [ "$${line#Only in $(SYSTEM_COMREL)}" == "$$line" ] ;\
-	  	then \
-	 		a=$$((a+1)) ;\
-			echo "$$a: $$line" ;\
-		fi ;\
-	 done ;\
-	 if [[ $$a > 0 ]] ;\
-	 then \
-	 	echo "###############################################" ;\
-		echo "## Differences found! Be sure to check them! ##" ;\
-	 	echo "###############################################" ;\
-	 else \
-	 	echo "...no differences found" ;\
-	 fi
+delocalize: begin centralizeFiles finished endSeparator delocalizeEndWarnings endCentral
 else
-	@echo "Unable to check whether local files differ from system-wide"
-	@echo "Consider changing COMDIR/REL to SYSTEM_COMDIR/REL in your makefile"
+delocalize:
+	@echo ""
+	@echo "You are already running centralized (delocalized)"
+	@echo ""
+endif
+
+
+.PHONY: delocalizeEndWarnings
+delocalizeEndWarnings:
+ifdef DELOCALIZE_END_WARNINGS
+	@echo "############################"
+	@echo "## DELOCALIZATION NOTICE: ##"
+	@echo "##                        ##"
+	@echo "## $(DELOCALIZE_END_WARNINGS)"
+else
+	@echo -n ""
+endif
+
+.PHONY: centralizeFiles
+centralizeFiles:
+ifdef CENTRAL_COMDIR
+	@$(COMDIR)/_make/rC3-scripts/delocalize.sh "$(CENTRAL_COMDIR)" "$(LOCAL_COMDIR)" "$(abspath $(CENTRAL_COMDIR))"
+else
+	@echo "Unable to check whether local commonCode differs from central commonCode"
+	@echo "Consider changing COMDIR/REL to CENTRAL_COMDIR/REL in your makefile"
 	@echo "AND copy over the new bits in the block from reallyCommon2.mk"
 endif
+	@/bin/rm -f $(LOCAL_MK) && \
+	echo "### BEST NOT MODIFY THIS FILE, use 'make (de)localize' instead" \
+		> $(SHARED_MK)	&& \
+	echo "# When this is 1, we'll use the files in " \
+		>> $(SHARED_MK) && \
+	echo "# $(LOCAL_COMDIR)" >> $(SHARED_MK) && \
+	echo "# instead of the main _commonCode directory" \
+		   >> $(SHARED_MK) && \
+	echo "# Its value can be overriden by e.g. 'make ... LOCAL=0'" \
+		   >> $(SHARED_MK) && \
+	echo "LOCAL=0" >> $(SHARED_MK)
 endif
 
 
@@ -1044,10 +1136,10 @@ endif
 .PHONY: clean
 clean: begin clean_list finished end
 
-ifdef LOCAL_COM_DIR
+ifdef LOCAL_COMDIR
 .PHONY: cleanCommonLocal
 cleanCommonLocal:
-	@$(REMOVE) $(LOCAL_COM_DIR) $(SHARED_MK) $(LOCAL_MK)
+	@$(REMOVE) $(LOCAL_COMDIR) $(SHARED_MK) $(LOCAL_MK)
 
 
 .PHONY: cleaner
@@ -1071,12 +1163,21 @@ endif
 #  the BUILD_DIR, thus _BUILD/../polled_uar.o can be deleted in the next
 #  round, without showing the huge list of all files...
 #  @$(REMOVE) to suppress display of the command listing all files
-#   requested... 
+#   requested...
+ifdef PROJINFO_TARGET
+.PHONY: clean_list
+clean_list:
+	$(REMOVE) projInfo.h \
+				 $(BUILD_DIR_DEPS) \
+				 $(BUILD_DIR_DEPS:.d=.o) \
+				 $(BUILD_DIR)
+else
 .PHONY: clean_list
 clean_list:
 	$(REMOVE) $(BUILD_DIR_DEPS) \
 				 $(BUILD_DIR_DEPS:.d=.o) \
 				 $(BUILD_DIR)
+endif
 #	$(REMOVE) $(BUILD_DIR_DEPS:.c=.d) \
 #				 $(BUILD_DIR_DEPS:.c=.o) \
 #				 $(BUILD_DIR)
@@ -1121,6 +1222,7 @@ run: $(TARGET)
 	@echo	"################################################################################"
 	$(TARGET)	
 endif
+
 #/* mehPL:
 # *    I would love to believe in a world where licensing shouldn't be
 # *    necessary; where people would respect others' work and wishes, 
@@ -1182,7 +1284,7 @@ endif
 # *    and add a link at the pages above.
 # *
 # * This license added to the original file located at:
-# * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/_make/reallyCommon2.mk
+# * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/_make/reallyCommon3.mk
 # *
 # *    (Wow, that's a lot longer than I'd hoped).
 # *

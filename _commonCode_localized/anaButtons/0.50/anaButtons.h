@@ -133,8 +133,8 @@
 
 
 // Kinda hokey, just a number of loops...
-#define CHARGE_TIME  0xf0
-//#define ANAB_UNPRESSED_TIMEOUT (250000) // 16MHz/CLKDIV64 -> 1s
+#define CHARGE_TIME	0xf0
+//#define ANAB_UNPRESSED_TIMEOUT	(250000)	// 16MHz/CLKDIV64 -> 1s
 //Just somewhat randomly chose that value, it seemed shorter than the
 //unloaded-capacitor-discharge time on my 'scope, but apparently I was 
 //mistaken.
@@ -154,7 +154,7 @@
 //time is spent searching for a button-press that doesn't exist.
 //
 //Longest button-press measurement is <200 tcnts...
-#define ANAB_UNPRESSED_TIMEOUT   (2000)   // 16MHz/CLKDIV64 -> 1s
+#define ANAB_UNPRESSED_TIMEOUT	(2000)	// 16MHz/CLKDIV64 -> 1s
 #define ANAB_BUTTON_TIMEOUT  (ANAB_UNPRESSED_TIMEOUT/3)
 
 //extern uint8_t newCompTime;
@@ -166,16 +166,16 @@
 //ANABUTTONS_INLINEABLE uint8_t anaButtons_wasButtonPressed(void);
 //ANABUTTONS_INLINEABLE uint8_t anaButtons_getButton(void);
 
-#define ANABUTTONS_NOBUTTON   INT32_MIN
+#define ANABUTTONS_NOBUTTON	INT32_MIN
 
 
 //This could probably be avoided by using getDebounced...
 //If the value is positive, it's a measurement
 // Negative is a non-measurement
-#define ANAB_BUTTON_RELEASED     (INT32_MIN+1)
-#define ANAB_NOTHING_TO_REPORT   (ANABUTTONS_NOBUTTON)
+#define ANAB_BUTTON_RELEASED		(INT32_MIN+1)
+#define ANAB_NOTHING_TO_REPORT	(ANABUTTONS_NOBUTTON)
 //Dun think this is particularly well-implemented, yet.
-#define ANAB_SAMPLING            (ANAB_BUTTON_RELEASED+1)
+#define ANAB_SAMPLING				(ANAB_BUTTON_RELEASED+1)
 
 ANABUTTONS_INLINEABLE int32_t anaButtons_update(void);
 //ANABUTTONS_INLINEABLE int32_t anaButtons_getCompTime(void);
@@ -183,7 +183,7 @@ ANABUTTONS_INLINEABLE int32_t anaButtons_update(void);
 
 //This could be the only necessary function to call from user-code...
 //NYI:
-//#define ANABUTTONS_MEASURING   (ANABUTTONS_NOBUTTON+1)
+//#define ANABUTTONS_MEASURING	(ANABUTTONS_NOBUTTON+1)
 ANABUTTONS_INLINEABLE int32_t anaButtons_getDebounced(void);
 
 #endif
@@ -248,7 +248,7 @@ ANABUTTONS_INLINEABLE int32_t anaButtons_getDebounced(void);
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/anaButtons/0.50/anaButtons.h
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/anaButtons/0.50/anaButtons.h
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

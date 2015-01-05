@@ -42,7 +42,7 @@
 
 
 #include <stdio.h> //necessary for sprintf_P...
-                  // See notes in the makefile re: AVR_MIN_PRINTF
+						// See notes in the makefile re: AVR_MIN_PRINTF
 #include <util/delay.h>
 
 //For large things like this, I prefer to have them located globally (or
@@ -53,105 +53,105 @@ char stringBuffer[80];
 int main(void)
 {
 
-   init_heartBeat();
+	init_heartBeat();
 
-   //a/o 0.70, tcnter_init() must be called *before* puat_init()
-   tcnter_init();
-   puat_init(0);
-   puar_init(0);
+	//a/o 0.70, tcnter_init() must be called *before* puat_init()
+	tcnter_init();
+	puat_init(0);
+	puar_init(0);
 
-   spi_init(USART_SPI_SLOW_BAUD_REG_VAL);
-   
-   nlcd_init();
-   nlcd_appendCharacter('B');
-   nlcd_appendCharacter('o');
-   nlcd_appendCharacter('o');
-   nlcd_appendCharacter('t');
-   nlcd_redrawCharacters();
+	spi_init(USART_SPI_SLOW_BAUD_REG_VAL);
+	
+	nlcd_init();
+	nlcd_appendCharacter('B');
+	nlcd_appendCharacter('o');
+	nlcd_appendCharacter('o');
+	nlcd_appendCharacter('t');
+	nlcd_redrawCharacters();
 
-   //Likewise, sendStringBlocking[_P]() blocks tcnter and other updates
-   // so shouldn't be used when e.g. expecting RX-data...
-   //But it's OK now, we're still booting.
-   puat_sendStringBlocking_P(0, stringBuffer, 
-    PSTR("\n\r\n\r"
-         "Type A Key\n\r")); // (0-9 adjusts Heart).\n\r"));
-// puat_sendStringBlocking_P(0, stringBuffer, 
-//  PSTR("'F' sets Fast SPI transmission.\n\r"));
-// puat_sendStringBlocking_P(0, stringBuffer, 
-//  PSTR("'S' sets Slow SPI transmission (Default).\n\r"));
-   puat_sendStringBlocking_P(0, stringBuffer, 
-    PSTR("Each keypress will be displayed on the LCD.\n\r"));
-// puat_sendStringBlocking_P(0, stringBuffer, 
-//  PSTR(" (and also echoed back to the PC)\n\r"));
+	//Likewise, sendStringBlocking[_P]() blocks tcnter and other updates
+	// so shouldn't be used when e.g. expecting RX-data...
+	//But it's OK now, we're still booting.
+	puat_sendStringBlocking_P(0, stringBuffer, 
+	 PSTR("\n\r\n\r"
+			"Type A Key\n\r")); // (0-9 adjusts Heart).\n\r"));
+//	puat_sendStringBlocking_P(0, stringBuffer, 
+//	 PSTR("'F' sets Fast SPI transmission.\n\r"));
+//	puat_sendStringBlocking_P(0, stringBuffer, 
+//	 PSTR("'S' sets Slow SPI transmission (Default).\n\r"));
+	puat_sendStringBlocking_P(0, stringBuffer, 
+	 PSTR("Each keypress will be displayed on the LCD.\n\r"));
+//	puat_sendStringBlocking_P(0, stringBuffer, 
+//	 PSTR(" (and also echoed back to the PC)\n\r"));
 
-   setHeartRate(0);
-
-
-   static dms4day_t startTime = 0;
-// uint8_t fastSPI=FALSE;
-
-   while(1)
-   {
-      tcnter_update();
-      puat_update(0);
-      puar_update(0);
-
-      if(nlcd_charactersChanged())
-         nlcd_redrawCharacters();
+	setHeartRate(0);
 
 
-      if(dmsIsItTime(&startTime, 1*DMS_SEC))
-      {
-         puat_sendByteBlocking(0, '.');
-      }
+	static dms4day_t startTime = 0;
+//	uint8_t fastSPI=FALSE;
+
+	while(1)
+	{
+		tcnter_update();
+		puat_update(0);
+		puar_update(0);
+
+		if(nlcd_charactersChanged())
+			nlcd_redrawCharacters();
+
+
+		if(dmsIsItTime(&startTime, 1*DMS_SEC))
+		{
+			puat_sendByteBlocking(0, '.');
+		}
 
 
 
-      if(puar_dataWaiting(0))
+		if(puar_dataWaiting(0))
       {
          uint8_t byte = puar_getByte(0);
 
          if((byte >= '0') && (byte <= '9'))
             set_heartBlink(byte-'0');
 
-//       if((byte == 'F') || (byte == 'f'))
-//          fastSPI = TRUE;
-//       if((byte == 'S') || (byte == 's'))
-//          fastSPI = FALSE;
+//			if((byte == 'F') || (byte == 'f'))
+//				fastSPI = TRUE;
+//			if((byte == 'S') || (byte == 's'))
+//				fastSPI = FALSE;
 
 
          //Retransmit the received character via SPI
-         // (and receive a byte via SPI)
+			// (and receive a byte via SPI)
          //The output buffer shouldn't be full, right?
-//       if(fastSPI)
-//          byte=spi_transferByte(byte);         
-//       else
-//          byte=spi_transferByteWithTimer(byte);
+//			if(fastSPI)
+//				byte=spi_transferByte(byte);         
+//			else
+//				byte=spi_transferByteWithTimer(byte);
 
-         //NO!!!
-         // nlcd uses spi_transferByteWithTimer() (and spi_transferByte()?)
-         // On its own... Currently we can't control the NLCD baud-rate in
-         // real-time. The rate[s?] used can be set in the makefile.
-
-
-         nlcd_appendCharacter(byte);
+			//NO!!!
+			// nlcd uses spi_transferByteWithTimer() (and spi_transferByte()?)
+			// On its own... Currently we can't control the NLCD baud-rate in
+			// real-time. The rate[s?] used can be set in the makefile.
 
 
+			nlcd_appendCharacter(byte);
 
-         //Echo the Received byte via PUAT:
+
+
+			//Echo the Received byte via PUAT:
          //The output buffer shouldn't be full, right?
-         if(!puat_dataWaiting(0))
+			if(!puat_dataWaiting(0))
             puat_sendByte(0, byte);
 
       }
 
 
-      heartUpdate();
+		heartUpdate();
 
 
-   }
+	}
 
-   return 0;
+	return 0;
 }
 
 /* mehPL:
@@ -215,7 +215,7 @@ int main(void)
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/nlcd/0.20ncf/testMega328p/main.c
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/nlcd/0.20ncf/testMega328p/main.c
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

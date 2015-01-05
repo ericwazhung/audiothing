@@ -19,7 +19,7 @@
 // Ahh, but cirBuff is usually used for grabbing one byte at the end...
 // more for things of varying sizes, rather than a constant size.
 
-//#define SCREEN_CHARS  84
+//#define SCREEN_CHARS	84
 //Allegedly, and logically, initializing this to non-zero would cause the
 // code-size to change... Somewhere it needs to store the values to be
 // written, no?
@@ -52,17 +52,17 @@ static uint8_t nlcd_lastPositionWhenLastRedrawn;
 //This'll return any character on the screen
 static __inline__ char nlcd_getChar(uint8_t charNum)
 {
-   uint8_t bufferPos = charNum+nlcd_lastPosition+1;
-   if(bufferPos >= SCREEN_CHARS)
-      bufferPos -= SCREEN_CHARS;
+	uint8_t bufferPos = charNum+nlcd_lastPosition+1;
+	if(bufferPos >= SCREEN_CHARS)
+		bufferPos -= SCREEN_CHARS;
 
-   return screenTextBuffer[bufferPos];
+	return screenTextBuffer[bufferPos];
 }
 
 static __inline__ void nlcd_setBufferPos(uint8_t pos)
 {
-   nlcd_lastPosition = pos;
-   nlcd_lastPositionWhenLastRedrawn = 0xff;
+	nlcd_lastPosition = pos;
+	nlcd_lastPositionWhenLastRedrawn = 0xff;
 }
 
 //Starts writing at the specified position on the screen, where 0 is UL
@@ -74,55 +74,55 @@ static __inline__ void nlcd_setBufferPos(uint8_t pos)
 // Now returns the original position... for that purpose
 static __inline__ uint8_t nlcd_setCharNum(uint8_t charNum)
 {
-   uint8_t lastPosTemp = nlcd_lastPosition;
+	uint8_t lastPosTemp = nlcd_lastPosition;
 
-   nlcd_lastPosition += charNum;
-   if(nlcd_lastPosition >= SCREEN_CHARS)
-      nlcd_lastPosition -= SCREEN_CHARS;
+	nlcd_lastPosition += charNum;
+	if(nlcd_lastPosition >= SCREEN_CHARS)
+		nlcd_lastPosition -= SCREEN_CHARS;
 
-   return lastPosTemp;
+	return lastPosTemp;
 }
 
 
 
 static __inline__ uint8_t nlcd_charactersChanged(void)
 {
-   return (nlcd_lastPositionWhenLastRedrawn != nlcd_lastPosition);
+	return (nlcd_lastPositionWhenLastRedrawn != nlcd_lastPosition);
 }
 
 void nlcd_redrawCharacters(void)
 {
-   uint8_t thisCharacter = nlcd_lastPosition;
+	uint8_t thisCharacter = nlcd_lastPosition;
 
-   nlcd_lastPositionWhenLastRedrawn = thisCharacter;
-   
-   uint8_t i;
-   for(i = 0; i < 6; i++)
-   {
-      nlcd_gotoXY(0, i);
-      uint8_t j;
-      for(j = 0; j<14; j++)
-      {
-         thisCharacter++;
-         if(thisCharacter >= SCREEN_CHARS)
-            thisCharacter -= SCREEN_CHARS;
+	nlcd_lastPositionWhenLastRedrawn = thisCharacter;
+	
+	uint8_t i;
+	for(i = 0; i < 6; i++)
+	{
+		nlcd_gotoXY(0, i);
+		uint8_t j;
+		for(j = 0; j<14; j++)
+		{
+			thisCharacter++;
+			if(thisCharacter >= SCREEN_CHARS)
+				thisCharacter -= SCREEN_CHARS;
 
-         nlcd_drawChar(screenTextBuffer[thisCharacter]);
-      }
-   }
+			nlcd_drawChar(screenTextBuffer[thisCharacter]);
+		}
+	}
 
 }
 
 void nlcd_appendCharacter(char character)
 {
-   nlcd_lastPosition++;
-   if(nlcd_lastPosition >= SCREEN_CHARS)
-      nlcd_lastPosition -= SCREEN_CHARS;
+	nlcd_lastPosition++;
+	if(nlcd_lastPosition >= SCREEN_CHARS)
+		nlcd_lastPosition -= SCREEN_CHARS;
 
-   screenTextBuffer[nlcd_lastPosition] = character;
+	screenTextBuffer[nlcd_lastPosition] = character;
 #define NLCD_DISABLE_APPEND_REDRAW TRUE
 #if (!defined(NLCD_DISABLE_APPEND_REDRAW) || !NLCD_DISABLE_APPEND_REDRAW)
-   nlcd_redrawCharacters();
+	nlcd_redrawCharacters();
 #endif
 }
 
@@ -131,52 +131,52 @@ extern uint8_t eeFont[FONTBYTES] EEMEM;
 
 
 /*
-#define NLCD_Select()   clrpinPORT(NLCD_nCS_pin, NLCD_nCS_PORT)
+#define NLCD_Select()	clrpinPORT(NLCD_nCS_pin, NLCD_nCS_PORT)
 
-#define NLCD_Deselect() setpinPORT(NLCD_nCS_pin, NLCD_nCS_PORT)
+#define NLCD_Deselect()	setpinPORT(NLCD_nCS_pin, NLCD_nCS_PORT)
 
-#define NLCD_Reset() \
+#define NLCD_Reset()	\
 ({ \
-   clrpinPORT(NLCD_nRST_pin, NLCD_nRST_PORT); \
-   _delay_ms(100); \
-   setpinPORT(NLCD_nRST_pin, NLCD_nRST_PORT); \
-   {}; \
+ 	clrpinPORT(NLCD_nRST_pin, NLCD_nRST_PORT); \
+	_delay_ms(100); \
+ 	setpinPORT(NLCD_nRST_pin, NLCD_nRST_PORT); \
+ 	{}; \
 })
 
 #define NLCD_SetCommandMode() clrpinPORT(NLCD_DnC_pin, NLCD_DnC_PORT)
-#define NLCD_SetDataMode()    setpinPORT(NLCD_DnC_pin, NLCD_DnC_PORT)
+#define NLCD_SetDataMode()		setpinPORT(NLCD_DnC_pin, NLCD_DnC_PORT)
 */
 
 //Stolen almost directly from 3310_routines.c
 void nlcd_writeCommand(uint8_t command)
 {
-   NLCD_Select();
+	NLCD_Select();
 
-   NLCD_SetCommandMode();
+	NLCD_SetCommandMode();
 
-// SPDR = command;
+//	SPDR = command;
 
-// while(sending);
+//	while(sending);
 
-   spi_transferByteWithTimer(command);
+	spi_transferByteWithTimer(command);
 
-   NLCD_Deselect();
+	NLCD_Deselect();
 
 }
 
 void nlcd_writeData(uint8_t data)
 {
-   NLCD_Select();
+	NLCD_Select();
 
-   NLCD_SetDataMode();
+	NLCD_SetDataMode();
 
-// SPDR = command;
+//	SPDR = command;
 
-// while(sending);
+//	while(sending);
 
-   spi_transferByteWithTimer(data);
+	spi_transferByteWithTimer(data);
 
-   NLCD_Deselect();
+	NLCD_Deselect();
 
 }
 
@@ -187,15 +187,15 @@ void nlcd_gotoXY ( unsigned char x, unsigned char y )
 }
 
 /*
-#define NLCD_UseExtendedCommands()  nlcd_writeCommand(0x20 | 0x01)
-#define NLCD_UseBasicCommands()     nlcd_writeCommand(0x20 | 0x00)
+#define NLCD_UseExtendedCommands()	nlcd_writeCommand(0x20 | 0x01)
+#define NLCD_UseBasicCommands()		nlcd_writeCommand(0x20 | 0x00)
 
-#define NLCD_SetContrast(val) \
+#define NLCD_SetContrast(val)	\
 ({ \
-   NLCD_UseExtendedCommands(); \
-   nlcd_writeCommand(0x80 | ((val)&0x7f)); \
-   NLCD_UseBasicCommands(); \
-   {}; \
+	NLCD_UseExtendedCommands(); \
+	nlcd_writeCommand(0x80 | ((val)&0x7f)); \
+	NLCD_UseBasicCommands(); \
+	{}; \
 })
 */
 
@@ -209,13 +209,13 @@ void nlcd_clear ( void )
     {
        for(j=0; j<90; j++)
        {
-//#define NLCD_CLEAR_HACK  TRUE
+//#define NLCD_CLEAR_HACK	TRUE
 #if (defined(NLCD_CLEAR_HACK) && NLCD_CLEAR_HACK)
-         if(j>30)
+			if(j>30)
           nlcd_writeData( 0x07 );
-         else
+			else
 #endif
-            nlcd_writeData(0x00);
+				nlcd_writeData(0x00);
        }
     }
     nlcd_gotoXY (0,0);   //bring the XY position back to (0,0)
@@ -224,57 +224,57 @@ void nlcd_clear ( void )
 
 void nlcd_init(void)
 {
-   //This part wasn't in LCD_init(?!)
-   setoutPORT(NLCD_nRST_pin, NLCD_nRST_PORT);
-   setoutPORT(NLCD_nCS_pin, NLCD_nCS_PORT);
-   setoutPORT(NLCD_DnC_pin, NLCD_DnC_PORT);
-   //Initial values shouldn't matter, I think....
-   //Now onto LCD_init's stuff...
+	//This part wasn't in LCD_init(?!)
+	setoutPORT(NLCD_nRST_pin, NLCD_nRST_PORT);
+	setoutPORT(NLCD_nCS_pin, NLCD_nCS_PORT);
+	setoutPORT(NLCD_DnC_pin, NLCD_DnC_PORT);
+	//Initial values shouldn't matter, I think....
+	//Now onto LCD_init's stuff...
 
-   _delay_ms(100);
+	_delay_ms(100);
 
-   NLCD_Select();
+	NLCD_Select();
 
-   NLCD_Reset();
+	NLCD_Reset();
 
-   NLCD_Deselect();
+	NLCD_Deselect();
 
-   //These are defaults from the other dude's init function...
-   // contrast doesn't work with mine...
-   nlcd_writeCommand( 0x21 );  // LCD Extended Commands.
-   nlcd_writeCommand( 0xE0 );  // Set LCD Vop (Contrast).
-   nlcd_writeCommand( 0x04 );  // Set Temp coefficent.
-   nlcd_writeCommand( 0x13 );  // LCD bias mode 1:48.
-   nlcd_writeCommand( 0x20 );  // LCD Standard Commands, 
-                              //   Horizontal addressing mode.
-   nlcd_writeCommand( 0x0c );  // LCD in normal mode.
+	//These are defaults from the other dude's init function...
+	// contrast doesn't work with mine...
+	nlcd_writeCommand( 0x21 );  // LCD Extended Commands.
+	nlcd_writeCommand( 0xE0 );  // Set LCD Vop (Contrast).
+	nlcd_writeCommand( 0x04 );  // Set Temp coefficent.
+	nlcd_writeCommand( 0x13 );  // LCD bias mode 1:48.
+	nlcd_writeCommand( 0x20 );  // LCD Standard Commands, 
+										//   Horizontal addressing mode.
+	nlcd_writeCommand( 0x0c );  // LCD in normal mode.
 
-   NLCD_SetContrast(70);
+	NLCD_SetContrast(70);
 
-   nlcd_clear();
-   
-//#define NLCD_TEST_CONTRAST  10
+	nlcd_clear();
+	
+//#define NLCD_TEST_CONTRAST	10
 #if (defined(NLCD_TEST_CONTRAST) && NLCD_TEST_CONTRAST)
-   uint8_t contrast;
+	uint8_t contrast;
 
-   dms4day_t startTime = dmsGetTime();
+	dms4day_t startTime = dmsGetTime();
 
-   while(1)
-   {
-      for(contrast=0; contrast<=0x7f; contrast+=NLCD_TEST_CONTRAST)
-      {
-         setoutPORT(HEART_PINNUM, HEART_PINPORT);
-         togglepinPORT(HEART_PINNUM, HEART_PINPORT);
-         NLCD_SetContrast(contrast);
-         
-         //set_heartBlink(contrast);         
+	while(1)
+	{
+		for(contrast=0; contrast<=0x7f; contrast+=NLCD_TEST_CONTRAST)
+		{
+			setoutPORT(HEART_PINNUM, HEART_PINPORT);
+			togglepinPORT(HEART_PINNUM, HEART_PINPORT);
+			NLCD_SetContrast(contrast);
+			
+			//set_heartBlink(contrast);			
 
-         while(!dmsIsItTime(&startTime, 10*DMS_SEC))
-         {
-            //heartUpdate();
-         }
-      }
-   }
+			while(!dmsIsItTime(&startTime, 10*DMS_SEC))
+			{
+				//heartUpdate();
+			}
+		}
+	}
 #endif
 }
 
@@ -296,7 +296,7 @@ void nlcd_init(void)
 // characters' font-data immediately-before that for 'A'
 // And, in fact, ':' is immediately-after '9', so we'll actually *save*
 // code-space, as separate-testing for 'A'-'Z' and '0'-'9' is unnecessary
-#define ADD_9toA_PUNCTUATION  TRUE
+#define ADD_9toA_PUNCTUATION	TRUE
 
 
 //We still have 6 characters' worth of FONT-space left...
@@ -314,7 +314,7 @@ void nlcd_init(void)
 #if(   (defined(ADD_PRIOR_PUNCTUATION) && ADD_PRIOR_PUNCTUATION) \
     && (!defined(ADD_9toA_PUNCTUATION) || !ADD_9toA_PUNCTUATION) )
 #warning "ADD_9toA_PUNCTUATION is not TRUE, but codewise needs-to-be, so it's implied"
-#define ADD_9toA_PUNCTUATION  TRUE
+#define ADD_9toA_PUNCTUATION	TRUE
 #endif
 
 
@@ -329,14 +329,14 @@ void nlcd_init(void)
  #define SPACE_POS     (A_POS     + (('Z'-'A')+1))
  #define QUESTION_POS  (SPACE_POS + 1)
 #elif (defined(ADD_9toA_PUNCTUATION) && (ADD_9toA_PUNCTUATION))
- #define ZERO_POS 0
+ #define ZERO_POS	0
  #define COLON_POS     (ZERO_POS  + (('9'-'0')+1))
  #define A_POS         (COLON_POS + (('@'-':')+1))
  #define SPACE_POS     (A_POS     + (('Z'-'A')+1))
  #define QUESTION_POS  (SPACE_POS + 1)
 #else
  //These are the old positions in the array, prior to ADD_..._PUNCTUATION
- #define ZERO_POS 0
+ #define ZERO_POS	0
  #define A_POS         (ZERO_POS  + (('9'-'0')+1))
  #define SPACE_POS     (A_POS     + (('Z'-'A')+1))
  #define QUESTION_POS  (SPACE_POS + 1)
@@ -344,18 +344,18 @@ void nlcd_init(void)
  
 
 //Change '\n' and '\r' to spaces (instead of '?')
-#define NEWLINE_TO_SPACE   TRUE
+#define NEWLINE_TO_SPACE	TRUE
 
 // Internal...
 uint8_t nlcd_getCharacterCol(char character, uint8_t colNum)
 {
    uint8_t charPos = 0;
 #if (defined(ADD_PRIOR_PUNCTUATION) && ADD_PRIOR_PUNCTUATION)
-   if((character>='*') && (character<='Z'))
-      charPos = (character-'*') + ASTRISK_POS;
+	if((character>='*') && (character<='Z'))
+		charPos = (character-'*') + ASTRISK_POS;
 #elif (defined(ADD_9toA_PUNCTUATION) && (ADD_9toA_PUNCTUATION))
-   if((character>='0') && (character<='Z'))
-      charPos = (character-'0') + ZERO_POS;
+	if((character>='0') && (character<='Z'))
+		charPos = (character-'0') + ZERO_POS;
 #else
    if((character>='0') && (character<='9'))
       charPos = (character-'0') + ZERO_POS;
@@ -365,12 +365,12 @@ uint8_t nlcd_getCharacterCol(char character, uint8_t colNum)
    else if((character>='a') && (character<='z'))
       charPos = (character-'a') + A_POS;
    else if(   (character == ' ') 
-           || (character == 0)   //For some reason '\0' was intentional
+			  || (character == 0)   //For some reason '\0' was intentional
 #if (defined(NEWLINE_TO_SPACE) && NEWLINE_TO_SPACE)
-           || (character == '\n')
+			  || (character == '\n')
            || (character == '\r')
 #endif
-          )
+			 )
       charPos = SPACE_POS;
    else
       charPos = QUESTION_POS;
@@ -379,7 +379,7 @@ uint8_t nlcd_getCharacterCol(char character, uint8_t colNum)
       
    uint8_t eepAddr = charPos * FONT_BYTES_PER_CHAR;
    
-   eepAddr += colNum;
+	eepAddr += colNum;
    
    return eeprom_read_byte((uint8_t*)((uint16_t)eepAddr));
    
@@ -441,7 +441,7 @@ uint8_t eeFont[FONTBYTES] EEMEM =
      0x32, 0x49, 0x59, 0x51, 0x3E,   // '@'=ASCII 64
 #endif
  [A_POS*FONT_BYTES_PER_CHAR] = 
-   0x7E, 0x11, 0x11, 0x11, 0x7E,   // 'A'=ASCII 65
+	0x7E, 0x11, 0x11, 0x11, 0x7E,   // 'A'=ASCII 65
    0x7F, 0x49, 0x49, 0x49, 0x36,   // B
    0x3E, 0x41, 0x41, 0x41, 0x22,   // C
    0x7F, 0x41, 0x41, 0x22, 0x1C,   // D
@@ -534,7 +534,7 @@ uint8_t eeFont[FONTBYTES] EEMEM =
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/nlcd/0.20ncf/nlcd.c
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/nlcd/0.20ncf/nlcd.c
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

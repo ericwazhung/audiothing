@@ -8,6 +8,8 @@
 
 
 
+
+
 // This needn't (shouldn't?) be included anywhere in the project code...
 //  It's included in polled_uat.c
 // Not sure how to tie it all together with main.h or whatever, for e.g.
@@ -85,7 +87,7 @@ extern __inline__ void puat_initOutput(uint8_t puatNum)
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/puatStuff.h
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/puatStuff.h
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

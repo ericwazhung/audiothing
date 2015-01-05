@@ -58,31 +58,31 @@
 
 //Take two pieces of a header-file's name and create a string for #include
 // e.g.:
-// #define THING  thing_
-// #define MCU    attiny861
-// #define _THING_HEADER_  CONCAT_HEADER(THING,MCU)
+// #define THING	thing_
+// #define MCU		attiny861
+// #define _THING_HEADER_	CONCAT_HEADER(THING,MCU)
 // #include _THING_HEADER_
 //   is the equivalent of:
 // #include "thing_attiny861.h"
-#define CONCAT_HEADER(a,b) \
-   STRINGIFY( \
-         HEADER_INDIRECTOR( \
-            PASTE(a,b) \
-         ) \
-   )
+#define CONCAT_HEADER(a,b)	\
+	STRINGIFY( \
+			HEADER_INDIRECTOR( \
+				PASTE(a,b) \
+			) \
+	)
 
 //This, of coure, is a bad idea (#inclusion of a c-file...)
 // But, at least in LCDdirectLVDS, it is what it is.
 #define CONCAT_CFILE(a,b) \
-   STRINGIFY( \
-         CFILE_INDIRECTOR( \
-            PASTE(a,b) \
-         ) \
-   )
+	STRINGIFY( \
+			CFILE_INDIRECTOR( \
+				PASTE(a,b) \
+			) \
+	)
 
 
 //Look into info cpp: DO_PRAGMA or search for "destring"
-//#define DESTRINGIFY(string) _Pragma(string)
+//#define DESTRINGIFY(string)	_Pragma(string)
 /* mehPL:
  *    I would love to believe in a world where licensing shouldn't be
  *    necessary; where people would respect others' work and wishes, 
@@ -144,7 +144,7 @@
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/60-sampleRateInHeader/_commonCode_localized/__std_wrappers/0.10/stringify.h
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/__std_wrappers/stringify/0.10/stringify.h
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

@@ -16,25 +16,25 @@
 
 
 #if (defined(PU_PC_DEBUG) && PU_PC_DEBUG)
-   #include <stdio.h>
-   #define DPRINT printf
+	#include <stdio.h>
+	#define DPRINT	printf
 #else
-   #define DPRINT(...) {}
+	#define DPRINT(...) {}
 #endif
 
 #if (defined(TCNTER_SOURCE_EXTERNED) && TCNTER_SOURCE_EXTERNED)
-   extern tcnter_source_t  TCNTER_SOURCE_VAR;
+	extern tcnter_source_t	TCNTER_SOURCE_VAR;
 #endif
 
 
 #if (defined(TCNTER_INITS_TIMER) && TCNTER_INITS_TIMER)
  #ifndef TCNTER_SOURCE_VAR
   #ifdef __AVR_AT90PWM161__
-   #define TCNTER_SOURCE_VAR  TCNT1
+   #define TCNTER_SOURCE_VAR	TCNT1
   #elif (defined(TCNT0))
-   #define TCNTER_SOURCE_VAR  TCNT0
+   #define TCNTER_SOURCE_VAR	TCNT0
   #elif(defined(TCNT0L))
-   #define TCNTER_SOURCE_VAR  TCNT0L
+   #define TCNTER_SOURCE_VAR	TCNT0L
   #else
    #error "Gonna have to set TCNTER_SOURCE_VAR explicitly"
   #endif
@@ -42,18 +42,18 @@
 
  #ifndef TCNTER_SOURCE_OVERFLOW_VAL
   #ifdef __AVR_AT90PWM161__
-   #define TCNTER_SOURCE_OVERFLOW_VAL  0xffff
+   #define TCNTER_SOURCE_OVERFLOW_VAL	0xffff
   #else
    //Assuming an 8-bit timer...
-   #define TCNTER_SOURCE_OVERFLOW_VAL  0xff
+   #define TCNTER_SOURCE_OVERFLOW_VAL	0xff
   #endif
  #endif
 
  #ifndef TCNTER_AVRTIMER_NUM
   #ifdef __AVR_AT90PWM161__
-   #define TCNTER_AVRTIMER_NUM   1
+   #define TCNTER_AVRTIMER_NUM	1
   #else
-   #define TCNTER_AVRTIMER_NUM   0
+   #define TCNTER_AVRTIMER_NUM	0
   #endif
  #endif
  //This moved to tcnter.h
@@ -71,9 +71,9 @@
 #endif
 
 //DON'T CHANGE THIS WITHOUT CHANGING both!
-//#define tcnter_source_t  uint8_t
-//#define tcnter_compare_t int16_t
-//#define tcnter_t   uint32_t
+//#define tcnter_source_t	uint8_t
+//#define tcnter_compare_t	int16_t
+//#define tcnter_t	uint32_t
 
 //Running TCNTs since last init
 volatile tcnter_t tcnter_myTcnter = 0;
@@ -84,37 +84,37 @@ tcnter_source_t tcnter_lastTcnt = 0;
 // Before inlining functions:
 //INLINING EXPERIMENTS: INLINE=FALSE 4098B INLINE=TRUE 4240B
 //   after all inlining, it's still bigger than without inlining!
-//Inlined: Saved 24B (4216)   
+//Inlined: Saved 24B (4216)	
 TCNTER_INLINEABLE
 void tcnter_init(void)
 {
 #if (defined(TCNTER_INITS_TIMER) && TCNTER_INITS_TIMER)
-   //What if the timer is 16bit (do they default as such?)
-   timer_setWGM(TCNTER_AVRTIMER_NUM, WGM_NORMAL); //Necessary?
-   timer_selectDivisor(TCNTER_AVRTIMER_NUM, TCNTER_AVRTIMER_CLKDIV);
+	//What if the timer is 16bit (do they default as such?)
+	timer_setWGM(TCNTER_AVRTIMER_NUM, WGM_NORMAL); //Necessary?
+	timer_selectDivisor(TCNTER_AVRTIMER_NUM, TCNTER_AVRTIMER_CLKDIV);
 #endif
 
-   tcnter_lastTcnt = TCNTER_SOURCE_VAR;
-   tcnter_myTcnter = 0;
+	tcnter_lastTcnt = TCNTER_SOURCE_VAR;
+	tcnter_myTcnter = 0;
 
-   DPRINT("tcnter_init()\n");
+	DPRINT("tcnter_init()\n");
 }
 
 
 void tcnter_wait(myTcnter_t tcnts)
 {
-   myTcnter_t startTime = tcnter_get();
+	myTcnter_t startTime = tcnter_get();
 
-   while(!tcnter_isItTime(&startTime, tcnts))
-   {
-      tcnter_update();
-      //asm("nop;");
-   }
+	while(!tcnter_isItTime(&startTime, tcnts))
+	{
+		tcnter_update();
+		//asm("nop;");
+	}
 }
 
 
 #if(defined(TCNT_UPDATE_ONCE_PER_OVERFLOW) && \
-      TCNT_UPDATE_ONCE_PER_OVERFLOW)
+		TCNT_UPDATE_ONCE_PER_OVERFLOW)
 //65536 calls should be plenty, right...?
 // what if we're in a tcnter_wait() function, and the overflow-value is
 // large?
@@ -135,46 +135,46 @@ tcnter_source_t tcnter_lastOverflowTcnt = 0;
 TCNTER_INLINEABLE
 void tcnter_overflowUpdate(void)
 {
-   tcnter_source_t thisTcnt = TCNTER_SOURCE_VAR;
+	tcnter_source_t thisTcnt = TCNTER_SOURCE_VAR;
 
-   //This will be calculated before being added to myTcnter...
-   tcnter_compare_t deltaTcnt;
-
-
-   //If tcnter_update() has been called inbetween, just treat this like a
-   //normal tcnter_update()   
-   if(tcnter_updatesSinceOverflowUpdate)
-   {
-      //wrap-around can be handled here...
-      // (This shouldn't happen, right? Since overflowUpdate is called?)
-      if(thisTcnt < tcnter_lastTcnt)
-         deltaTcnt = (tcnter_compare_t)(TCNTER_SOURCE_OVERFLOW_VAL);
-      else
-         deltaTcnt = 0;
-
-      deltaTcnt += (tcnter_compare_t)thisTcnt
-                  - (tcnter_compare_t)tcnter_lastTcnt;
-   }
-   else
-   {
-      //Any error will be subtracted later...
-      deltaTcnt = TCNTER_SOURCE_OVERFLOW_VAL;
-
-      //This should probably be small, e.g. +-1 WRT the last overflowUpdate
-      // since it likely occurs in the overflow interrupt.
-      deltaTcnt += (tcnter_compare_t)thisTcnt
-                  - (tcnter_compare_t)tcnter_lastOverflowTcnt;
-
-   }
+	//This will be calculated before being added to myTcnter...
+	tcnter_compare_t deltaTcnt;
 
 
-   //Add the delta to myTcnter
-   tcnter_myTcnter += deltaTcnt;
-   
-   //And prep for the next call...
-   tcnter_updatesSinceOverflowUpdate = 0;
-   tcnter_lastTcnt = thisTcnt;
-   tcnter_lastOverflowTcnt = thisTcnt;
+	//If tcnter_update() has been called inbetween, just treat this like a
+	//normal tcnter_update()	
+	if(tcnter_updatesSinceOverflowUpdate)
+	{
+		//wrap-around can be handled here...
+		// (This shouldn't happen, right? Since overflowUpdate is called?)
+		if(thisTcnt < tcnter_lastTcnt)
+			deltaTcnt = (tcnter_compare_t)(TCNTER_SOURCE_OVERFLOW_VAL);
+		else
+			deltaTcnt = 0;
+
+		deltaTcnt += (tcnter_compare_t)thisTcnt
+						- (tcnter_compare_t)tcnter_lastTcnt;
+	}
+	else
+	{
+		//Any error will be subtracted later...
+		deltaTcnt = TCNTER_SOURCE_OVERFLOW_VAL;
+
+		//This should probably be small, e.g. +-1 WRT the last overflowUpdate
+		// since it likely occurs in the overflow interrupt.
+		deltaTcnt += (tcnter_compare_t)thisTcnt
+						- (tcnter_compare_t)tcnter_lastOverflowTcnt;
+
+	}
+
+
+	//Add the delta to myTcnter
+	tcnter_myTcnter += deltaTcnt;
+	
+	//And prep for the next call...
+	tcnter_updatesSinceOverflowUpdate = 0;
+	tcnter_lastTcnt = thisTcnt;
+	tcnter_lastOverflowTcnt = thisTcnt;
 }
 #endif
 
@@ -194,33 +194,33 @@ void tcnter_overflowUpdate(void)
 //TCNTER_INLINEABLE
 void tcnter_update(void)
 {
-   tcnter_source_t thisTcnt = TCNTER_SOURCE_VAR;   //e.g. TCNT0
-   
-   tcnter_compare_t deltaTcnt = (tcnter_compare_t)thisTcnt 
-                              - (tcnter_compare_t)tcnter_lastTcnt;
+	tcnter_source_t thisTcnt = TCNTER_SOURCE_VAR;	//e.g. TCNT0
+	
+	tcnter_compare_t deltaTcnt = (tcnter_compare_t)thisTcnt 
+										- (tcnter_compare_t)tcnter_lastTcnt;
 
-   
+	
 #if(defined(TCNT_UPDATE_ONCE_PER_OVERFLOW) && \
-      TCNT_UPDATE_ONCE_PER_OVERFLOW)
-   //The odd-case being if e.g. overflowUpdate is called at TCNT=1
-   // and update() is called after, at TCNT=1
-   // update won't increment, and the updatesSinceOverflow, if allowed to
-   // be incremented, would indicate to overflowUpdate that it should treat
-   // the next overflow as a normal update, which may well occur at, again,
-   // TCNT=1, which would result in a non-advancement at all.
-   if(thisTcnt == tcnter_lastOverflowTcnt)
-      return;
+		TCNT_UPDATE_ONCE_PER_OVERFLOW)
+	//The odd-case being if e.g. overflowUpdate is called at TCNT=1
+	// and update() is called after, at TCNT=1
+	// update won't increment, and the updatesSinceOverflow, if allowed to
+	// be incremented, would indicate to overflowUpdate that it should treat
+	// the next overflow as a normal update, which may well occur at, again,
+	// TCNT=1, which would result in a non-advancement at all.
+	if(thisTcnt == tcnter_lastOverflowTcnt)
+		return;
 
-   tcnter_updatesSinceOverflowUpdate++;
+	tcnter_updatesSinceOverflowUpdate++;
 #endif
-   
-   // Handle wrap-around...
-   if (thisTcnt < tcnter_lastTcnt)
-      deltaTcnt += (tcnter_compare_t)(TCNTER_SOURCE_OVERFLOW_VAL);
+	
+	// Handle wrap-around...
+	if (thisTcnt < tcnter_lastTcnt)
+		deltaTcnt += (tcnter_compare_t)(TCNTER_SOURCE_OVERFLOW_VAL);
 
-   tcnter_lastTcnt = thisTcnt;
+	tcnter_lastTcnt = thisTcnt;
 
-   tcnter_myTcnter += (tcnter_t)deltaTcnt;
+	tcnter_myTcnter += (tcnter_t)deltaTcnt;
 }
 
 
@@ -229,7 +229,7 @@ void tcnter_update(void)
 TCNTER_INLINEABLE
 tcnter_t tcnter_get(void)
 {
-   return tcnter_myTcnter;
+	return tcnter_myTcnter;
 }
 
 
@@ -254,26 +254,26 @@ tcnter_t tcnter_get(void)
 //   resulted in sometimes 12 instructions (4=readThisTime, 4=readNextTime
 //    4=compare) Then 4=calcNextTime...
 
-#if 0  //These are now in the header-file, as they're always inline...  
+#if 0  //These are now in the header-file, as they're always inline...	
 TCNTER_INLINEABLE
 uint8_t tcnter_isItTime8(tcnter8_t *startTime, tcnter8_t deltaTime)
 {
-   tcnter8_t thisDelta = (uint8_t)tcnter_myTcnter - (uint8_t)(*startTime);
-   
-   if(thisDelta >= deltaTime)
-   {
-      //Say thisDelta = 5, deltaTime = 4
-      // that means we're 1 after the desired time
-      //  (thisDelta - deltaTime) = 1
-      // So set startTime (for the next go-round) to thisTime - 1
-      //  (to hopefully eliminate cumulative error)
+	tcnter8_t thisDelta = (uint8_t)tcnter_myTcnter - (uint8_t)(*startTime);
+	
+	if(thisDelta >= deltaTime)
+	{
+		//Say thisDelta = 5, deltaTime = 4
+		// that means we're 1 after the desired time
+		//  (thisDelta - deltaTime) = 1
+		// So set startTime (for the next go-round) to thisTime - 1
+		//  (to hopefully eliminate cumulative error)
 
-      // Could this math be combined with >= above?
-      *startTime = (uint8_t)tcnter_myTcnter - (thisDelta - deltaTime);
-      return TRUE;
-   }
-   else
-      return FALSE;
+		// Could this math be combined with >= above?
+		*startTime = (uint8_t)tcnter_myTcnter - (thisDelta - deltaTime);
+		return TRUE;
+	}
+	else
+		return FALSE;
 // return (((uint8_t)tcnter_myTcnter - (uint8_t)startTime) > (uint8_t)deltaTime);
 }
 
@@ -281,46 +281,46 @@ uint8_t tcnter_isItTime8(tcnter8_t *startTime, tcnter8_t deltaTime)
 TCNTER_INLINEABLE
 uint8_t tcnter_isItTime(tcnter_t *startTime, tcnter_t deltaTime)
 {
-   tcnter_t thisDelta = tcnter_myTcnter - *startTime;
+	tcnter_t thisDelta = tcnter_myTcnter - *startTime;
 
-   if(thisDelta >= deltaTime)
-   {
-      *startTime = tcnter_myTcnter - (thisDelta - deltaTime);
-      return TRUE;
-   }
-   else
-      return FALSE;
+	if(thisDelta >= deltaTime)
+	{
+		*startTime = tcnter_myTcnter - (thisDelta - deltaTime);
+		return TRUE;
+	}
+	else
+		return FALSE;
 }
 #endif
 
 /* poll_uar notes, could be useful here...?
-   Timing Considerations:
-      TCNT increments:
-         near bit-rate (e.g. 1.5 TCNTS = 1 bit)
-            high bit-rate
-               Risky, updates might not be often enough regardless of xyt
-            slow counter
-               NEEDs xyt
-         good (e.g. 52.9 TCNTS = 1 bit)
-            since .9 is dropped from calculations we have 52 TCNTS/bit
-            after 10 bits (one frame) this is only 9 TCNTS away from center
-               or 9/52 = ~.2 bits away from center
-               (and next Start-edge should realign again)
-            Fast Counter
-               multiple tcnts per update (possibly)
-                  HEREIN LIES THE PROBLEM:
-                     How to track sample times...?
-                        tcnt likely to overflow several times per byte
-                           running tcnt?
-            
-            xyt would probably be aceptable
-              though it's increasingly likely that each update will have
-              multiple tcnts (and xyt will need to update multiple times)
-         far/risky (e.g. 250 TCNTS = 1 bit)
-            math gets difficult due to constant wraparound
-            Fast Counter
-               xyt would be extremely difficult to keep-up
-                  then again, much less necessary; high-precision
+	Timing Considerations:
+		TCNT increments:
+			near bit-rate (e.g. 1.5 TCNTS = 1 bit)
+				high bit-rate
+					Risky, updates might not be often enough regardless of xyt
+				slow counter
+					NEEDs xyt
+			good (e.g. 52.9 TCNTS = 1 bit)
+				since .9 is dropped from calculations we have 52 TCNTS/bit
+				after 10 bits (one frame) this is only 9 TCNTS away from center
+					or 9/52 = ~.2 bits away from center
+			   	(and next Start-edge should realign again)
+				Fast Counter
+					multiple tcnts per update (possibly)
+						HEREIN LIES THE PROBLEM:
+							How to track sample times...?
+								tcnt likely to overflow several times per byte
+									running tcnt?
+				
+				xyt would probably be aceptable
+				  though it's increasingly likely that each update will have
+				  multiple tcnts (and xyt will need to update multiple times)
+			far/risky (e.g. 250 TCNTS = 1 bit)
+				math gets difficult due to constant wraparound
+				Fast Counter
+					xyt would be extremely difficult to keep-up
+						then again, much less necessary; high-precision
 
 */
 
@@ -385,7 +385,7 @@ uint8_t tcnter_isItTime(tcnter_t *startTime, tcnter_t deltaTime)
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/tcnter/0.30/tcnter.c
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/tcnter/0.30/tcnter.c
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

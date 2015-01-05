@@ -18,24 +18,24 @@
 void main(void)
 {
 
-   init_heartBeat();
+	init_heartBeat();
 
-   puar_init(0);
+	puar_init(0);
 
-   while(1)
-   {
-      puar_update(0);
+	while(1)
+	{
+		puar_update(0);
 
-      if(puar_dataWaiting(0))
-      {
-         uint8_t byte = puar_getByte(0);
+		if(puar_dataWaiting(0))
+		{
+			uint8_t byte = puar_getByte(0);
 
-         if((byte >= '0') && (byte <= '9'))
-            set_heartBlink(byte-'0');
-      }
+			if((byte >= '0') && (byte <= '9'))
+				set_heartBlink(byte-'0');
+		}
 
-      heartUpdate();
-   }
+		heartUpdate();
+	}
 }
 
 /* mehPL:
@@ -99,7 +99,7 @@ void main(void)
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/polled_uar/0.50/testTiny84/main.c
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/polled_uar/0.50/testTiny84/main.c
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

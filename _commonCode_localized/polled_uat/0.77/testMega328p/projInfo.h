@@ -17,12 +17,12 @@
    header[] = "";
 #elif (defined(PROJINFO_SHORT) && PROJINFO_SHORT)
  const uint8_t __attribute__ ((progmem)) \
-   header[] = "polled_uat_TesttestMega328p 2014-12-18 00:31:20";
+   header[] = "polled_uat_TesttestMega328p 2014-12-24 11:04:28";
 #else //projInfo Not Shortened nor overridden
  const uint8_t __attribute__ ((progmem)) \
-   header0[] = " /home/meh/_commonCode/polled_uat/0.76/testMega328p ";
+   header0[] = " /home/meh/_commonCode/polled_uat/0.77/testMega328p ";
  const uint8_t __attribute__ ((progmem)) \
-   header1[] = " Thu Dec 18 00:31:20 PST 2014 ";
+   header1[] = " Wed Dec 24 11:04:28 PST 2014 ";
  const uint8_t __attribute__ ((progmem)) \
    headerOpt[] = "  ";
 #endif
@@ -95,7 +95,7 @@
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/62-FCPUnonEffects/_commonCode_localized/polled_uat/0.77/testMega328p/projInfo.h
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/polled_uat/0.77/testMega328p/projInfo.h
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

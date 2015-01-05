@@ -223,7 +223,7 @@ int main(void)
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/62-FCPUnonEffects/_commonCode_localized/polled_uat/0.77/testDesktop/main.c
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/polled_uat/0.77/testDesktop/main.c
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

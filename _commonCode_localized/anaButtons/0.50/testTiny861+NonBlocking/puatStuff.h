@@ -15,12 +15,12 @@
 
 extern __inline__ void puat_writeOutput(uint8_t puatNum, uint8_t value)
 {
-   writepinPORT(Tx0pin, Tx0PORT, value);
+	writepinPORT(Tx0pin, Tx0PORT, value);
 }
 
 extern __inline__ void puat_initOutput(uint8_t puatNum)
 {
-   setoutPORT(Tx0pin, Tx0PORT);
+	setoutPORT(Tx0pin, Tx0PORT);
 }
 
 /* mehPL:
@@ -84,7 +84,7 @@ extern __inline__ void puat_initOutput(uint8_t puatNum)
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/anaButtons/0.50/testTiny861+NonBlocking/puatStuff.h
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/anaButtons/0.50/testTiny861+NonBlocking/puatStuff.h
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

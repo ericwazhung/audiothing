@@ -13,41 +13,41 @@
 #include <avr/interrupt.h>
 #endif
 
-#if(!defined(ANABUTTONS_DIGITALIO) || !ANABUTTONS_DIGITALIO)   
+#if(!defined(ANABUTTONS_DIGITALIO) || !ANABUTTONS_DIGITALIO)	
 static __inline__
 void setupAnaComp(void)
 {
 #ifdef __AVR_ATtiny861__
-#define ACSR_REG  ACSRA
-         ACSRA = (0<<ACD)  // Don't disable the anaComp
+#define ACSR_REG	ACSRA
+			ACSRA = (0<<ACD)	// Don't disable the anaComp
 #warning "This is a result of an older version... BandGap was unused on this device... (Why not?)"
-               | (0<<ACBG) // Don't Use the internal voltage reference
-                           //  for +input. See ADMUX: REFS2..0
-               | (0<<ACO)  // This is read-only...
-               | (1<<ACI)  // Clear the interrupt flag
-               | (0<<ACIE) // Don't enable the interrupt
-               | (0<<ACME) // Don't use the ADC Multiplexer to select
-                           //  the inputs...
-               | (1<<ACIS1)// With Below, select anaComp output Rising-edge
-               | (1<<ACIS0);//  for the interrupt-flag (don't care)
-         ACSRB = (0<<HSEL) // Don't use hysteresis
-               | (0<<HLEV) //  Don't care about the hysteresis level
-               | (1<<ACM2) // With Below, select AIN2 as the positive input
-               | (0<<ACM1) //  AIN0 as negative  
-               | (0<<ACM0);// ??? This doesn't match the drawing...
+					| (0<<ACBG)	// Don't Use the internal voltage reference
+									//  for +input. See ADMUX: REFS2..0
+					| (0<<ACO)	// This is read-only...
+					| (1<<ACI)  // Clear the interrupt flag
+					| (0<<ACIE) // Don't enable the interrupt
+					| (0<<ACME)	// Don't use the ADC Multiplexer to select
+									//  the inputs...
+					| (1<<ACIS1)// With Below, select anaComp output Rising-edge
+					| (1<<ACIS0);//  for the interrupt-flag (don't care)
+			ACSRB = (0<<HSEL)	// Don't use hysteresis
+					| (0<<HLEV) //  Don't care about the hysteresis level
+					| (1<<ACM2)	// With Below, select AIN2 as the positive input
+					| (0<<ACM1)	//  AIN0 as negative  
+					| (0<<ACM0);// ??? This doesn't match the drawing...
 #elif (defined(__AVR_ATmega8515__))
 #define ACSR_REG ACSR
-         ACSR  = (0<<ACD)  // Don't disable the anaComp
-               | (1<<ACBG) // DO USE the internal voltage reference
-                           //  for +input.
-               | (0<<ACO)  // This is read-only...
-               | (1<<ACI)  // Clear the interrupt flag
-               | (0<<ACIE) // Don't enable the interrupt
-               | (0<<ACIC) // Don't use the Timer1 Input Capture
-               | (1<<ACIS1)// Select anaComp output Rising-edge
-               | (1<<ACIS0);//  for the interrupt-flag (don't care)
+			ACSR  = (0<<ACD)	// Don't disable the anaComp
+					| (1<<ACBG)	// DO USE the internal voltage reference
+									//  for +input.
+					| (0<<ACO)	// This is read-only...
+					| (1<<ACI)  // Clear the interrupt flag
+					| (0<<ACIE) // Don't enable the interrupt
+					| (0<<ACIC)	// Don't use the Timer1 Input Capture
+					| (1<<ACIS1)// Select anaComp output Rising-edge
+					| (1<<ACIS0);//  for the interrupt-flag (don't care)
 #else
-   #error "This MCU not yet supported..."
+	#error "This MCU not yet supported..."
 #endif
 }
 #endif
@@ -60,17 +60,17 @@ uint8_t isThresholdCrossed(void)
 
 //Not sure if this works....
 //#define AINS_SWAPPED TRUE
-#if(!defined(ANABUTTONS_DIGITALIO) || !ANABUTTONS_DIGITALIO)   
+#if(!defined(ANABUTTONS_DIGITALIO) || !ANABUTTONS_DIGITALIO)	
  #if(defined(AINS_SWAPPED) && AINS_SWAPPED)
-   //Not sure if this actually works... untested
-   return !getbit(ACO, ACSR_REG);
+	//Not sure if this actually works... untested
+	return !getbit(ACO, ACSR_REG);
  #else
-   // The anaComp output should be positive when the capacitor has
-   // discharged below the positive input
-   return getbit(ACO, ACSR_REG);
+	// The anaComp output should be positive when the capacitor has
+	// discharged below the positive input
+	return getbit(ACO, ACSR_REG);
  #endif
 #else //DigitalIO
-   return !getpinPORT(ANABUTTONS_PIN, ANABUTTONS_PORT);
+	return !getpinPORT(ANABUTTONS_PIN, ANABUTTONS_PORT);
 #endif
 
 }
@@ -100,61 +100,61 @@ uint16_t anaB_samples = 0; //see note regarding "samples" below.
 //These are only valid immediately after getDebounced returns a value!
 uint16_t anaB_minSamples = 0;
 uint32_t anaB_measurementCount = 0;
-   
+	
 ANABUTTONS_INLINEABLE 
 int32_t anaButtons_getDebounced(void)
 {
-   static int32_t minButtonTime = ANABUTTONS_NOBUTTON;
-   int32_t thisUpdate = anaButtons_update();
-   int32_t retVal = ANABUTTONS_NOBUTTON;
+	static int32_t minButtonTime = ANABUTTONS_NOBUTTON;
+	int32_t thisUpdate = anaButtons_update();
+	int32_t retVal = ANABUTTONS_NOBUTTON;
 
 
-   //Got a value...
-   if(thisUpdate >= 0)
-   {
+	//Got a value...
+	if(thisUpdate >= 0)
+	{
 
-      if(minButtonTime == ANABUTTONS_NOBUTTON)
-      {
-         //Gotta do this at the beginning, because we don't know when it
-         //may be read-back (after a sample is returned)... 
-         anaB_measurementCount = 0;
+		if(minButtonTime == ANABUTTONS_NOBUTTON)
+		{
+			//Gotta do this at the beginning, because we don't know when it
+			//may be read-back (after a sample is returned)... 
+			anaB_measurementCount = 0;
 
-         minButtonTime = thisUpdate;
-         anaB_minSamples = anaB_samples;
-      }
-      else if(thisUpdate < minButtonTime)
-      {
-         anaB_minSamples = anaB_samples;  
-         minButtonTime = thisUpdate;
-      }
+			minButtonTime = thisUpdate;
+			anaB_minSamples = anaB_samples;
+		}
+		else if(thisUpdate < minButtonTime)
+		{
+			anaB_minSamples = anaB_samples;	
+			minButtonTime = thisUpdate;
+		}
 
-      anaB_measurementCount++;
-   }
-   //The button was released, return the value
-   else if(thisUpdate == ANAB_BUTTON_RELEASED)
-   {
-      int32_t mbtTemp = minButtonTime;
-      minButtonTime = ANABUTTONS_NOBUTTON;
+		anaB_measurementCount++;
+	}
+	//The button was released, return the value
+	else if(thisUpdate == ANAB_BUTTON_RELEASED)
+	{
+		int32_t mbtTemp = minButtonTime;
+		minButtonTime = ANABUTTONS_NOBUTTON;
 
-      return mbtTemp;
-   }
-   //thisUpdate is negative, (and NOT ButtonReleased)
-   // we don't really need to handle them specially.
-   else 
-   {
-   }
+		return mbtTemp;
+	}
+	//thisUpdate is negative, (and NOT ButtonReleased)
+	// we don't really need to handle them specially.
+	else 
+	{
+	}
 
-   return retVal;
+	return retVal;
 
 }
 
 //Old Note:
-   //The button has *just* been pressed, disregard the first value...
-   // (When no button is pressed, the capacitor discharges quite slowly, on
-   // the order of seconds. Meanwhile the tcnt is running... 
-   // So when the button is initially pressed, it cuts the open-circuit
-   // discharge time short, which could appear as a valid value, but
-   // way-larger than the actual value.
+	//The button has *just* been pressed, disregard the first value...
+	// (When no button is pressed, the capacitor discharges quite slowly, on
+	// the order of seconds. Meanwhile the tcnt is running... 
+	// So when the button is initially pressed, it cuts the open-circuit
+	// discharge time short, which could appear as a valid value, but
+	// way-larger than the actual value.
 
 
 // a/o 0.45b (and prior)
@@ -165,26 +165,26 @@ int32_t anaButtons_getDebounced(void)
 //    3 Wait for the threshold-crossing
 
 // a/o 0.50:
-#define ANAB_STATE_START_CHARGE     0
+#define ANAB_STATE_START_CHARGE		0
 //    0 Enable Capacitor-Charging
 //      ->1
-#define ANAB_STATE_CHARGE           1
+#define ANAB_STATE_CHARGE				1
 //    1 Wait for charged
 //      Charged?
 //         Y ->2
 //         N ->1
-#define ANAB_STATE_RELEASE_CHARGE   2
+#define ANAB_STATE_RELEASE_CHARGE	2
 //    2 Begin discharge
 //          Button pressed (from before?)
 //              Y    ->4
 //              N    ->3
-#define ANAB_STATE_CHECK_FOR_PRESS  3
+#define ANAB_STATE_CHECK_FOR_PRESS	3
 //    3 Wait for threshold-crossing
 //          Threshold Before Unpressed-Time-Out?
 //              Y    A button is pressed, begin sampling: (0..2->4)
 //              N    No button pressed, repeat: (0..2->3)
 //      -> 0
-#define ANAB_STATE_CLOCK_DISCHARGE  4
+#define ANAB_STATE_CLOCK_DISCHARGE	4
 // BLOCKING
 //    4 Loop
 //        tcnter_update
@@ -204,167 +204,167 @@ int32_t anaButtons_getDebounced(void)
 ANABUTTONS_INLINEABLE
 int32_t anaButtons_update(void)
 {
-   static uint8_t buttonPressed = FALSE;
-   static tcnter_t startTime = 0;
-   static uint8_t state=0;
+	static uint8_t buttonPressed = FALSE;
+	static tcnter_t startTime = 0;
+	static uint8_t state=0;
 
 
-   //a/o 0.50: NYreI:
-   //a/o 0.45b:
-   //
-   //
-   //
-   //
-   //Discard readings which didn't have at least a few updates before
-   //completion...
-   //e.g. when the update function is called with a long pause between
-   //e.g. due to another _update() function's taking quite some time for a
-   //state-transition.  
-   // There's a couple ways to accomplish this, and both may be wise...
-   // 1) Track the number of tcnts since the last update/sample-call
-   //    during the discharge-timer
-   //    -- (not so great if the tcnter source overflows multiple times)
-   // 2) Track the number of calls to update() during the discharge state
-   //    discard the value if there's not at least one intermediate sample
-   //    -- (there could easily be one at the start and a long delay after)
-   //
-   // (3?) For overflow detection: Reset a start-timer during each update?
-   //      Expect a certain number of TCNTs (minimum processing time for a
-   //      single main-loop) and discard if smaller...?
-   //      -- (very case-specific... is it helpful?)
-   //         (also, kinda taken-care-of by tcnter's overflow handling?)
-   static uint16_t samples=0;
+	//a/o 0.50: NYreI:
+	//a/o 0.45b:
+	//
+	//
+	//
+	//
+	//Discard readings which didn't have at least a few updates before
+	//completion...
+	//e.g. when the update function is called with a long pause between
+	//e.g. due to another _update() function's taking quite some time for a
+	//state-transition.  
+	// There's a couple ways to accomplish this, and both may be wise...
+	// 1) Track the number of tcnts since the last update/sample-call
+	//    during the discharge-timer
+	//    -- (not so great if the tcnter source overflows multiple times)
+	// 2) Track the number of calls to update() during the discharge state
+	//    discard the value if there's not at least one intermediate sample
+	//    -- (there could easily be one at the start and a long delay after)
+	//
+	// (3?) For overflow detection: Reset a start-timer during each update?
+	//      Expect a certain number of TCNTs (minimum processing time for a
+	//      single main-loop) and discard if smaller...?
+	//      -- (very case-specific... is it helpful?)
+	//         (also, kinda taken-care-of by tcnter's overflow handling?)
+	static uint16_t samples=0;
 
 #if(defined(ANAB_CLI) && ANAB_CLI)
-   uint8_t oldI=0;   
+	uint8_t oldI=0;	
 #endif
 
 //May be only done once, unless BLOCKING and in the specific state...
 do
 {
-   switch(state)
-   {
-      //Charge the capacitor...
-      case ANAB_STATE_START_CHARGE:
+	switch(state)
+	{
+		//Charge the capacitor...
+		case ANAB_STATE_START_CHARGE:
 
-         setoutPORT(ANABUTTONS_PIN, ANABUTTONS_PORT);
-         setpinPORT(ANABUTTONS_PIN, ANABUTTONS_PORT);
+			setoutPORT(ANABUTTONS_PIN, ANABUTTONS_PORT);
+			setpinPORT(ANABUTTONS_PIN, ANABUTTONS_PORT);
 
-         state = ANAB_STATE_CHARGE;
-         break;
-      //Give it some time to make sure it's charged...
-      case ANAB_STATE_CHARGE:
-         {
-            static uint8_t chargeTime = 0;
+			state = ANAB_STATE_CHARGE;
+			break;
+		//Give it some time to make sure it's charged...
+		case ANAB_STATE_CHARGE:
+			{
+				static uint8_t chargeTime = 0;
 
-            if(chargeTime >= CHARGE_TIME)
-            {
-               state = ANAB_STATE_RELEASE_CHARGE;
-               chargeTime = 0;
-            }
-            else
-               chargeTime++;
-         }
-         break;
-      //Start discharging through the buttons (if pressed)...
-      case ANAB_STATE_RELEASE_CHARGE:
+				if(chargeTime >= CHARGE_TIME)
+				{
+					state = ANAB_STATE_RELEASE_CHARGE;
+					chargeTime = 0;
+				}
+				else
+					chargeTime++;
+			}
+			break;
+		//Start discharging through the buttons (if pressed)...
+		case ANAB_STATE_RELEASE_CHARGE:
 
-         samples = 0;
-         startTime = tcnter_get();
+			samples = 0;
+			startTime = tcnter_get();
 
 
-         if(buttonPressed)
-         {
-            state = ANAB_STATE_CLOCK_DISCHARGE;
+			if(buttonPressed)
+			{
+				state = ANAB_STATE_CLOCK_DISCHARGE;
 #if(defined(ANAB_CLI) && ANAB_CLI)
-            CLI_SAFE(oldI);
+				CLI_SAFE(oldI);
 #endif
-         }
-         else
-            state = ANAB_STATE_CHECK_FOR_PRESS;
-         
-         setinPORT(ANABUTTONS_PIN, ANABUTTONS_PORT);
-         clrpinPORT(ANABUTTONS_PIN, ANABUTTONS_PORT); //Remove the pull-up
-      
-#if(!defined(ANABUTTONS_DIGITALIO) || !ANABUTTONS_DIGITALIO)   
-         setupAnaComp();
+			}
+			else
+				state = ANAB_STATE_CHECK_FOR_PRESS;
+			
+			setinPORT(ANABUTTONS_PIN, ANABUTTONS_PORT);
+			clrpinPORT(ANABUTTONS_PIN, ANABUTTONS_PORT);	//Remove the pull-up
+		
+#if(!defined(ANABUTTONS_DIGITALIO) || !ANABUTTONS_DIGITALIO)	
+			setupAnaComp();
 #endif
 
 
-         samples = 0;
-         break;
-      //The last measurement timed-out, so no button was pressed
-      // Check whether a button is pressed this time...
-      case ANAB_STATE_CHECK_FOR_PRESS:
-         
-         if(isThresholdCrossed())
-         {
-            buttonPressed = TRUE;
-            state = ANAB_STATE_START_CHARGE;
-         }
-         else if( tcnter_isItTime(&startTime, ANAB_UNPRESSED_TIMEOUT) )
-         {
-            //Don't allow a buttonPress to be detected just because the
-            //threshold crossed...
-            // Rather, just don't let it cross if no button is pressed
-            // This could be hokey if calls to update are delayed ...?
-            buttonPressed = FALSE; //Unnecessary, since it's already...
-            state = ANAB_STATE_START_CHARGE;
-         }
-         break;
-      //A button-press has been detected previously, measure the discharge
-      // time
-      case ANAB_STATE_CLOCK_DISCHARGE:
+			samples = 0;
+			break;
+		//The last measurement timed-out, so no button was pressed
+		// Check whether a button is pressed this time...
+		case ANAB_STATE_CHECK_FOR_PRESS:
+			
+			if(isThresholdCrossed())
+			{
+				buttonPressed = TRUE;
+				state = ANAB_STATE_START_CHARGE;
+			}
+			else if( tcnter_isItTime(&startTime, ANAB_UNPRESSED_TIMEOUT) )
+			{
+				//Don't allow a buttonPress to be detected just because the
+				//threshold crossed...
+				// Rather, just don't let it cross if no button is pressed
+				// This could be hokey if calls to update are delayed ...?
+				buttonPressed = FALSE; //Unnecessary, since it's already...
+				state = ANAB_STATE_START_CHARGE;
+			}
+			break;
+		//A button-press has been detected previously, measure the discharge
+		//	time
+		case ANAB_STATE_CLOCK_DISCHARGE:
 
 #if(defined(ANAB_BLOCKING) && ANAB_BLOCKING)
-         tcnter_update();
+			tcnter_update();
 #endif
-         if(isThresholdCrossed())
-         {
-            uint32_t timeVal = tcnter_get() - startTime;
-            // This seems *really* unlikely, but -return values are used
-            // to indicate no value...
-            // (and since this is so unlikely, indicating no-value seems
-            // just as worthwhile... so could just leave it... besides,
-            // if it's that large, then it should've timed-out.)
-            // More importantly, doing the above math *in* a uint32_t
-            // makes sure if the tcnter has wrapped, the value will
-            // still be positive... and correct... right...?
-            if(timeVal > INT32_MAX)
-               timeVal = INT32_MAX;
+			if(isThresholdCrossed())
+			{
+				uint32_t timeVal = tcnter_get() - startTime;
+				// This seems *really* unlikely, but -return values are used
+				// to indicate no value...
+				// (and since this is so unlikely, indicating no-value seems
+				// just as worthwhile... so could just leave it... besides,
+				// if it's that large, then it should've timed-out.)
+				// More importantly, doing the above math *in* a uint32_t
+				// makes sure if the tcnter has wrapped, the value will
+				// still be positive... and correct... right...?
+				if(timeVal > INT32_MAX)
+					timeVal = INT32_MAX;
 
-            //A double-buffer...
-            // anaB_samples is only valid when this returns >=0
-            anaB_samples = samples;
-            state = ANAB_STATE_START_CHARGE;
-   
+				//A double-buffer...
+				// anaB_samples is only valid when this returns >=0
+				anaB_samples = samples;
+				state = ANAB_STATE_START_CHARGE;
+	
 
 #if(defined(ANAB_CLI) && ANAB_CLI)
-            SEI_RESTORE(oldI);
+				SEI_RESTORE(oldI);
 #endif
-            return timeVal;
-         }
-         else if(tcnter_isItTime(&startTime, ANAB_BUTTON_TIMEOUT))
-         {
-            buttonPressed = FALSE;
-            state = ANAB_STATE_START_CHARGE;
-            return ANAB_BUTTON_RELEASED;
-         }
-         else
-         {
-            samples++;
-            //If this were non-blocking, could return ANAB_SAMPLING
-            // which should now be handled in the #else below...
-         }
+				return timeVal;
+			}
+			else if(tcnter_isItTime(&startTime, ANAB_BUTTON_TIMEOUT))
+			{
+				buttonPressed = FALSE;
+				state = ANAB_STATE_START_CHARGE;
+				return ANAB_BUTTON_RELEASED;
+			}
+			else
+			{
+				samples++;
+				//If this were non-blocking, could return ANAB_SAMPLING
+				// which should now be handled in the #else below...
+			}
 
 #if(!defined(ANAB_BLOCKING) || !ANAB_BLOCKING)
-         return ANAB_SAMPLING;
+			return ANAB_SAMPLING;
 #endif
-         break;
-      //Shouldn't get here...
-      default:
-         break;
-   }
+			break;
+		//Shouldn't get here...
+		default:
+			break;
+	}
 }
 #if(defined(ANAB_BLOCKING) && ANAB_BLOCKING)
 //Having this here, instead of within the state, causes the switchover from
@@ -385,7 +385,7 @@ while(0);
 #endif
 
 
-   return ANAB_NOTHING_TO_REPORT;
+	return ANAB_NOTHING_TO_REPORT;
 }
 
 
@@ -450,7 +450,7 @@ while(0);
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/anaButtons/0.50/anaButtons.c
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/anaButtons/0.50/anaButtons.c
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

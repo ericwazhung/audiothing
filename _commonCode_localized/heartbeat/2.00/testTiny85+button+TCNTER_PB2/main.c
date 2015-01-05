@@ -11,68 +11,68 @@
 int main(void)
 {
 
-   /* Now in tcnter0.30
-   //Initialize the counter for tcnter (see init_dmsTimer)
-   //OCR0A = TCNTER_SOURCE_OVERFLOW_VAL;
-   //??? What if the timer is 16-bit...?
-   timer_setWGM(0, WGM_NORMAL);  //unnecessary?
-   timer_selectDivisor(0, CLKDIV64);
-   */
+	/* Now in tcnter0.30
+	//Initialize the counter for tcnter (see init_dmsTimer)
+	//OCR0A = TCNTER_SOURCE_OVERFLOW_VAL;
+	//??? What if the timer is 16-bit...?
+	timer_setWGM(0, WGM_NORMAL);	//unnecessary?
+	timer_selectDivisor(0, CLKDIV64);
+	*/
 
 
 
-   heart_init();
+	heart_init();
 
-   uint8_t heartBlink = 0;
-   uint8_t buttonPressed = FALSE;
+	uint8_t heartBlink = 0;
+	uint8_t buttonPressed = FALSE;
 
-// heart_blink(3);
+//	heart_blink(3);
 
-   uint8_t loopCount = 0;
+	uint8_t loopCount = 0;
 
-   while(1)
-   {
-      heart_update();
+	while(1)
+	{
+		heart_update();
 
-      //Intentionally allowed to wraparound from 255->0...
-      loopCount++;
+		//Intentionally allowed to wraparound from 255->0...
+		loopCount++;
 
-      if(loopCount == 0)
-      {
-         //Read the heartbeat's pin-value
-         // doing-so briefly turns the pin into an input...
-         // If, e.g. a momentary-pushbutton pulls the pin low,
-         // heart_getButton() will return 0
-         // Otherwise, it's pulled high by internal pull-up resistor
-      
-         //As implemented here:
-         //The pin is only polled once every 256 loops, so-as not to
-         //interfere with the LED's brightness when the button is not
-         //pressed. 
-         //(Of course, pressing the button causes the LED to light-up at
-         //full-brightness until it's released, since it's on the same pin)
-         if(heart_getButton())
-         {
-            //Has the button just been released?
-            if(buttonPressed)
-            {
-               // Pressing the button once will cause it to blink once,
-               // twice after the second press
-               // and so-on, until 4, when it should go back to fading.
-               heartBlink++;
-               heartBlink %= 4;
-   
-               heart_blink(heartBlink);
-            }
-            
-            buttonPressed = FALSE;
-         }
-         else
-            buttonPressed = TRUE;
-      }
-   }
+		if(loopCount == 0)
+		{
+			//Read the heartbeat's pin-value
+			// doing-so briefly turns the pin into an input...
+			// If, e.g. a momentary-pushbutton pulls the pin low,
+			// heart_getButton() will return 0
+			// Otherwise, it's pulled high by internal pull-up resistor
+		
+			//As implemented here:
+			//The pin is only polled once every 256 loops, so-as not to
+			//interfere with the LED's brightness when the button is not
+			//pressed. 
+			//(Of course, pressing the button causes the LED to light-up at
+			//full-brightness until it's released, since it's on the same pin)
+			if(heart_getButton())
+			{
+				//Has the button just been released?
+				if(buttonPressed)
+				{
+					// Pressing the button once will cause it to blink once,
+					// twice after the second press
+					// and so-on, until 4, when it should go back to fading.
+					heartBlink++;
+					heartBlink %= 4;
+	
+					heart_blink(heartBlink);
+				}
+				
+				buttonPressed = FALSE;
+			}
+			else
+				buttonPressed = TRUE;
+		}
+	}
 
-   return 0;
+	return 0;
 }
 
 /* mehPL:
@@ -136,7 +136,7 @@ int main(void)
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/heartbeat/2.00/testTiny85+button+TCNTER_PB2/main.c
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/heartbeat/2.00/testTiny85+button+TCNTER_PB2/main.c
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

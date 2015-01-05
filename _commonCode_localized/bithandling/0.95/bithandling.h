@@ -12,7 +12,7 @@
 //
 //.95-9  a/o heart v2.00, audioThing v57
 //       adding setPinStatePORT(pin, port, H/L/Z/PU)
-//.95-8  a/o resolutionDetector:
+//.95-8	a/o resolutionDetector:
 //       adding ispinPORT() (simplified getpinPORT(), should compile
 //       smaller... unless the optimizer's really smart?)
 //       and isbit()...
@@ -27,7 +27,7 @@
 //.95-4  adding ROUND_UP_TO()
 //.95-3  adding CLI_SAFE() -> SEI_RESTORE()
 //.95-2  Adding MAKEFLOAT()
-//.95-1  Adding this note: BV(thing) is old from libc_dep (and before)
+//.95-1	Adding this note: BV(thing) is old from libc_dep (and before)
 //       This is defined as _BV(thing), which apparently is defined
 //       somewhere. This is equivalent to (1<<thing), as I recall.
 //       This note, a/o LCDRevisited2012-25
@@ -42,18 +42,18 @@
 //          use one of these methods is an else case...
 //          which generates an error, anyhow
 //          Unless there's a hokey-case, like
-//             if (something)
-//                if (something else)
-//                   DOSOMETHING();
-//                else
+//					if (something)
+//						if (something else)
+//							DOSOMETHING();
+//						else
 //                   ...
 //          Which I'd *never* code anyhow... where SHOULD that else belong?//      AH HAH 2.0!
 //        "The `({ ... })' notation produces a compound statement that acts
-//         as an expression. Its value is the value of its last statement."
+//			  as an expression. Its value is the value of its last statement."
 //         --info cpp 3.10.4
 
 //.94_...-4
-//       TRUNCATE_U8(thing) -> (thing&0xff)
+//			TRUNCATE_U8(thing) -> (thing&0xff)
 //.94_parenExperiment-3
 //       DUH, MAKELONG should look like a function...
 //         e.g. (MAKELONG(ONE) * MAKELONG(ANOTHER))
@@ -68,7 +68,7 @@
 //            #define ANOTHER 65535
 //            #define ONEANOTHER ((ONE+MAKELONG)*(ANOTHER+MAKELONG))
 //            (It might make more sense to use (ONE*MAKELONG)... we'll see)
-//       Moving SFR register notes to sfrNotes.txt
+//			Moving SFR register notes to sfrNotes.txt
 //.94_parenExperiment-1
 //       Apparently the ({}) block returns the value of the last... item
 //       see cTools/bracketsInDefinesTest3.c
@@ -97,7 +97,7 @@
 //       (e.g.notQuite: reading an Interrupt SFR would clear the interrupt
 //        flags)
 //       (run an lssDiff between sdramThing2.0-4 and 4bh)
-//       otherwise, the code seems identical... just a few extra
+//			otherwise, the code seems identical... just a few extra
 //       (unnecessary) instructions
 //     Thing is: 
 //       I feel like there *could* be a case where the old {} method would
@@ -174,7 +174,7 @@
 // #if (! HEART_REMOVED)
 // uint8_t heartUpdate(void)
 // #else
-// #define heartUpdate()   ZERO8_FN()
+// #define heartUpdate()	ZERO8_FN()
 // #endif
 // 
 // And in main:
@@ -189,7 +189,7 @@
 //   "uninitialized variable"
 //   and doesn't choke if a return-value is necessary.
 //   And I'm pretty certain it should completely optimize out to nothing
-#define ZERO8_FN()   ({uint8_t a=0; a;})
+#define ZERO8_FN()	({uint8_t a=0; a;})
 
 
 
@@ -216,7 +216,7 @@
 // e.g. minVal=5, roundTo=7 -> 7
 //      minVal=15, roundTo=7 -> 21
 #define ROUND_UP_TO(minVal, roundTo) \
-      ((((minVal)+((roundTo)-1))/(roundTo))*(roundTo))
+	   ((((minVal)+((roundTo)-1))/(roundTo))*(roundTo))
 
 
 
@@ -249,28 +249,28 @@
 //           #define ADCPS_BITS (ADCPS & 0xff)
 //          #endif
 #define DESHIFT(n) \
-   ( (n & (1<<15)) ? 15 : (n & (1<<14)) ? 14 : (n & (1<<13)) ? 13 : \
-     (n & (1<<12)) ? 12 : (n & (1<<11)) ? 11 : (n & (1<<10)) ? 10 : \
-     (n & (1<<9))  ?  9 : (n & (1<<8))  ?  8 : \
-     (n & 128) ? 7 : (n & 64) ? 6 : (n & 32) ? 5 : (n & 16) ? 4 : \
-     (n & 8) ? 3 : (n & 4) ? 2 : (n & 2) ? 1 : (n & 1) ? 0 : 0 )
+	( (n & (1<<15)) ? 15 : (n & (1<<14)) ? 14 : (n & (1<<13)) ? 13 : \
+	  (n & (1<<12)) ? 12 : (n & (1<<11)) ? 11 : (n & (1<<10)) ? 10 : \
+	  (n & (1<<9))  ?  9 : (n & (1<<8))  ?  8 : \
+	  (n & 128) ? 7 : (n & 64) ? 6 : (n & 32) ? 5 : (n & 16) ? 4 : \
+	  (n & 8) ? 3 : (n & 4) ? 2 : (n & 2) ? 1 : (n & 1) ? 0 : 0 )
 
 
 //Wait for the input capacitance to be overcome by the pull-ups
-// experiments showed 2us, which would be a count of 32, why minimize...?
+//	experiments showed 2us, which would be a count of 32, why minimize...?
 //  Also: Pull-ups = 50k (max) (no info on input capacitance...)
 //  T=RC 2us/50k = 40pF (seems extreme, but... maybe also due to PCB...?)
-#define puWait()                    \
-({                               \
-   uint8_t puCount;                 \
-   for(puCount=0; puCount<100; puCount++) \
-      asm("nop");                   \
-   {}; \
+#define puWait()							\
+({											\
+	uint8_t puCount;						\
+	for(puCount=0; puCount<100; puCount++)	\
+		asm("nop");							\
+	{}; \
 })
 
 //Convert e.g. 30 to 0x30 for display purposes...
 #define TOBCD(dec99)   \
-         ((((dec99)/10)<<4) | ((dec99)%10))
+	      ((((dec99)/10)<<4) | ((dec99)%10))
 
 //This is risky, as, as far as I'm aware, shifting of signed values
 // has undefined behavior
@@ -280,19 +280,19 @@
 
 static __inline__ \
 int32_t shiftRightI32(int32_t value, uint8_t shift) \
-         __attribute__((__always_inline__));
+			__attribute__((__always_inline__));
 
 __inline__ \
 int32_t shiftRightI32(int32_t value, uint8_t shift)
 {
-   //negative values shifted-right past their value
-   // give -1... e.g. -4 >> 10 = -1 (rather than 0)
-   if((value < 0)
-      // > since we're working with negative values...
-      && (value > -(((int32_t)1<<shift))))
-        return 0;
-   else
-      return (value>>shift);
+	//negative values shifted-right past their value
+	// give -1... e.g. -4 >> 10 = -1 (rather than 0)
+	if((value < 0)
+		// > since we're working with negative values...
+	   && (value > -(((int32_t)1<<shift))))
+		  return 0;
+	else
+		return (value>>shift);
 }
 
 
@@ -301,12 +301,12 @@ int32_t shiftRightI32(int32_t value, uint8_t shift)
 //Can I do this in a header...? (with return? NOPE.)
 // This is pretty long, it should probably be a function, realistically...
 /*#define reverseByte(byte) \
-{                          \
-   uint8_t x=(byte);       \
-   x = ((x >> 1) & 0x55) | ((x << 1) & 0xaa);   \
-   x = ((x >> 2) & 0x33) | ((x << 2) & 0xcc);   \
-   x = ((x >> 4) & 0x0f) | ((x << 4) & 0xf0);   \
-   return x;   \
+{									\
+	uint8_t x=(byte);			\
+	x = ((x >> 1) & 0x55) | ((x << 1) & 0xaa);	\
+	x = ((x >> 2) & 0x33) | ((x << 2) & 0xcc);	\
+	x = ((x >> 4) & 0x0f) | ((x << 4) & 0xf0);	\
+	return x;	\
 }*/
 
 
@@ -315,73 +315,73 @@ int32_t shiftRightI32(int32_t value, uint8_t shift)
 // e.g. we're storing characters left-to-right starting from bit0
 // (since reading/addressing starts at 0 and starts fom the left)
 #define reverseBin(b0,b1,b2,b3,b4,b5,b6,b7) \
-               bin(b7,b6,b5,b4,b3,b2,b1,b0)
+					bin(b7,b6,b5,b4,b3,b2,b1,b0)
 #define bin(b7,b6,b5,b4,b3,b2,b1,b0) \
-   (((((((((((((((b7) << 1) \
-               | (b6)) << 1) \
-               | (b5)) << 1) \
-               | (b4)) << 1) \
-               | (b3)) << 1) \
-               | (b2)) << 1) \
-               | (b1)) << 1) \
-               | (b0))
+	(((((((((((((((b7) << 1) \
+					| (b6)) << 1) \
+				   | (b5)) << 1) \
+				   | (b4)) << 1) \
+			      | (b3)) << 1) \
+		         | (b2)) << 1) \
+		         | (b1)) << 1) \
+	            | (b0))
 #define bin4(b3,b2,b1,b0) \
-   ((((((((((((((0 << 1) \
-               | 0) << 1) \
-               | 0) << 1) \
-               | 0) << 1) \
-               | b3) << 1) \
-               | b2) << 1) \
-               | b1) << 1) \
-               | b0)
+	((((((((((((((0 << 1) \
+					| 0) << 1) \
+				   | 0) << 1) \
+				   | 0) << 1) \
+			      | b3) << 1) \
+		         | b2) << 1) \
+		         | b1) << 1) \
+	            | b0)
 #define bin32(b31,b30,b29,b28,b27,b26,b25,b24,b23,b22,b21,b20,\
-      b19,b18,b17,b16,b15,b14,b13,b12,b11,b10, \
-      b9,b8,b7,b6,b5,b4,b3,b2,b1,b0) \
-      ( ((uint32_t)bin(b31,b30,b29,b28,b27,b26,b25,b24)<<24) \
-      | ((uint32_t)bin(b23,b22,b21,b20,b19,b18,b17,b16)<<16) \
-      | ((uint32_t)bin(b15,b14,b13,b12,b11,b10,b9,b8)<<8) \
-      | ((uint32_t)bin(b7,b6,b5,b4,b3,b2,b1,b0)) )
+		b19,b18,b17,b16,b15,b14,b13,b12,b11,b10, \
+		b9,b8,b7,b6,b5,b4,b3,b2,b1,b0) \
+	   ( ((uint32_t)bin(b31,b30,b29,b28,b27,b26,b25,b24)<<24) \
+		| ((uint32_t)bin(b23,b22,b21,b20,b19,b18,b17,b16)<<16) \
+		| ((uint32_t)bin(b15,b14,b13,b12,b11,b10,b9,b8)<<8) \
+		| ((uint32_t)bin(b7,b6,b5,b4,b3,b2,b1,b0)) )
 
 //This is for parsing a 40-bit value into uint8_t's
 //  suitable for array initialization
 // Probably won't be used... see below...
 #define bin40toU8s(b39,b38,b37,b36,b35,b34,b33,b32,b31,b30, \
-                         b29,b28,b27,b26,b25,b24,b23,b22,b21,b20, \
-                         b19,b18,b17,b16,b15,b14,b13,b12,b11,b10, \
-                          b9, b8, b7, b6, b5, b4, b3, b2, b1, b0) \
-               { bin( b7, b6, b5, b4, b3, b2, b1, b0), \
-                 bin(b15,b14,b13,b12,b11,b10, b9, b8), \
-                 bin(b23,b22,b21,b20,b19,b18,b17,b16), \
-                 bin(b31,b30,b29,b28,b27,b26,b25,b24), \
-                 bin(b39,b38,b37,b36,b35,b34,b33,b32) \
-               }
+		                   b29,b28,b27,b26,b25,b24,b23,b22,b21,b20, \
+		                   b19,b18,b17,b16,b15,b14,b13,b12,b11,b10, \
+		                    b9, b8, b7, b6, b5, b4, b3, b2, b1, b0) \
+					{ bin( b7, b6, b5, b4, b3, b2, b1, b0), \
+			        bin(b15,b14,b13,b12,b11,b10, b9, b8), \
+			        bin(b23,b22,b21,b20,b19,b18,b17,b16), \
+			        bin(b31,b30,b29,b28,b27,b26,b25,b24), \
+			        bin(b39,b38,b37,b36,b35,b34,b33,b32) \
+			      }
 //For graphics:
 #define reverseBin40toU8s( b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, \
-                          b10,b11,b12,b13,b14,b15,b16,b17,b18,b19, \
-                          b20,b21,b22,b23,b24,b25,b26,b27,b28,b29, \
-                          b30,b31,b32,b33,b34,b35,b36,b37,b38,b39) \
-               { bin( b7, b6, b5, b4, b3, b2, b1, b0), \
-                 bin(b15,b14,b13,b12,b11,b10, b9, b8), \
-                 bin(b23,b22,b21,b20,b19,b18,b17,b16), \
-                 bin(b31,b30,b29,b28,b27,b26,b25,b24), \
-                 bin(b39,b38,b37,b36,b35,b34,b33,b32) \
-               }
+								  b10,b11,b12,b13,b14,b15,b16,b17,b18,b19, \
+								  b20,b21,b22,b23,b24,b25,b26,b27,b28,b29, \
+								  b30,b31,b32,b33,b34,b35,b36,b37,b38,b39) \
+					{ bin( b7, b6, b5, b4, b3, b2, b1, b0), \
+					  bin(b15,b14,b13,b12,b11,b10, b9, b8), \
+					  bin(b23,b22,b21,b20,b19,b18,b17,b16), \
+					  bin(b31,b30,b29,b28,b27,b26,b25,b24), \
+					  bin(b39,b38,b37,b36,b35,b34,b33,b32) \
+					}
 
 
 //Wow... apparently it's smart enough to optimize this to a cbi if possible!
 #define setbit(bitNum, bitwiseByte) \
-   (bitwiseByte = ((bitwiseByte) | (1 << (bitNum))))
+	(bitwiseByte = ((bitwiseByte) | (1 << (bitNum))))
 //Wow... apparently it's smart enough to optimize this to a cbi if possible!
 #define clrbit(bitNum, bitwiseByte) \
-   (bitwiseByte = ((bitwiseByte) & (~(1 << (bitNum)))))
+	(bitwiseByte = ((bitwiseByte) & (~(1 << (bitNum)))))
 
 #define togglebit(bitNum, bitwiseByte) \
-   bitwiseByte = ((bitwiseByte) & ~(1<<(bitNum))) \
+	bitwiseByte = ((bitwiseByte) & ~(1<<(bitNum))) \
                | (~((bitwiseByte) & (1<<(bitNum))) & (1<<(bitNum)))
 
 //value is only predictable with 0 and 1, other values though "true" may not work... should create a wrapper?
-#define writebit(bitNum, bitwiseByte, value) \
-   ((value) ? setbit((bitNum),(bitwiseByte)):clrbit((bitNum),(bitwiseByte)))
+#define writebit(bitNum, bitwiseByte, value)	\
+	((value) ? setbit((bitNum),(bitwiseByte)):clrbit((bitNum),(bitwiseByte)))
 //(bitwiseByte = ((bitwiseByte) | ((value & 0x01) << (bitNum))))
 
 
@@ -389,52 +389,52 @@ int32_t shiftRightI32(int32_t value, uint8_t shift)
 //#define getbit(bitNum, bitwiseByte) (((1 << (bitNum)) & (bitwiseByte)) >> (bitNum))
 //!!! HOLY FUCK 70 bytes?! (WRT PE0,PINE...)
 #define getbit(bitNum, bitwiseByte) \
-   (((bitwiseByte) >> (bitNum)) & 0x01)
+	(((bitwiseByte) >> (bitNum)) & 0x01)
 
 //This is no smaller with optimization, at least with constants
 // (see resolutionDetector-2 and ispinPORT())
 #define isbit(bitNum, bitwiseByte) \
-   (((bitwiseByte) & (1<<(bitNum))))
+	(((bitwiseByte) & (1<<(bitNum))))
 
 
 /* Added 10/5/03 */
-#define IN     0  /* Set a bit on a port as an input */
-#define OUT    1  /* Set a bit on a port as an output */
-#define ALLINS 0x00  //Written to DDRx
-#define ALLOUTS   0xff  //Written to DDRx
-#define ALLUP  0xff  //Written to PORTx (while an input)
+#define IN		0	/* Set a bit on a port as an input */
+#define OUT		1	/* Set a bit on a port as an output */
+#define ALLINS	0x00	//Written to DDRx
+#define ALLOUTS	0xff	//Written to DDRx
+#define ALLUP	0xff	//Written to PORTx (while an input)
 
 #define setout(bitNum, portdir) \
-   setbit(bitNum, portdir) /* set a bit on a port as an output */
+	setbit(bitNum, portdir)	/* set a bit on a port as an output */
 
 #define setin(bitNum, portdir) \
-   clrbit(bitNum, portdir) /* set a bit on a port as an input */
+	clrbit(bitNum, portdir) /* set a bit on a port as an input */
 
-#define setpu(bitNum, port)   \
-   setbit(bitNum, port)    /* enable the pull-up on the port */
+#define setpu(bitNum, port)	\
+	setbit(bitNum, port)		/* enable the pull-up on the port */
 
 //NOTE!!! Mask macros won't work with PA0, etc...
-#define setinMask(mask, portdir) \
-   ((portdir) &= ~(mask))  /* set bits as inputs */
+#define setinMask(mask, portdir)	\
+	((portdir) &= ~(mask))	/* set bits as inputs */
 
 #define setoutMask(mask, portdir) \
-   ((portdir) |= (mask))   /* set bits as outputs */
+	((portdir) |= (mask))	/* set bits as outputs */
 
-#define setpuMask(mask, port) \
-   ((port) |= (mask))      /* set pull-ups on the port */
+#define setpuMask(mask, port)	\
+	((port) |= (mask))		/* set pull-ups on the port */
 
 
-#define setoutS(pin) \
-   (setbit(pin.pinNumber, (*(pin.ddr))))
+#define setoutS(pin)	\
+	(setbit(pin.pinNumber, (*(pin.ddr))))
 
 /* Set the pin as an input AND pull it up */
-#define setinPU(pin) \
-   clrbit(pin.pinNumber, (*(pin.ddr))); \
-   setbit(pin.pinNumber, (*(pin.port)))
+#define setinPU(pin)	\
+	clrbit(pin.pinNumber, (*(pin.ddr))); \
+	setbit(pin.pinNumber, (*(pin.port)))
 
-   
-#define getpin(pindesc) \
-   getbit(pindesc.pinNumber, (*(pindesc.pin)))
+	
+#define getpin(pindesc)	\
+	getbit(pindesc.pinNumber, (*(pindesc.pin)))
 
 //Added 6-4-08
 //where the port address is given by a variable pointing to the port's PIN
@@ -444,32 +444,32 @@ int32_t shiftRightI32(int32_t value, uint8_t shift)
 // ...
 // INIT_HEARTBEAT(pin, ...) init_heartBeat((&(pin)), ...)
 // init_heartBeat(volatile uint8_t* pin) {
-//    heartPIN = pin;
+//		heartPIN = pin;
 //
-//    setoutVar(...,heartPIN);
-// }
+//		setoutVar(...,heartPIN);
+//	}
 
-// thus setoutVar acts on a ...volatile uint8_t*...
+//	thus setoutVar acts on a ...volatile uint8_t*...
 //  thus heartPIN !!!= PINx
 //  heartPIN == &(PINx)
 //  so these ..Var-macros don't work directly with PINx, but a variable pointing to it...
-#define PORTOFFSET   2
-#define DDROFFSET 1
-#define setoutVar(bitNum, bitPIN)   setout((bitNum), (*((bitPIN)+DDROFFSET)))
-#define setinVar(bitNum, bitPIN) setin((bitNum), (*((bitPIN)+DDROFFSET)))
-#define setpuVar(bitNum, bitPIN) setpu((bitNum), (*((bitPIN)+PORTOFFSET)))
+#define PORTOFFSET	2
+#define DDROFFSET	1
+#define setoutVar(bitNum, bitPIN)	setout((bitNum), (*((bitPIN)+DDROFFSET)))
+#define setinVar(bitNum, bitPIN)	setin((bitNum), (*((bitPIN)+DDROFFSET)))
+#define setpuVar(bitNum, bitPIN)	setpu((bitNum), (*((bitPIN)+PORTOFFSET)))
 
-#define setpinVar(bitNum, bitPIN)   setbit((bitNum), (*((bitPIN)+PORTOFFSET)))
-#define clrpinVar(bitNum, bitPIN)   clrbit((bitNum), (*((bitPIN)+PORTOFFSET)))
+#define setpinVar(bitNum, bitPIN)	setbit((bitNum), (*((bitPIN)+PORTOFFSET)))
+#define clrpinVar(bitNum, bitPIN)	clrbit((bitNum), (*((bitPIN)+PORTOFFSET)))
 
-#define getpinVar(bitNum, bitPIN)   getbit((bitNum), (*(bitPIN)))
-#define writeMaskedVar(val, mask, bitPIN, portOffset) \
-                           writeMasked((val),(mask),(*((bitPIN)+(portOffset))))
-#define  setinpuVar(bitNum, bitPin) \
-({                         \
-   setinVar((bitNum), (bitPin)); \
-   setpuVar((bitNum), (bitPin)); \
-   {}; \
+#define getpinVar(bitNum, bitPIN)	getbit((bitNum), (*(bitPIN)))
+#define writeMaskedVar(val, mask, bitPIN, portOffset)	\
+									writeMasked((val),(mask),(*((bitPIN)+(portOffset))))
+#define	setinpuVar(bitNum, bitPin)	\
+({									\
+	setinVar((bitNum), (bitPin));	\
+	setpuVar((bitNum), (bitPin));	\
+	{}; \
 })
 
 //These ...PIN macros work directly with PINx...
@@ -483,71 +483,71 @@ int32_t shiftRightI32(int32_t value, uint8_t shift)
 //#define _MMIO_BYTE(mem_addr) (*(volatile uint8_t *)(mem_addr))
 //@@@#warning "xxxPIN macros should be gotten rid of... setpinPIN doesn't make sense!"
 //one instruction: sbi... mainly (&(PINx) + ___OFFSET) is preprocessed
-#define setoutPIN(bitNum, PINx)   \
-   setout((bitNum), _MMIO_BYTE(&(PINx) + DDROFFSET))
+#define setoutPIN(bitNum, PINx)	 \
+	setout((bitNum), _MMIO_BYTE(&(PINx) + DDROFFSET))
 //one instruction: cbi
-#define setinPIN(bitNum, PINx)   \
-   setin((bitNum), _MMIO_BYTE(&(PINx) + DDROFFSET))
+#define setinPIN(bitNum, PINx)	\
+	setin((bitNum), _MMIO_BYTE(&(PINx) + DDROFFSET))
 //one instruction: sbi
-#define setpuPIN(bitNum, PINx)   \
-   setpu((bitNum), _MMIO_BYTE(&(PINx) + PORTOFFSET))
+#define setpuPIN(bitNum, PINx)	\
+	setpu((bitNum), _MMIO_BYTE(&(PINx) + PORTOFFSET))
 
-#define setpinPIN(bitNum, PINx)  \
-   setbit((bitNum), _MMIO_BYTE(&(PINx) + PORTOFFSET))
+#define setpinPIN(bitNum, PINx)	\
+	setbit((bitNum), _MMIO_BYTE(&(PINx) + PORTOFFSET))
 //one instruction: cbi
-#define clrpinPIN(bitNum, PINx)  \
-   clrbit((bitNum), _MMIO_BYTE(&(PINx) + PORTOFFSET))
+#define clrpinPIN(bitNum, PINx)	\
+	clrbit((bitNum), _MMIO_BYTE(&(PINx) + PORTOFFSET))
 
-#define togglepinPIN(bitNum, PINx)  \
-   togglebit((bitNum), _MMIO_BYTE(&(PINx) + PORTOFFSET))
+#define togglepinPIN(bitNum, PINx)	\
+	togglebit((bitNum), _MMIO_BYTE(&(PINx) + PORTOFFSET))
 
-#define getpinPIN(bitNum, PINx)  \
-   getbit((bitNum), (PINx))
+#define getpinPIN(bitNum, PINx)	\
+	getbit((bitNum), (PINx))
 
-#define setinpuPIN(bitNum, PINx) \
-({                         \
-   setinPIN((bitNum), (PINx));      \
-   setpuPIN((bitNum), (PINx));      \
-   {}; \
+#define setinpuPIN(bitNum, PINx)	\
+({									\
+	setinPIN((bitNum), (PINx));		\
+	setpuPIN((bitNum), (PINx));		\
+	{}; \
 })
 
 // setout(PB6, PORTA)
 //Relative PIN
-//#define PORTOFFSET 2
-//#define DDROFFSET  1
+//#define PORTOFFSET	2
+//#define DDROFFSET	1
 //#define PINOFFSET 0
 //then NEGATIVE relative PORT:
-#define PORTPORTOFFSET  0
-#define DDRPORTOFFSET   1
-#define PINPORTOFFSET   2
+#define PORTPORTOFFSET	0
+#define DDRPORTOFFSET	1
+#define PINPORTOFFSET	2
 //Most seem to compile as a single instruction!
 
-#define setoutPORT(Pxn, PORTx)   \
-   setout((Pxn), _MMIO_BYTE(&(PORTx) - DDRPORTOFFSET))
+#define setoutPORT(Pxn, PORTx)	\
+	setout((Pxn), _MMIO_BYTE(&(PORTx) - DDRPORTOFFSET))
 
-#define setinPORT(Pxn, PORTx)    \
-   setin((Pxn),  _MMIO_BYTE(&(PORTx) - DDRPORTOFFSET))
+#define setinPORT(Pxn, PORTx)		\
+	setin((Pxn),  _MMIO_BYTE(&(PORTx) - DDRPORTOFFSET))
 
-#define setpuPORT(Pxn, PORTx)    \
-   setpu((Pxn),  _MMIO_BYTE(&(PORTx) - PORTPORTOFFSET))
+#define setpuPORT(Pxn, PORTx)		\
+	setpu((Pxn),  _MMIO_BYTE(&(PORTx) - PORTPORTOFFSET))
 
-#define setpinPORT(Pxn, PORTx)   \
-   setbit((Pxn), _MMIO_BYTE(&(PORTx) - PORTPORTOFFSET))
+#define setpinPORT(Pxn, PORTx)	\
+	setbit((Pxn), _MMIO_BYTE(&(PORTx) - PORTPORTOFFSET))
 
-#define clrpinPORT(Pxn, PORTx)   \
-   clrbit((Pxn), _MMIO_BYTE(&(PORTx) - PORTPORTOFFSET))
+#define clrpinPORT(Pxn, PORTx)	\
+	clrbit((Pxn), _MMIO_BYTE(&(PORTx) - PORTPORTOFFSET))
 
-#define getpinPORT(Pxn, PORTx)   \
-   getbit((Pxn), _MMIO_BYTE(&(PORTx) - PINPORTOFFSET))
+#define getpinPORT(Pxn, PORTx)	\
+	getbit((Pxn), _MMIO_BYTE(&(PORTx) - PINPORTOFFSET))
 
-#define ispinPORT(Pxn, PORTx) \
-   isbit((Pxn), _MMIO_BYTE(&(PORTx) - PINPORTOFFSET))
+#define ispinPORT(Pxn, PORTx)	\
+	isbit((Pxn), _MMIO_BYTE(&(PORTx) - PINPORTOFFSET))
 
-#define togglepinPORT(Pxn, PORTx)   \
-   togglebit((Pxn), _MMIO_BYTE(&(PORTx) - PORTPORTOFFSET))
+#define togglepinPORT(Pxn, PORTx)	\
+	togglebit((Pxn), _MMIO_BYTE(&(PORTx) - PORTPORTOFFSET))
 
 #define writepinPORT(Pxn, PORTx, value) \
-      ((value) ? setpinPORT((Pxn),(PORTx)):clrpinPORT((Pxn),(PORTx)))
+	   ((value) ? setpinPORT((Pxn),(PORTx)):clrpinPORT((Pxn),(PORTx)))
 
 
 //There're four possibilities for a pin
@@ -608,19 +608,19 @@ int32_t shiftRightI32(int32_t value, uint8_t shift)
 // SEE: cTools/bracketsInDefinesTest.c
 // also: cTools/unusedMacroTest.c
 
-#define setinpuPORT(Pxn, PORTx)     \
-({                         \
-   setinPORT((Pxn), (PORTx));    \
-   setpuPORT((Pxn), (PORTx));    \
-   {}; \
+#define setinpuPORT(Pxn, PORTx)		\
+({									\
+	setinPORT((Pxn), (PORTx));		\
+	setpuPORT((Pxn), (PORTx));		\
+	{}; \
 })
 
 
 #define PIN_FROM_PORT(PORTx) \
-   ((_MMIO_BYTE(&(PORTx) - PINPORTOFFSET)))
+	((_MMIO_BYTE(&(PORTx) - PINPORTOFFSET)))
 
 #define DDR_FROM_PORT(PORTx) \
-   ((_MMIO_BYTE(&(PORTx) - DDRPORTOFFSET)))
+	((_MMIO_BYTE(&(PORTx) - DDRPORTOFFSET)))
 
 
 // Let's do the same for Pulled up vs not pulled up
@@ -630,41 +630,41 @@ int32_t shiftRightI32(int32_t value, uint8_t shift)
 // For an entire port:
 //#warning "setPORT___'s are untested..."
 //I think these are pretty well verified by now...
-#define setPORTout(PORTx)     (DDR_FROM_PORT(PORTx) = 0xff)
+#define setPORTout(PORTx)		(DDR_FROM_PORT(PORTx) = 0xff)
 
 //NOTE: This does NOT affect the pull-up state (which is determined
 // by the value already on PORTx)
-#define setPORTin(PORTx)      (DDR_FROM_PORT(PORTx) = 0x00)
+#define setPORTin(PORTx)		(DDR_FROM_PORT(PORTx) = 0x00)
 
-#define clrPORTpu(PORTx)      ((PORTx) = 0x00)
+#define clrPORTpu(PORTx)		((PORTx) = 0x00)
 
-#define setPORTpu(PORTx)      ((PORTx) = 0xff)
+#define setPORTpu(PORTx) 		((PORTx) = 0xff)
 
 #define setPORTinpu(PORTx) \
 ({\
-   setPORTin(PORTx); \
-   setPORTpu(PORTx); \
-   {};\
+	setPORTin(PORTx); \
+	setPORTpu(PORTx); \
+	{};\
 })
 
 //Equivalent to PINx (from PORTx)
-#define PORTin(PORTx)         (PIN_FROM_PORT(PORTx))
+#define PORTin(PORTx) 			(PIN_FROM_PORT(PORTx))
 
 
-#define setPORToutMasked(PORTx, Mask)  \
-   writeMasked(0xff, Mask, DDR_FROM_PORT(PORTx))
+#define setPORToutMasked(PORTx, Mask)	\
+	writeMasked(0xff, Mask, DDR_FROM_PORT(PORTx))
 
 #define setPORTinMasked(PORTx, Mask) \
-   writeMasked(0x00, Mask, DDR_FROM_PORT(PORTx))
+	writeMasked(0x00, Mask, DDR_FROM_PORT(PORTx))
 
 #define setPORTpuMasked(PORTx, Mask) \
-   writeMasked(0xff, Mask, PORTx)
+	writeMasked(0xff, Mask, PORTx)
 
 #define setPORTinpuMasked(PORTx, Mask) \
 ({ \
-   setPORTinMasked(PORTx, Mask); \
-   setPORTpuMasked(PORTx, Mask); \
-   {};\
+	setPORTinMasked(PORTx, Mask); \
+	setPORTpuMasked(PORTx, Mask); \
+	{};\
 })
 
 
@@ -674,25 +674,25 @@ int32_t shiftRightI32(int32_t value, uint8_t shift)
 
 
 /* Get the value of a certain bit */
-#define VAL(bitnum)  (1 << bitnum)
+#define VAL(bitnum)	(1 << bitnum)
 
-//(variable & ~mask) clears the bits to be written
-//(value & mask)     assures value doesn't overwrite masked bits
+//(variable & ~mask)	clears the bits to be written
+//(value & mask) 		assures value doesn't overwrite masked bits
 
 #if (__ERR_WARN__)
  #warning "if an interrupt modifies variable, we could screw up the variable!"
 #endif
 
 
-#define writeMasked(value, mask, variable)   \
-   (variable) = (((variable) & ~(mask)) | ((value) & (mask)))
+#define writeMasked(value, mask, variable)	\
+	(variable) = (((variable) & ~(mask)) | ((value) & (mask)))
 
 
-#define TRUE   1
-#define FALSE  0
+#define TRUE	1
+#define FALSE	0
 
 
-#define PINTOPORT(PINx) (_MMIO_BYTE(&(PINx) + PORTOFFSET))
+#define PINTOPORT(PINx)	(_MMIO_BYTE(&(PINx) + PORTOFFSET))
 
 // Creates a mask with upperBits bits...
 // e.g. UPPER_BIT_MASK(4)=0xf0 = 1111 0000
@@ -700,13 +700,13 @@ int32_t shiftRightI32(int32_t value, uint8_t shift)
 // &0xff is necessary for passing this in as an assembly argument
 // otherwise, I guess, it assumes it's a 16-bit value
 // (casting didn't fix it)
-#define UPPER_BIT_MASK8(upperBits)  \
-   (((0xff)<<(8-(upperBits)))&0xff)
+#define UPPER_BIT_MASK8(upperBits)	\
+	(((0xff)<<(8-(upperBits)))&0xff)
 // Creates a single count in the upper-bit-mask...
 // e.g. ...COUNT_1(4) =   0x10 = 0001 0000
 //      ...COUNT_1(5) =   0x08 = 0000 1000
-#define UPPER_BIT_MASK8__COUNT_1(upperBits)  \
-   (((0x01)<<(8-(upperBits)))&0xff)
+#define UPPER_BIT_MASK8__COUNT_1(upperBits)	\
+	(((0x01)<<(8-(upperBits)))&0xff)
 
 
 //Say you want to find the largest value storable in an addressing-scheme
@@ -732,12 +732,12 @@ void toBinString(char* stringOut, uint8_t length, int32_t value)
 
    for(i=length-1; i>=0; i--)
    {
-      if((i&0x03) == 0x03)
-      {
-         *stringOut = ' ';
-         stringOut++;
-      }
-      *stringOut = (value & (1<<i) ) ? '1' : '0';
+		if((i&0x03) == 0x03)
+		{
+			*stringOut = ' ';
+			stringOut++;
+		}
+		*stringOut = (value & (1<<i) ) ? '1' : '0';
       stringOut++;
       *stringOut = '\0';
    }
@@ -749,20 +749,20 @@ void toBinString(char* stringOut, uint8_t length, int32_t value)
 // Note also that according to K&R this will force the other operands
 // to become long as well..
 // e.g. the result of (1 + MAKELONG) is a LONG 
-#define MAKELONG(value) ((value) + 0L)
+#define MAKELONG(value)	((value) + 0L)
 
 #define MAKEFLOAT(value) ((value)*1.0)
 
 //Not really sure how I feel about this... technically it doesn't change it
 // to u8 math... but it does assure that ... yeah, not sure how I feel...
 // a/o sdramThing: #define BLAH (~(1<<blah)) 
-// uint8_t blah2 = BLAH; resulted in "large integer implicitly truncated
+//	uint8_t blah2 = BLAH; resulted in "large integer implicitly truncated
 // to unsigned type"
 #define TRUNCATE_U8(value) ((value) & 0xff)
 
 
 #define nibbletochar(val)  \
-      (((val)<=9) ? ((val) + '0') : ((val) + ('A' - 10)))
+	   (((val)<=9) ? ((val) + '0') : ((val) + ('A' - 10)))
 
 
 
@@ -770,24 +770,24 @@ void toBinString(char* stringOut, uint8_t length, int32_t value)
 #ifdef __AVR_ARCH__
 //This is equivalent to:
 // if(conditional)
-//    u8_variable = u8_constant_value;
+// 	u8_variable = u8_constant_value;
 //But is guaranteed to be the same number of instructions in either branch
 // (conditional should probably already be stored in a variable...)
 // (e.g. uint8_t conditional = (n == 3); )
 //The actual implementation is:
 // if (conditional != 0)
-//    variable = value;
+//		variable = value;
 #define if_TrueThenValASM(conditional, variable, value) \
-   __asm__ __volatile__ \
+	__asm__ __volatile__ \
 ( \
-      "cpi  %1, 0 ; \n\t" \
-      "breq nothingToDo_%= ; \n\t" \
-      "ldi %0, %2; \n\t" \
-    "nothingToDo_%=: \n\t" \
-    : "=r" (variable) \
-    : "r"  (conditional), \
-      "M"  (value), \
-      "0"  (variable) \
+	 	"cpi	%1, 0 ; \n\t" \
+	 	"breq	nothingToDo_%= ; \n\t" \
+	 	"ldi %0, %2; \n\t" \
+	 "nothingToDo_%=: \n\t" \
+	 : "=r" (variable) \
+	 : "r"  (conditional), \
+	   "M"  (value), \
+	   "0"  (variable) \
 )
 
 
@@ -797,11 +797,11 @@ void toBinString(char* stringOut, uint8_t length, int32_t value)
 // And hasn't even been tested.
 #define if_TrueThenValASM(conditional, variable, value) \
 ({ \
-    if(conditional) \
-    { \
-      (variable) = (value); \
-    } \
-    {}; \
+	 if(conditional) \
+ 	 { \
+	 	(variable) = (value); \
+ 	 } \
+	 {}; \
 })
 
 
@@ -870,7 +870,7 @@ void toBinString(char* stringOut, uint8_t length, int32_t value)
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/bithandling/0.95/bithandling.h
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/bithandling/0.95/bithandling.h
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

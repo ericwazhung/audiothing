@@ -23,21 +23,21 @@ uint8_t spi_transferByte(uint8_t txByte);
 
 static __inline__
 void spi_StrobeClockAndShift(void)
-   __attribute__((__always_inline__));
+	__attribute__((__always_inline__));
 
 //This would make more sense as a #define for USICR's value
 //  but I want to keep all the notes here...
 void spi_StrobeClockAndShift(void)
 {
-   USICR =
+	USICR =
       //Set the USI port to three-wire mode
       (0<<USIWM1) | (1<<USIWM0)
       //Set the SPI port to use Timer0 compare-match for clocking
-      //NOGO doesn't output on SCK pin
-      //    | (0<<USICS1) | (1<<USICS0);
+		//NOGO doesn't output on SCK pin
+		//    | (0<<USICS1) | (1<<USICS0);
       //These three bits aren't exactly independent...
       //Set the SPI port to clock in data on the positive edge
-      // This can be changed independently
+		// This can be changed independently
       | (0<<USICS0)
       //Set the data register to clock on external clock pulses
       // (will be generated via software...)
@@ -46,17 +46,17 @@ void spi_StrobeClockAndShift(void)
       // in turn increment the counter, and latch data)
       | (1<<USICLK)
 
-      //Strobe the clock (toggle the output pin)
-      | (1<<USITC);
+		//Strobe the clock (toggle the output pin)
+		| (1<<USITC);
 
-   asm("nop;");
+	asm("nop;");
 }
 
 
 
 uint8_t spi_transferByteWithTimer(uint8_t txByte)
 {
-   USIDR = txByte;
+	USIDR = txByte;
 
       //This might actually not be safe, because it would also clear bits
       // that are flagged as 1...
@@ -66,68 +66,68 @@ uint8_t spi_transferByteWithTimer(uint8_t txByte)
       //clrbit(USIOIF, USISR);
 #define spi_clearCounterOverflowFlag_AndCounter()  USISR = (1<<USIOIF)
       spi_clearCounterOverflowFlag_AndCounter();
-      
+		
       //Shift the bits until the data completes
       while(!getbit(USIOIF, USISR))
       {
-         //Do this first, so we know the first bit will be a full TCNT
-         uint8_t tcntStart = TCNT0L;
+			//Do this first, so we know the first bit will be a full TCNT
+			uint8_t tcntStart = TCNT0L;
 
-         while(TCNT0L == tcntStart) asm("nop;");
+			while(TCNT0L == tcntStart) asm("nop;");
 
          spi_StrobeClockAndShift();
       }
       
-      //The flag doesn't reset itself...
+		//The flag doesn't reset itself...
       spi_clearCounterOverflowFlag_AndCounter();
 
-      uint8_t dataIn = USIDR;
+		uint8_t dataIn = USIDR;
 
 #if (defined(PRINTEVERYBYTE) && PRINTEVERYBYTE)
-      sprintf_P(stringBuffer, PSTR("0x%"PRIx8">0x%\n\r"PRIx8));
-      puat_sendStringBlocking(stringBuffer);
+		sprintf_P(stringBuffer, PSTR("0x%"PRIx8">0x%\n\r"PRIx8));
+		puat_sendStringBlocking(stringBuffer);
 #endif
 
-      return dataIn;
+		return dataIn;
 }
 
 
 uint8_t spi_transferByte(uint8_t txByte)
 {
-   USIDR = txByte;
-   spi_clearCounterOverflowFlag_AndCounter();
+	USIDR = txByte;
+	spi_clearCounterOverflowFlag_AndCounter();
 
-// while(!getbit(USIOIF, USISR))
-// {
-//    spi_StrobeClockAndShift();
-// }
+//	while(!getbit(USIOIF, USISR))
+//	{
+//		spi_StrobeClockAndShift();
+//	}
 
-   spi_StrobeClockAndShift();
-   spi_StrobeClockAndShift();
-   spi_StrobeClockAndShift();
-   spi_StrobeClockAndShift();
-   spi_StrobeClockAndShift();
-   spi_StrobeClockAndShift();
-   spi_StrobeClockAndShift();
-   spi_StrobeClockAndShift();
-   spi_StrobeClockAndShift();
-   spi_StrobeClockAndShift();
-   spi_StrobeClockAndShift();
-   spi_StrobeClockAndShift();
-   spi_StrobeClockAndShift();
-   spi_StrobeClockAndShift();
-   spi_StrobeClockAndShift();
-   spi_StrobeClockAndShift();
+	spi_StrobeClockAndShift();
+	spi_StrobeClockAndShift();
+	spi_StrobeClockAndShift();
+	spi_StrobeClockAndShift();
+	spi_StrobeClockAndShift();
+	spi_StrobeClockAndShift();
+	spi_StrobeClockAndShift();
+	spi_StrobeClockAndShift();
+	spi_StrobeClockAndShift();
+	spi_StrobeClockAndShift();
+	spi_StrobeClockAndShift();
+	spi_StrobeClockAndShift();
+	spi_StrobeClockAndShift();
+	spi_StrobeClockAndShift();
+	spi_StrobeClockAndShift();
+	spi_StrobeClockAndShift();
 
-   spi_clearCounterOverflowFlag_AndCounter();
+	spi_clearCounterOverflowFlag_AndCounter();
 
 #if(defined(PRINTEVERYBYTE) && PRINTEVERYBYTE)
    sprintf_P(stringBuffer, PSTR("tx:0x%"PRIx8" -> rx:0x%"PRIx8"\n\r"),
-                                       txByte, USIDR);
+		  											txByte, USIDR);
    puat_sendStringBlocking(stringBuffer);
 #endif
 
-   return USIDR;
+	return USIDR;
 }
 
 
@@ -194,7 +194,7 @@ uint8_t spi_transferByte(uint8_t txByte)
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/usi_spi/0.10ncf/usi_spi.c
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/usi_spi/0.10ncf/usi_spi.c
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

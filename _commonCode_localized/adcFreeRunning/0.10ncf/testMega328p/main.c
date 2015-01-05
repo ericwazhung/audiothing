@@ -15,7 +15,7 @@
 #include _ADC_FREE_RUNNING_HEADER_
 
 #include <stdio.h> //necessary for sprintf_P...
-                  // See notes in the makefile re: AVR_MIN_PRINTF
+						// See notes in the makefile re: AVR_MIN_PRINTF
 #include <util/delay.h>
 
 //For large things like this, I prefer to have them located globally (or
@@ -26,74 +26,74 @@ char stringBuffer[80];
 int main(void)
 {
 
-   init_heartBeat();
+	init_heartBeat();
 
-   tcnter_init();
-   puat_init(0);
+	tcnter_init();
+	puat_init(0);
 
-   adcFR_init();
+	adcFR_init();
 
-   puat_sendStringBlocking_P(0, stringBuffer, 
+	puat_sendStringBlocking_P(0, stringBuffer, 
 PSTR("\n\rNOTE: sample-count will likely be smaller than expected due"));
 
-   puat_sendStringBlocking_P(0, stringBuffer, 
+	puat_sendStringBlocking_P(0, stringBuffer, 
 PSTR("\n\r      to blocking serial transfers.\n\r"));
 
-   setHeartRate(0);
+	setHeartRate(0);
 
 
-   static dms4day_t startTime = 0;
+	static dms4day_t startTime = 0;
 
-   //Let's printout the largest ADC-value measured each second...
-   int16_t adcMax = INT16_MIN;
-   int16_t adcMin = INT16_MAX;
-   //Also, let's printout how many samples were received...
-   uint32_t sampleCount = 0;
+	//Let's printout the largest ADC-value measured each second...
+	int16_t adcMax = INT16_MIN;
+	int16_t adcMin = INT16_MAX;
+	//Also, let's printout how many samples were received...
+	uint32_t sampleCount = 0;
 
-   while(1)
-   {
-      tcnter_update();
-      puat_update(0);
+	while(1)
+	{
+		tcnter_update();
+		puat_update(0);
 
-      int16_t adcVal = adcFR_get();
+		int16_t adcVal = adcFR_get();
 
-      //adcFR_get() returns non-negative when a new value arrives
-      if(adcVal >= 0)
-      {
-         sampleCount++;
+		//adcFR_get() returns non-negative when a new value arrives
+		if(adcVal >= 0)
+		{
+			sampleCount++;
 
-         if(adcVal > adcMax)
-            adcMax = adcVal;
+			if(adcVal > adcMax)
+				adcMax = adcVal;
 
-         if(adcVal < adcMin)
-            adcMin = adcVal;
-      }
+			if(adcVal < adcMin)
+				adcMin = adcVal;
+		}
 
-      if(dmsIsItTime(&startTime, 1*DMS_SEC))
-      {
-         sprintf_P(stringBuffer, 
-          PSTR("samples: %"PRIu32" min: %"PRIi16" max: %"PRIi16"\n\r"), 
-               sampleCount, adcMin, adcMax);
-   
-         puat_sendStringBlocking(0, stringBuffer);
+		if(dmsIsItTime(&startTime, 1*DMS_SEC))
+		{
+			sprintf_P(stringBuffer, 
+			 PSTR("samples: %"PRIu32" min: %"PRIi16" max: %"PRIi16"\n\r"), 
+					sampleCount, adcMin, adcMax);
+	
+			puat_sendStringBlocking(0, stringBuffer);
 
-         //puat_sendByteBlocking(0, count);
+			//puat_sendByteBlocking(0, count);
 
-         //count++;
-         //if(count == '9'+1)
-         // count = '0';
+			//count++;
+			//if(count == '9'+1)
+			//	count = '0';
 
-         adcMax = INT16_MIN;
-         adcMin = INT16_MAX;
-         sampleCount = 0;
-      }
+			adcMax = INT16_MIN;
+			adcMin = INT16_MAX;
+			sampleCount = 0;
+		}
 
-      heartUpdate();
+		heartUpdate();
 
 
-   }
+	}
 
-   return 0;
+	return 0;
 }
 
 /* mehPL:
@@ -157,7 +157,7 @@ PSTR("\n\r      to blocking serial transfers.\n\r"));
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/57-heart2/_commonCode_localized/adcFreeRunning/0.10ncf/testMega328p/main.c
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/adcFreeRunning/0.10ncf/testMega328p/main.c
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *

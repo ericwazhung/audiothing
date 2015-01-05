@@ -10,14 +10,14 @@
 #include "../stringify.h"
 
 /* from info cpp 3.4:
-   There is no way to combine an argument with surrounding text and
-   stringify it all together.  Instead, you can write a series of adjacent
-   string constants and stringified arguments.  The preprocessor will
-   replace the stringified arguments with string constants.  The C
-   compiler will then combine all the adjacent string constants into one
-   long string.
+	There is no way to combine an argument with surrounding text and
+	stringify it all together.  Instead, you can write a series of adjacent
+	string constants and stringified arguments.  The preprocessor will
+	replace the stringified arguments with string constants.  The C
+	compiler will then combine all the adjacent string constants into one
+	long string.
 
-   That dun woik for #include...
+	That dun woik for #include...
 */
 
 /*
@@ -32,10 +32,10 @@
 
 int main(void)
 {
-   int a=1;
-   int b=3;
+	int a=1;
+	int b=3;
 
-   printf("a=1, b=3, test(a,b)=%d\n",test(a,b));
+	printf("a=1, b=3, test(a,b)=%d\n",test(a,b));
 }
 */
 
@@ -45,25 +45,25 @@ int main(void)
 
 int main( int argc , char const *argv[] )
 {
-     int abc_def_ghi = 42;
-       #define SUFFIX ghi
-       #define VAR(prefix) PASTE( prefix, PASTE( _def_, SUFFIX))
-       printf( "%s=%d\n" , STRINGIFY(VAR(abc)), VAR(abc) );
+	  int abc_def_ghi = 42;
+	    #define SUFFIX ghi
+	    #define VAR(prefix) PASTE( prefix, PASTE( _def_, SUFFIX))
+	    printf( "%s=%d\n" , STRINGIFY(VAR(abc)), VAR(abc) );
 
 
-      //This doesn't work... it's blank.
-      printf("And DEstringifying...\n"
-             "  '%s'\n", 
-             //STRINGIFY(test)); //Just Checking
-             STRINGIFY(_Pragma("test")));
-             //STRINGIFY(DESTRINGIFY("test")));
+		//This doesn't work... it's blank.
+		printf("And DEstringifying...\n"
+				 "  '%s'\n", 
+				 //STRINGIFY(test)); //Just Checking
+				 STRINGIFY(_Pragma("test")));
+				 //STRINGIFY(DESTRINGIFY("test")));
 // gives ''
-      printf("That's just a test, it's a nogo to destringify\n");
+		printf("That's just a test, it's a nogo to destringify\n");
 
 //#if defined( VAR(xyz) )
-//     printf( "defined\n");
+//		 printf( "defined\n");
 //#endif
-         return 0;
+		   return 0;
 }
 
 
@@ -128,7 +128,7 @@ int main( int argc , char const *argv[] )
  *    and add a link at the pages above.
  *
  * This license added to the original file located at:
- * /home/meh/_avrProjects/audioThing/60-sampleRateInHeader/_commonCode_localized/__std_wrappers/0.10/test/main.c
+ * /home/meh/_avrProjects/audioThing/65-reverifyingUnderTestUser/_commonCode_localized/__std_wrappers/stringify/0.10/test/main.c
  *
  *    (Wow, that's a lot longer than I'd hoped).
  *
