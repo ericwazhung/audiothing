@@ -14,32 +14,32 @@
 
 
 //#define BUTTON_IN_SAMPLE TRUE
-//#define TESTING_ANACOMP	TRUE
+//#define TESTING_ANACOMP  TRUE
 
 
 //Connecting the Button/DAC array to AIN0 (PA6) (negative input)
 // AIN1 is PA5 (positive input) tied to a voltage-divider @ VCC/2
-//#define BUTTON_PIN	PA6
+//#define BUTTON_PIN PA6
 
 
 
 // Kinda hokey, just a number of loops...
-#define CHARGE_TIME	0xf0
+#define CHARGE_TIME  0xf0
 #define BUTTON_TIMEOUT  (250000/3)
 extern uint8_t newCompTime; // = FALSE;
 extern uint8_t buttonPressed;
 //tcnter_t compTime = 0;
 
 
-#define NO_B				0
-#define VOL_PLUS_B		1
-#define VOL_MINUS_B		2
-#define PLUS_B				3
-#define MINUS_B			4
-#define PLAY_PAUSE_B		5
-#define STOP_B				6
-#define FWD_B				7
-#define REV_B				8
+#define NO_B            0
+#define VOL_PLUS_B      1
+#define VOL_MINUS_B     2
+#define PLUS_B          3
+#define MINUS_B         4
+#define PLAY_PAUSE_B    5
+#define STOP_B          6
+#define FWD_B           7
+#define REV_B           8
 
 // This isn't necessary...
 // I thought it might compile them as separate functions
@@ -48,8 +48,8 @@ extern uint8_t buttonPressed;
 // However, it's NOT smart enough not to give warnings
 //  e.g. "something's static, but in an inline function..."
 #if((defined(BUTTON_IN_SAMPLE) && BUTTON_IN_SAMPLE) \
-		|| (defined(TESTING_ANACOMP) && TESTING_ANACOMP) \
-		|| (defined(NKP_ANACOMP_TESTING) && NKP_ANACOMP_TESTING))
+      || (defined(TESTING_ANACOMP) && TESTING_ANACOMP) \
+      || (defined(NKP_ANACOMP_TESTING) && NKP_ANACOMP_TESTING))
 static __inline__ uint8_t anaComp_getButton(void);
 /*
 //Unused...

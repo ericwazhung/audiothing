@@ -24,27 +24,27 @@
 
 //Connecting the Button/DAC array to AIN0 (PA6) (negative input)
 // AIN1 is PA5 (positive input) tied to a voltage-divider @ VCC/2
-//#define BUTTON_PIN	PA6
+//#define BUTTON_PIN PA6
 
 
 
 // Kinda hokey, just a number of loops...
-#define CHARGE_TIME	0xf0
+#define CHARGE_TIME  0xf0
 #define BUTTON_TIMEOUT  (250000/3)
 extern uint8_t newCompTime; // = FALSE;
 extern uint8_t buttonPressed;
 //tcnter_t compTime = 0;
 
 /* This is all implementation-specific...
-#define NO_B				0
-#define VOL_PLUS_B		1
-#define VOL_MINUS_B		2
-#define PLUS_B				3
-#define MINUS_B			4
-#define PLAY_PAUSE_B		5
-#define STOP_B				6
-#define FWD_B				7
-#define REV_B				8
+#define NO_B            0
+#define VOL_PLUS_B      1
+#define VOL_MINUS_B     2
+#define PLUS_B          3
+#define MINUS_B         4
+#define PLAY_PAUSE_B    5
+#define STOP_B          6
+#define FWD_B           7
+#define REV_B           8
 */
 
 //For now, inline isn't implemented...

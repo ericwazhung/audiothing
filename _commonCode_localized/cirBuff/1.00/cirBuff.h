@@ -44,7 +44,7 @@
 // TODO: Add usage...
 //       * Does the buffer still need more bytes than can be written?
 //         is that now accounted-for?
-//			* What about a constantly-full buffer, with read-back of all bytes
+//       * What about a constantly-full buffer, with read-back of all bytes
 //       * What about multiple cirbuffs of different data-types...?
 //         (use 1-byte values, and return voids?)
 
@@ -61,35 +61,35 @@
 
 //This can be overridden with e.g. -D'cirBuff_position_t=uint16_t'
 #ifndef cirBuff_position_t
-#define cirBuff_position_t	uint8_t
+#define cirBuff_position_t uint8_t
 #endif
 
 #ifndef cirBuff_data_t
-	#define cirBuff_data_t 		uint8_t
-	#define cirBuff_dataRet_t	uint16_t
-	#define CIRBUFF_RETURN_NODATA	(UINT8_MAX + 1)
+   #define cirBuff_data_t     uint8_t
+   #define cirBuff_dataRet_t  uint16_t
+   #define CIRBUFF_RETURN_NODATA (UINT8_MAX + 1)
 #else
-	#ifndef cirBuff_dataRet_t
-		#error "when defining cirBuff_data_t, make sure to also define cirBuff_dataRet_t"
-		#error " If data is float, so could dataRet, if NaN is unused..."
-	#endif
-	#ifndef CIRBUFF_RETURN_NODATA
-		#error "when defining cirBuff_data_t, make sure to also define CIRBUFF_RETURN_NODATA"
-		#error "for integer data, this'll be ((cirBuff_data_t)_MAX+1)"
-		#error " though I imagine it could be NaN if data is float..."
-	#endif
+   #ifndef cirBuff_dataRet_t
+      #error "when defining cirBuff_data_t, make sure to also define cirBuff_dataRet_t"
+      #error " If data is float, so could dataRet, if NaN is unused..."
+   #endif
+   #ifndef CIRBUFF_RETURN_NODATA
+      #error "when defining cirBuff_data_t, make sure to also define CIRBUFF_RETURN_NODATA"
+      #error "for integer data, this'll be ((cirBuff_data_t)_MAX+1)"
+      #error " though I imagine it could be NaN if data is float..."
+   #endif
 #endif
 
 
 
 
 typedef struct {
-	volatile cirBuff_position_t writePosition;  
-								//Where to write, when adding a byte
-	volatile cirBuff_position_t readPosition;   
-								//Where to read, when getting a byte
-	cirBuff_position_t length;
-	cirBuff_data_t *buffer;  //[];
+   volatile cirBuff_position_t writePosition;  
+                        //Where to write, when adding a byte
+   volatile cirBuff_position_t readPosition;   
+                        //Where to read, when getting a byte
+   cirBuff_position_t length;
+   cirBuff_data_t *buffer;  //[];
 } cirBuff_t;
 
 #if (!defined(CIRBUFF_NO_CALLOC) || !CIRBUFF_NO_CALLOC)
@@ -97,11 +97,11 @@ typedef struct {
  uint8_t cirBuff_destroy(cirBuff_t *cirBuff);
 #else
  uint8_t cirBuff_init(cirBuff_t *cirBuff, cirBuff_position_t length, 
-		 												cirBuff_data_t *array);
+                                          cirBuff_data_t *array);
 #endif
 
-#define DONTBLOCK	1
-#define DOBLOCK		0
+#define DONTBLOCK 1
+#define DOBLOCK      0
 
 //Add a datum to the end of the list
 // corresponds to writePosition
@@ -111,7 +111,7 @@ typedef struct {
 // Returns 1 if the buffer was full and dontBlock == TRUE 
 //   (the datum was lost. BE CAREFUL!)
 uint8_t cirBuff_add(cirBuff_t *cirBuff, cirBuff_data_t data, 
-													 uint8_t dontBlock);
+                                        uint8_t dontBlock);
 
 //Get the first datum in the buffer
 // corresponds to readPosition
@@ -125,7 +125,7 @@ void cirBuff_empty(cirBuff_t *cirBuff);
 #endif
 
 #if(!defined(CIRBUFF_AVAILABLESPACE_UNUSED) || \
-		            !CIRBUFF_AVAILABLESPACE_UNUSED)
+                  !CIRBUFF_AVAILABLESPACE_UNUSED)
 //Get the amount of available space...
 cirBuff_position_t cirBuff_availableSpace(cirBuff_t *cirBuff);
 #endif

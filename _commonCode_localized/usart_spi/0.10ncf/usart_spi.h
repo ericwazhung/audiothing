@@ -18,7 +18,7 @@
 //          Also improvements to calculations, and overrideable Fast/Slow
 //          bauds.
 //0.10ncf-3 "slow" = transferByteWithTimer() isn't slow enough to see in a
-//				simple "echo" method used in testMega328p+WithTimer
+//          simple "echo" method used in testMega328p+WithTimer
 //          So... I guess I've gotta do some math and 'scoping
 //          Regardless, the data seems to be coming through properly.
 //          Yeah, we're talking ~960bps, much too fast to see without a
@@ -35,7 +35,7 @@
 //          (Where's it at, PUAT? PUAR? SPI?)
 //          HEART. 'HEART_REMOVED' added to the test code.
 //0.10ncf - This is the first version of usart_spi, it's stolen from
-//				usi_spi-0.10ncf, and modified heavily.
+//          usi_spi-0.10ncf, and modified heavily.
 //          Also added testMega328P
 //FROM usi_spi.h:
 //0.10ncf - This is the first version moved to _commonCode
@@ -113,9 +113,9 @@
 // ERM: It *claims* that the baud-rate is the same as in Async mode, but
 // apparently that math doesn't line up (Table 20-1)
 #define SPI_BRR_FROM_BAUD(baudRoughly) \
-	( ( (F_CPU/2/(baudRoughly)) == 0 ) ? 0 : \
-	  ( ( ((F_CPU/2/(baudRoughly)) - 1) > 0x0fff ) ? 0x0fff : \
-	      ((F_CPU/2/(baudRoughly)) - 1) ) )
+   ( ( (F_CPU/2/(baudRoughly)) == 0 ) ? 0 : \
+     ( ( ((F_CPU/2/(baudRoughly)) - 1) > 0x0fff ) ? 0x0fff : \
+         ((F_CPU/2/(baudRoughly)) - 1) ) )
 
 
 

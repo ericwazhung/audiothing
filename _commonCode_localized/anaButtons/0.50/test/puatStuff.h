@@ -15,12 +15,12 @@
 
 extern __inline__ void puat_writeOutput(uint8_t puatNum, uint8_t value)
 {
-	writepinPORT(Tx0pin, Tx0PORT, value);
+   writepinPORT(Tx0pin, Tx0PORT, value);
 }
 
 extern __inline__ void puat_initOutput(uint8_t puatNum)
 {
-	setoutPORT(Tx0pin, Tx0PORT);
+   setoutPORT(Tx0pin, Tx0PORT);
 }
 
 /* mehPL:

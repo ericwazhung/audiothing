@@ -14,7 +14,7 @@
 // TODO: heartPinInputPoll should return 1 if HEART_DISABLED
 //       since usually it's active-low...
 // TODO: HEART_REMOVED's initHeartbeat doesn't take into account
-// 		DMS_EXTERNALUPDATE
+//       DMS_EXTERNALUPDATE
 
 //2.00-5 GO!
 //       forgot Return False
@@ -113,7 +113,7 @@
 //        naming has been defined in the project's makefile
 //        
 //1.50-13 LCDdirectLVDS77 complains that getHeartRate "reaches end of
-//			 non-void function" when using TCNTER... but not with DMS?
+//        non-void function" when using TCNTER... but not with DMS?
 //        I don't see it, and test+...TCNTER doesn't either. Weird.
 //        TCNTER_DMS undeclared -> HEARTSTEPTIME... almost there.
 //1.50-12 testing TCNTER in PWM161...
@@ -122,7 +122,7 @@
 //1.50-9 Looking into setting some defaults for tcnter
 //       e.g. to include timerCommon, and init.
 //1.50-8 first go with tcnter, seems to work. Reduced codesize from 1.5k to
-//			1.4k... no optimization of timerCommon's unused functions
+//       1.4k... no optimization of timerCommon's unused functions
 //       And, more importantly, it doesn't require a timer interrupt.
 //1.50-7 getting rid of the -0, this is NOT directly from 1.50dne.
 //       adding HEART_USES_TIMER...
@@ -134,7 +134,7 @@
 //              in blinkHeart() -> if(dmsIsItTime(a,b),c)
 //
 //         ALSO: Looking into other uses of dmsIsItTime
-//         		  More cleanup of blinkHeart()
+//               More cleanup of blinkHeart()
 //               testing with and without DMS...
 //               DMS: 1520Bytes
 //               NO-DMS: 850Bytes
@@ -160,7 +160,7 @@
 //1.30-4 sdramThing3.0-3 was still using heart1.21! Weird...
 
 //1.30-3 in HEART_REMOVED, should still init_dmsTimer() on init... if
-//			HEART_DMS...
+//       HEART_DMS...
 //       TODO: heartPinInputPoll should still be functional...
 //       TODO: should probably also setoutPORT() for toggling, etc...?
 //             Or make a *really simple* blinking heart...?
@@ -180,7 +180,7 @@
 //       make localize... here's a hack to fix that... using COM_HEADERS
 //1.21-7 _BITHANDLING_HEADER_ wasn't used!
 //1.21-6 adding this TODO: create a halt-function for errors, with blinks?
-//			see audioThing-v4
+//       see audioThing-v4
 //       What about a timer-interrupt-function for heartUpdates until
 //       the system's booted...?
 //        (maybe just for debugging... a CFLAG?)
@@ -201,11 +201,11 @@
 //      removes all heart-code quickly for code-size-testing...
 //1.20 Adding HEARTPIN and HEARTPINPIN options
 //     so compilation doesn't make them variables...
-//		 In Makefile:
-//			CFLAGS += -D'HEARTPIN_HARDCODED=TRUE'
-//			CFLAGS += -D'HEART_PINNUM=PA3'
-//			CFLAGS += -D'HEART_PINPORT=PORTA'
-//			CFLAGS += -D'HEART_LEDCONNECTION=LED_TIED_HIGH'
+//     In Makefile:
+//       CFLAGS += -D'HEARTPIN_HARDCODED=TRUE'
+//       CFLAGS += -D'HEART_PINNUM=PA3'
+//       CFLAGS += -D'HEART_PINPORT=PORTA'
+//       CFLAGS += -D'HEART_LEDCONNECTION=LED_TIED_HIGH'
 //     This is a significant improvement...
 //       threePinIDer51i (with 1.12-5) was 81000cyc/5sec, 7896B
 //       threePinIDer51ib (with 1.20) is 103000cyc/5sec, 7650B
@@ -230,23 +230,23 @@
 //          
 //1.00-10 removing obnoxious warning... 
 //1.00-9 revising dmsUpdate's functionPointer for clarity/portability...
-//		(1.00-8 not archived, see krautPoxn 117 tarball...)
+//    (1.00-8 not archived, see krautPoxn 117 tarball...)
 //1.00-8 using dms6sec_t...
 //1.00-7 HFModulation .93 (for adjustable divisor)
 //1.00-6 adding _HEARTBEAT_HEADER_ to makefile
 //1.00-5 bithandling .94
 //1.00-4 LED / INPUT switching...
-//		Input is only usable when pulled LOW, do not pull it high... 
-//			(maybe different if the LED is tied low, but code would probably 
+//    Input is only usable when pulled LOW, do not pull it high... 
+//       (maybe different if the LED is tied low, but code would probably 
 //        have to change)
-//		This is only useful if the input usage is temporary since it forces 
+//    This is only useful if the input usage is temporary since it forces 
 //    the LED state
-//			i.e. money-trigger, start-button, configuration-button, etc...
-//		This will also work with non-temporary input if an inverter 
+//       i.e. money-trigger, start-button, configuration-button, etc...
+//    This will also work with non-temporary input if an inverter 
 //    AND resistors are used
-//			i.e. configuration DIP switch
-//		Without inverter, LED tied high *
-//		With inverter, LED tied high, no resistors *
+//       i.e. configuration DIP switch
+//    Without inverter, LED tied high *
+//    With inverter, LED tied high, no resistors *
 //    * NOTE: These tables have been moved to heartbeat.c:heartI_setLED()
 //      a/o v2.00-2
 //1.00-3 adding dmsWait with heartUpdate...
@@ -272,7 +272,7 @@
 //.96 using hfModulation
 //.95 Heart Smoothing via adjustable-frequency PWM, completely different 
 //    algorithm... needs cleanup
-//.91b	never so-titled, but updated for uint8_t output from heartUpdate
+//.91b   never so-titled, but updated for uint8_t output from heartUpdate
 //.91 added HEART2X for heart rate doubling
 //.90 added heart for heart clearing
 
@@ -280,7 +280,7 @@
 #define __HEARTBEAT_H__
 
 #include <avr/io.h>
-#include <avr/interrupt.h>	//for sei and cli, making the heartcount update
+#include <avr/interrupt.h> //for sei and cli, making the heartcount update
                            //atomic (could do this other ways...?)
 
 #ifndef _BITHANDLING_HEADER_
@@ -331,7 +331,7 @@
 //                                                 void heart_voidUpdate()
 #if defined(dmsWait)
  #undef dmsWait
- #define dmsWait(time)	dmsWaitFn((time), &heart_voidUpdate)
+ #define dmsWait(time)  dmsWaitFn((time), &heart_voidUpdate)
 #endif
 
 #endif
@@ -352,15 +352,15 @@
 //For init: See 1.10 notes...
 //These two are the originals... for backwards compatibility 
 //  (heh, all of a half a version?)
-#define LED_DIRECT_HIGH		FALSE	//(Currently an output L or an input, 
+#define LED_DIRECT_HIGH    FALSE //(Currently an output L or an input, 
 //                                                               pulled up)
-#define LED_INVERTED		TRUE	//(Currently always an output, H/L)
+#define LED_INVERTED    TRUE  //(Currently always an output, H/L)
 
 //These make a little more sense
-#define LED_TIED_HIGH		LED_DIRECT_HIGH
-#define LED_TIED_LOW		LED_INVERTED	//Tied Low works with Inverted's 
+#define LED_TIED_HIGH      LED_DIRECT_HIGH
+#define LED_TIED_LOW    LED_INVERTED   //Tied Low works with Inverted's 
                                     //functionality (always an output, H/L)
-#define LED_BUFFERED		LED_INVERTED
+#define LED_BUFFERED    LED_INVERTED
 
 //Amount of time between each level of brightness in deci-milliseconds
 //There are 512 steps per bright/dim cycle...(?)
@@ -369,57 +369,57 @@
 // heartbeat.c
 //78*2 = 128 steps in 2 seconds, whole sequence in 8
 #if (_HEART_DMS_)
- #define HEARTSTEPTIME	(78*2)	
+ #define HEARTSTEPTIME  (78*2)   
 #elif (_HEART_TCNTER_)
- #define HEARTSTEPTIME	(78*2*TCNTER_DMS)
+ #define HEARTSTEPTIME  (78*2*TCNTER_DMS)
 #else
  //Number of loops before stepping to the next brightness level... 
  //(only if NODMS)
-// #define HEART_ITERATIONCOUNT	400
- #define HEARTSTEPTIME	400
+// #define HEART_ITERATIONCOUNT  400
+ #define HEARTSTEPTIME  400
 #endif
 
 //#define HEART_MAXVAL 0xff
-//#define HEART_MAXBRIGHT	(HEART_MAXVAL*2/3)
-//#define HEART_MAXBRIGHT	(0xff)
-#define HEART_MAXBRIGHT	(0xff)
+//#define HEART_MAXBRIGHT  (HEART_MAXVAL*2/3)
+//#define HEART_MAXBRIGHT  (0xff)
+#define HEART_MAXBRIGHT (0xff)
 
 /* testing of hfm with divisor
 //  heart getNextDesired doesn't work well with different divisors
 //  if MAXBRIGHT != maxPower... since power is read from the hfm_t in 
 //                                                                 getNext
-#define HEARTSTEPTIME	(78*256)	
-#define HEART_MAXBRIGHT	(0x4)
+#define HEARTSTEPTIME   (78*256) 
+#define HEART_MAXBRIGHT (0x4)
 */
 //Is this the number of iterations per 
-//#define HEARTCOUNTMAX	((uint32_t)0x20000l) 
-//#define HEARTNUMSTEPS	0x80l		//Number of PWM value steps between 
+//#define HEARTCOUNTMAX ((uint32_t)0x20000l) 
+//#define HEARTNUMSTEPS 0x80l    //Number of PWM value steps between 
 //                                 full-off and full-on
 
 
-//#define HEARTNUMCOUNTSPERSTEP	(HEARTCOUNTMAX/2/HEARTNUMSTEPS)
-//#define HEARTNUMCOUNTSPERPWMDIVISION	\
-                  (HEARTNUMCOUNTSPERSTEP/HEARTNUMSTEPS)	
+//#define HEARTNUMCOUNTSPERSTEP  (HEARTCOUNTMAX/2/HEARTNUMSTEPS)
+//#define HEARTNUMCOUNTSPERPWMDIVISION \
+                  (HEARTNUMCOUNTSPERSTEP/HEARTNUMSTEPS)  
 
 /*
 //LATER MAYBE
 //heartSet can be set to any of these values from external functions and 
 // will be updated in the next heart_update()
 //Requires fewer instructions from external functions...
-#define HEARTDONTSET	0xff
-#define HEART2X			0xf0	//beat twice as fast
-#define HEARTRESET		0
+#define HEARTDONTSET 0xff
+#define HEART2X         0xf0  //beat twice as fast
+#define HEARTRESET      0
 void heartMode(uint8_t mode);
 */
 
-//#define HEARTFULLOFF	0
-//#define HEARTHALFBRIGHT	1
-//#define HEARTFULLON		2
-//#define HEARTHALFDIM	3
-//#define HEARTJERK		0xf0
+//#define HEARTFULLOFF  0
+//#define HEARTHALFBRIGHT  1
+//#define HEARTFULLON      2
+//#define HEARTHALFDIM  3
+//#define HEARTJERK     0xf0
 
 //heartSet can be set to 0-4 to set the heart to either full
-//extern volatile uint8_t	heartSet;
+//extern volatile uint8_t  heartSet;
 
 
 #if (!defined(HEARTPIN_HARDCODED) || !HEARTPIN_HARDCODED)
@@ -435,12 +435,12 @@ extern uint8_t heartBeatPin;
 // HEART UPDATE MUST ALSO BE CALLED BEFORE WDT runs out!!!!
  #if (!defined(__HEART_REMOVED__) || !__HEART_REMOVED__)
 void heart_init(volatile uint8_t* pin, uint8_t pinName, 
-							uint8_t ledConnectionType);
- #else	//HEART_REMOVED
+                     uint8_t ledConnectionType);
+ #else   //HEART_REMOVED
   #if(defined(_HEART_DMS_) && _HEART_DMS_)
-	#define heart_init(a,b,c) init_dmsTimer()
+   #define heart_init(a,b,c) init_dmsTimer()
   #else
-	#define heart_init(a, b, c) //(0)
+   #define heart_init(a, b, c) //(0)
   #endif
  #endif
 
@@ -448,7 +448,7 @@ void heart_init(volatile uint8_t* pin, uint8_t pinName,
 //MUST BE CALLED WITHIN THE FIRST 15ms of boot 
 // so WDT won't get stuck in a reset-loop!!!
 #define HEART_INIT(pin,pinName,ledConnType) \
-	heart_init((&(pin)),(pinName),(ledConnType))
+   heart_init((&(pin)),(pinName),(ledConnType))
 
 #else //HEARTPIN_HARDCODED
 
@@ -484,16 +484,16 @@ void heart_init(volatile uint8_t* pin, uint8_t pinName,
 void heart_init(void);
 #else //HEART_REMOVED
  #if(defined(_HEART_DMS_) && _HEART_DMS_)
-	#define heart_init() init_dmsTimer()
+   #define heart_init() init_dmsTimer()
  #else
-	#define heart_init() //(0)
+   #define heart_init() //(0)
  #endif
 #endif
 #endif
 
 #if (!defined(__HEART_REMOVED__) || !__HEART_REMOVED__)
 void heart_clear(void);
-#else	//HEART_REMOVED
+#else //HEART_REMOVED
 #define heart_clear() //(0)
 #endif
 
@@ -511,7 +511,7 @@ void heart_setRate(uint8_t rate);
 //  indication...)
 #if (!defined(__HEART_REMOVED__) || !__HEART_REMOVED__)
 uint8_t heart_getRate(void);
-#else	//HEART_REMOVED
+#else //HEART_REMOVED
 #define heart_getRate() ZERO8_FN() //(0)
 #endif
 #endif
@@ -524,7 +524,7 @@ uint8_t heart_getRate(void);
 // (for error indication)
 #if (!defined(__HEART_REMOVED__) || !__HEART_REMOVED__)
 void heart_blink(uint8_t value);
-#else	//HEART_REMOVED
+#else //HEART_REMOVED
 #define heart_blink(a) //(0)
 #endif
 #endif
@@ -537,7 +537,7 @@ void heart_blink(uint8_t value);
 // the input.
 #if (!defined(__HEART_REMOVED__) || !__HEART_REMOVED__)
 uint8_t heart_update(void);
-#else	//HEART_REMOVED
+#else //HEART_REMOVED
 #define heart_update() ZERO8_FN() //({0;})
 #endif
 
@@ -545,7 +545,7 @@ uint8_t heart_update(void);
 //NoReturn for dmsWait...
 #if (!defined(__HEART_REMOVED__) || !__HEART_REMOVED__)
 void heart_voidUpdate(void);
-#else	//HEART_REMOVED
+#else //HEART_REMOVED
 #define heart_voidUpdate() //(0)
 #endif
 #endif
@@ -556,7 +556,7 @@ void heart_voidUpdate(void);
 //    loop otherwise it will constantly interfere with the heartbeat
 //  Ideally, this would be called once every... 256? heart_updates to 
 //    minimize visual distortion
-//	 Maybe during getNextDesired?
+//  Maybe during getNextDesired?
 //Meh, the actual input poll takes all of... 25ish instructions, the loop 
 //  itself probably takes significantly longer
 //This could be more sophisticated to be tied together with heart being an
@@ -565,7 +565,7 @@ void heart_voidUpdate(void);
 #if (!defined(HEART_INPUTPOLLING_UNUSED) || !HEART_INPUTPOLLING_UNUSED)
 #if (!defined(__HEART_REMOVED__) || !__HEART_REMOVED__)
 uint8_t heart_getButton(void);
-#else	//HEART_REMOVED
+#else //HEART_REMOVED
 #define heart_getButton() ZERO8_FN()
 #endif
 #endif

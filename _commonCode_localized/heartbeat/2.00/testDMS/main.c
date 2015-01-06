@@ -11,12 +11,12 @@
 void main(void)
 {
 
-	heart_init();
+   heart_init();
 
-	while(1)
-	{
-		heart_update();
-	}
+   while(1)
+   {
+      heart_update();
+   }
 }
 
 /* mehPL:

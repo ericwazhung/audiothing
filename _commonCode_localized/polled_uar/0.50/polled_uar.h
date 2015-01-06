@@ -78,7 +78,7 @@
 //        Disabling the error.
 // WTF::::
 //0.40-14  Override for error re: tcnterIsItTime8()
-//				Discovered "HOLY SHIT WTF"
+//          Discovered "HOLY SHIT WTF"
 //          Disabling compilation until I have a chance to figure it out...
 //         See notes added to 0.40-2_pre...
 //-------------------------------
@@ -140,23 +140,23 @@
 //         myTcnter_t (uint32_t) for bitTcnt?
 //0.40-3 using 1/4 bit for start-detection...
 //0.40-2 inlining...
-//		 bitTcnt -> puar_bitTcnt (so it won't conflict with puat's bitTcnt
+//     bitTcnt -> puar_bitTcnt (so it won't conflict with puat's bitTcnt
 //      when both are inlined)
 //     forgot to mention in a prior version BIT_TCNT now puar_bitTcnt[]
-//0.40-1	puar_readInput() in puarStuff.h
+//0.40-1 puar_readInput() in puarStuff.h
 //0.40 
-//			TODO: NOGO: Trying to figure out how to auto-calibrate...
+//       TODO: NOGO: Trying to figure out how to auto-calibrate...
 //     Ideas auto-calibrate either:
 //        OSSCAL
-//				Doesn't affect code, BIT_TCNT remains constant 
-//					(rather than a variable) so slightly faster updates
+//          Doesn't affect code, BIT_TCNT remains constant 
+//             (rather than a variable) so slightly faster updates
 //        BIT_TCNT
-//				Small BIT_TCNT values could lead to tremendous error...
+//          Small BIT_TCNT values could lead to tremendous error...
 //          Easier to implement... 
-//					send a character (so bit7 = 0, then there's guaranteed
-//						0->1 transition between bit7 and stop
-//					check TCNT at start edge
-//					check TCNT at bit7->stop edge
+//             send a character (so bit7 = 0, then there's guaranteed
+//                0->1 transition between bit7 and stop
+//             check TCNT at start edge
+//             check TCNT at bit7->stop edge
 //             divide by... appropriate time (9 bits)
 //              ___     ___ ___ ___ ___ ___ ___ ___ ___ ___
 //                 \___/___X___X___X___X___X___X___X___/
@@ -171,9 +171,9 @@
 //            Start--^   0   1   2   3   4   5   6   7   ^--Stop
 //
 //0.35 TONS of changes, catching up with polled_uat:
-//				Multiple Receivers
-//				renaming POLLED_UAR_ functions to puar_
-//       	add puar_readInput() to main instead of makefile CFLAG
+//          Multiple Receivers
+//          renaming POLLED_UAR_ functions to puar_
+//          add puar_readInput() to main instead of makefile CFLAG
 //0.10-8 renaming tcnt_ and TCNT_ stuff to tcnter_ and TCNTER_
 //0.10-7 removing manual tcnt stuff from here, and using tcnter instead
 //       thus it won't run redundantly when running both uar and uat
@@ -183,13 +183,13 @@
 //        Minor fix in .mk re: UART -> UAR
 //0.10-4 Buncha Notes regarding xyt at bottom of .c file
 //       Looking into running-tcnt
-//				myTcnter and nextTcnter now implemented
+//          myTcnter and nextTcnter now implemented
 //          Fixes potential issues with multi-TCNTs per update
 //            Aiding cumulative-error fixing
 //            (Next time was dependent on the time of the current update)
 //       See todo: in .c
 //0.10-3 test app using makefile...
-//			cleanup
+//       cleanup
 //0.10-2 Notes re: inter-bit distances...
 //0.10-1 More mods, test app
 //0.10 First Version stolen and modified heavily from usi_uart 0.22-3
@@ -243,7 +243,7 @@
 
 
 #if(!defined(NUMPUARS))
-	#define NUMPUARS	1
+   #define NUMPUARS  1
 #endif
 
 //********** POLLED_UAR Prototypes **********//
@@ -293,13 +293,13 @@ uint8_t puar_getByte(uint8_t puarNum);
 //Basic functionality:
 // int main(void)
 // {
-//		init();
-// 	while(1)
-// 	{
-//			update();
-//			if(dataWaiting())
-//				data = getByte();
-// 	}
+//    init();
+//    while(1)
+//    {
+//       update();
+//       if(dataWaiting())
+//          data = getByte();
+//    }
 // }
 //
 // This must be defined in puarStuff.h somewhere in the include paths...
@@ -308,12 +308,12 @@ uint8_t puar_getByte(uint8_t puarNum);
 // __attribute__((__always_inline__));
 //
 // uint8_t puar_readInput(uint8_t puarNum)
-//	{
-//		if(puarNum==0)
-//			return getpinPORT(Rx0Pin, PORTB);
-//		else
-//			return getpinPORT(Rx1Pin, PORTA);
-//	}
+// {
+//    if(puarNum==0)
+//       return getpinPORT(Rx0Pin, PORTB);
+//    else
+//       return getpinPORT(Rx1Pin, PORTA);
+// }
 //
 //  This should probably be changed to be #defined application-specifically
 //  Peripherals Used:

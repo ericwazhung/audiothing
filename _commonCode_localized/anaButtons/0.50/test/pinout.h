@@ -29,8 +29,8 @@
 #define Rx0PORT   PORTB
 
 //Making it more pin-compatible with sdramThing3.0...
-#define Tx0pin		PD6	//PB5		//MOSI
-#define Tx0PORT	PORTD	//PORTB
+#define Tx0pin    PD6   //PB5    //MOSI
+#define Tx0PORT   PORTD //PORTB
 
 
 //These are no longer valid a/o anaDigi... and it's in the makefile anyhow
@@ -43,7 +43,7 @@
 //On the 8515 this is PB3...
 // Actually, these need to be in the makefile...
 //#define ANABUTTONS_PIN PB3
-//#define ANABUTTONS_PORT	PORTB
+//#define ANABUTTONS_PORT  PORTB
 
 
 

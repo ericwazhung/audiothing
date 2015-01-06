@@ -18,20 +18,20 @@
 //volatile uint8_t UART_Ready[NUMUARTS] = UARTARRAYINIT;
 
 #if(!defined(CIRBUFF_AVAILABLESPACE_UNUSED) || \
-				!CIRBUFF_AVAILABLESPACE_UNUSED)
+            !CIRBUFF_AVAILABLESPACE_UNUSED)
 CIRBUFF_INLINEABLE
 cirBuff_position_t cirBuff_availableSpace(cirBuff_t *cirBuff)
 {
-	cirBuff_position_t delta 
-				= cirBuff->writePosition - cirBuff->readPosition;
+   cirBuff_position_t delta 
+            = cirBuff->writePosition - cirBuff->readPosition;
 
-	if( cirBuff->writePosition < cirBuff->readPosition )
-		delta += cirBuff->length;
+   if( cirBuff->writePosition < cirBuff->readPosition )
+      delta += cirBuff->length;
 
-	//This probably isn't as efficient as it could be...
-	delta = cirBuff->length - 1 - delta;
+   //This probably isn't as efficient as it could be...
+   delta = cirBuff->length - 1 - delta;
 
-	return delta;
+   return delta;
 }
 #endif
 
@@ -42,29 +42,29 @@ cirBuff_position_t cirBuff_availableSpace(cirBuff_t *cirBuff)
 #else
 CIRBUFF_INLINEABLE
  uint8_t cirBuff_init(cirBuff_t *cirBuff, cirBuff_position_t length, 
-		 												cirBuff_data_t *array)
+                                          cirBuff_data_t *array)
 #endif
 {
-	//length+1 because one byte is unused to indicate full/empty (see below)
+   //length+1 because one byte is unused to indicate full/empty (see below)
 #if (!defined(CIRBUFF_NO_CALLOC) || !CIRBUFF_NO_CALLOC)
-	cirBuff->buffer = (cirBuff_data_t *)calloc(length+1, 
-																sizeof(cirBuff_data_t));
+   cirBuff->buffer = (cirBuff_data_t *)calloc(length+1, 
+                                                sizeof(cirBuff_data_t));
 
-	//Check if malloc failed
-	if(cirBuff->buffer == NULL)
-		return 1;
+   //Check if malloc failed
+   if(cirBuff->buffer == NULL)
+      return 1;
 
-	cirBuff->length = length + 1;
+   cirBuff->length = length + 1;
 #else
-	cirBuff->buffer = array;
-	cirBuff->length = length;
+   cirBuff->buffer = array;
+   cirBuff->length = length;
 #endif
-	
-	
-	cirBuff->writePosition = 0;
-	cirBuff->readPosition = 0;
-	
-	return 0;	
+   
+   
+   cirBuff->writePosition = 0;
+   cirBuff->readPosition = 0;
+   
+   return 0;   
 }
 
 #if (!defined(CIRBUFF_NO_CALLOC) || !CIRBUFF_NO_CALLOC)
@@ -73,14 +73,14 @@ CIRBUFF_INLINEABLE
 // Returns 1 if the buffer was already NULL...
 uint8_t cirBuff_destroy(cirBuff_t *cirBuff)
 {
-	if(cirBuff->buffer != NULL)
-	{
-		free(cirBuff->buffer);
-		cirBuff->buffer = NULL;
-		return 0;
-	}
-	else
-		return 1;
+   if(cirBuff->buffer != NULL)
+   {
+      free(cirBuff->buffer);
+      cirBuff->buffer = NULL;
+      return 0;
+   }
+   else
+      return 1;
 }
 #endif
 
@@ -90,58 +90,58 @@ uint8_t cirBuff_destroy(cirBuff_t *cirBuff)
 // returns 1 if the buffer was full AND dontBlock was true (i.e. the byte was lost!), 0 otherwise
 CIRBUFF_INLINEABLE
 uint8_t cirBuff_add(cirBuff_t *cirBuff, cirBuff_data_t Data, 
-															uint8_t dontBlock)
+                                             uint8_t dontBlock)
 {   
-	cirBuff_position_t nextWritePosition = 
-								(cirBuff->writePosition + 1);//%(cirBuff->length);
-	if(nextWritePosition >= cirBuff->length)
-		nextWritePosition -= cirBuff->length;
+   cirBuff_position_t nextWritePosition = 
+                        (cirBuff->writePosition + 1);//%(cirBuff->length);
+   if(nextWritePosition >= cirBuff->length)
+      nextWritePosition -= cirBuff->length;
 
 #ifdef __TESTING__
-	int i = 0;
+   int i = 0;
 #endif
-	
-	//Wait if the buffer's full
-	//   can check this by determining if the writePosition is one less than the sendPosition
-	//   (or if the nextWritePosition is the same as the readPosition, makes more sense...)
-	while(!dontBlock && (nextWritePosition == cirBuff->readPosition))
-	{		
+   
+   //Wait if the buffer's full
+   //   can check this by determining if the writePosition is one less than the sendPosition
+   //   (or if the nextWritePosition is the same as the readPosition, makes more sense...)
+   while(!dontBlock && (nextWritePosition == cirBuff->readPosition))
+   {     
 #ifdef __TESTING__
-		if(i == 60000000)
-			cirBuff_get(cirBuff);
-		i++;
+      if(i == 60000000)
+         cirBuff_get(cirBuff);
+      i++;
 #endif
-		//This probably isn't necessary... it wasn't in midiOut, but I don't know for certain.
-		// I've heard of optimizers optimizing out empty loops (even if a test is volatile?!)
-		asm("nop;");
-	}
-	
-	//***This is where the midiOut code checked if the UART was ready to receive another byte to transmit***
-	//    It would then load the byte directly to the UART instead of the buffer
-	//    This doesn't make a whole lot of sense... why not test this outside and call addByte if it's busy?
-	//     I think it was more efficient to have a single function, but this test could occur anywhere in this function
-	//     (no sense in all that math above... right? Briefly:
-	//if(UART_Ready[uartNum])
-	//{
-	//	UDR = Data;
-	//	UART_Ready[uartNum] = FALSE;
-	//}
-	//else //Otherwise load to the buffer
-	
-	//Note, these values may differ from the ones in the while loop...
-	// This *should* be OK, and maybe even handy
-	// Note, also, that there is always one byte that's unused... 
-	//  so writePosition == readPosition => empty
-	if(nextWritePosition != cirBuff->readPosition)
-	{
-		//Load to the buffer
-		cirBuff->buffer[ cirBuff->writePosition ] = Data;
-		//Set up the writePosition for the next call
-		cirBuff->writePosition = nextWritePosition;
-		return 0;
-	}
-	else	//Indicate that the buffer was full
-		return 1;
+      //This probably isn't necessary... it wasn't in midiOut, but I don't know for certain.
+      // I've heard of optimizers optimizing out empty loops (even if a test is volatile?!)
+      asm("nop;");
+   }
+   
+   //***This is where the midiOut code checked if the UART was ready to receive another byte to transmit***
+   //    It would then load the byte directly to the UART instead of the buffer
+   //    This doesn't make a whole lot of sense... why not test this outside and call addByte if it's busy?
+   //     I think it was more efficient to have a single function, but this test could occur anywhere in this function
+   //     (no sense in all that math above... right? Briefly:
+   //if(UART_Ready[uartNum])
+   //{
+   // UDR = Data;
+   // UART_Ready[uartNum] = FALSE;
+   //}
+   //else //Otherwise load to the buffer
+   
+   //Note, these values may differ from the ones in the while loop...
+   // This *should* be OK, and maybe even handy
+   // Note, also, that there is always one byte that's unused... 
+   //  so writePosition == readPosition => empty
+   if(nextWritePosition != cirBuff->readPosition)
+   {
+      //Load to the buffer
+      cirBuff->buffer[ cirBuff->writePosition ] = Data;
+      //Set up the writePosition for the next call
+      cirBuff->writePosition = nextWritePosition;
+      return 0;
+   }
+   else  //Indicate that the buffer was full
+      return 1;
 }
 
 //If there's data in the buffer, return it (it's a single unsigned byte, 0-255)
@@ -149,45 +149,45 @@ uint8_t cirBuff_add(cirBuff_t *cirBuff, cirBuff_data_t Data,
 CIRBUFF_INLINEABLE
 cirBuff_dataRet_t cirBuff_get(cirBuff_t *cirBuff)
 {
-	cirBuff_data_t data;
-	
-	//There's no data in the buffer
-	if(cirBuff->writePosition == cirBuff->readPosition)
-		return CIRBUFF_RETURN_NODATA;
-	else
-	{
-		data = cirBuff->buffer[ cirBuff->readPosition ];
-		
-		(cirBuff->readPosition)++;
-		//(cirBuff->readPosition) %= (cirBuff->length);
-		if(cirBuff->readPosition >= cirBuff->length)
-			cirBuff->readPosition -= cirBuff->length;
-		return data;
-	}
+   cirBuff_data_t data;
+   
+   //There's no data in the buffer
+   if(cirBuff->writePosition == cirBuff->readPosition)
+      return CIRBUFF_RETURN_NODATA;
+   else
+   {
+      data = cirBuff->buffer[ cirBuff->readPosition ];
+      
+      (cirBuff->readPosition)++;
+      //(cirBuff->readPosition) %= (cirBuff->length);
+      if(cirBuff->readPosition >= cirBuff->length)
+         cirBuff->readPosition -= cirBuff->length;
+      return data;
+   }
 }
 
 #if(!defined(CIRBUFF_EMPTY_UNUSED) || !CIRBUFF_EMPTY_UNUSED)
 CIRBUFF_INLINEABLE
 void cirBuff_empty(cirBuff_t *cirBuff)
 {
-	cirBuff->writePosition = cirBuff->readPosition;
+   cirBuff->writePosition = cirBuff->readPosition;
 }
 #endif
 
 /* More UART examples simplified here originally from midiOut... 
 SIGNAL(SIG_USART_TRANS)     // UART0 Transmit Complete Interrupt Function
 {
-	//Check if we're done sending everything in the buffer...
-	if(buffer_writePosition[uartNum] == buffer_readPosition[uartNum])
-		UART_Ready[uartNum] = TRUE;
-	else
-	{
-		//Send the next character
-		UDR = cirBuff_getByte();
+   //Check if we're done sending everything in the buffer...
+   if(buffer_writePosition[uartNum] == buffer_readPosition[uartNum])
+      UART_Ready[uartNum] = TRUE;
+   else
+   {
+      //Send the next character
+      UDR = cirBuff_getByte();
 
-		//Already is... but ahwell (is this even true?)
-		UART_Ready[uartNum] = FALSE;
-	}
+      //Already is... but ahwell (is this even true?)
+      UART_Ready[uartNum] = FALSE;
+   }
 }
 */
 
@@ -196,32 +196,32 @@ SIGNAL(SIG_USART_TRANS)     // UART0 Transmit Complete Interrupt Function
 // so we can prevent sending data if it's unimportant, so it won't halt.
 uint8_t midiOut_bufferFreeSpace(uint8_t uartNum)
 {
-	//	uint8_t nextLoadPosition = (buffer_writePosition[uartNum] + 1)%MIDIOUT_BUFFERLENGTH;
-	//buffer_writePosition is the actual position in the array 
-	//	where the next character will be placed 
-	//  (it is currently empty unless the buffer is full)
-	//buffer_readPosition is the actual position in the array 
-	//  where the /next/ character will be sent from
-	//i.e. if buffer_readPosition == bufferLoadPosition, 
-	//  the array is empty (?) (according to other code)
-	// or full?!
-	// I think the intent was to leave one byte free, always...
-	//   so if lp is one less than sp it's "full"
-	//   and if lp == sp, then it's empty
-	
-	uint8_t freeSpace;
-	int16_t lp = buffer_writePosition[uartNum];
-	int16_t sp = buffer_readPosition[uartNum];
-	
-	if(lp < sp)		//the data to be sent is wrapped-around...
-		freeSpace = sp - lp - 1;
-	else if (lp == sp)	//there is no data to be sent... the whole array is empty
-		freeSpace = MIDIOUT_BUFFERLENGTH - 1;
-	else // if (lp > sp)	//the empty space is wrapped-around
-		freeSpace = MIDIOUT_BUFFERLENGTH - lp + sp - 1;
-	
-	return freeSpace;
-	
+   // uint8_t nextLoadPosition = (buffer_writePosition[uartNum] + 1)%MIDIOUT_BUFFERLENGTH;
+   //buffer_writePosition is the actual position in the array 
+   // where the next character will be placed 
+   //  (it is currently empty unless the buffer is full)
+   //buffer_readPosition is the actual position in the array 
+   //  where the /next/ character will be sent from
+   //i.e. if buffer_readPosition == bufferLoadPosition, 
+   //  the array is empty (?) (according to other code)
+   // or full?!
+   // I think the intent was to leave one byte free, always...
+   //   so if lp is one less than sp it's "full"
+   //   and if lp == sp, then it's empty
+   
+   uint8_t freeSpace;
+   int16_t lp = buffer_writePosition[uartNum];
+   int16_t sp = buffer_readPosition[uartNum];
+   
+   if(lp < sp)    //the data to be sent is wrapped-around...
+      freeSpace = sp - lp - 1;
+   else if (lp == sp)   //there is no data to be sent... the whole array is empty
+      freeSpace = MIDIOUT_BUFFERLENGTH - 1;
+   else // if (lp > sp) //the empty space is wrapped-around
+      freeSpace = MIDIOUT_BUFFERLENGTH - lp + sp - 1;
+   
+   return freeSpace;
+   
 }
 */
 

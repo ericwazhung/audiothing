@@ -11,13 +11,13 @@ extern int lineVal[];
 
 extern __inline__ uint8_t puar_readInput(uint8_t puarNum)
 {
-	// CFLAGS += -D'getbit(...)=(lineVal)'
-	   return lineVal[puarNum];
+   // CFLAGS += -D'getbit(...)=(lineVal)'
+      return lineVal[puarNum];
 }  
 
 extern __inline__ void puar_initInput(uint8_t puarNum)
 {
- 	//Nothing to do, really... could print something.	
+   //Nothing to do, really... could print something.  
 }  
 
 /* mehPL:

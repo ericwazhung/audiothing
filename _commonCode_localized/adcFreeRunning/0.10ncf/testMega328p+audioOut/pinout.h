@@ -30,8 +30,8 @@
 // programming-header, type them here:
 
 //Making it more pin-compatible with sdramThing3.0...
-#define Tx0pin		_PGM_MOSI_PIN_NAME_ //PA6		//MOSI
-#define Tx0PORT	_PGM_MOSI_PORT_NAME_ //PORTA
+#define Tx0pin    _PGM_MOSI_PIN_NAME_ //PA6     //MOSI
+#define Tx0PORT   _PGM_MOSI_PORT_NAME_ //PORTA
 
 
 //adcFreeRunning currently only supports a single channel

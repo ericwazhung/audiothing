@@ -86,7 +86,7 @@
 //       if(nlcd_charactersChanged())
 //          nlcd_redrawCharacters();
 //
-//			...do something...
+//       ...do something...
 //       
 //    }
 // }
@@ -125,20 +125,20 @@
 #define SCREEN_CHARS 84
 
 
-#define NLCD_Select()	clrpinPORT(NLCD_nCS_pin, NLCD_nCS_PORT)
+#define NLCD_Select()   clrpinPORT(NLCD_nCS_pin, NLCD_nCS_PORT)
 
-#define NLCD_Deselect()	setpinPORT(NLCD_nCS_pin, NLCD_nCS_PORT)
+#define NLCD_Deselect() setpinPORT(NLCD_nCS_pin, NLCD_nCS_PORT)
 
-#define NLCD_Reset()	\
+#define NLCD_Reset() \
 ({ \
- 	clrpinPORT(NLCD_nRST_pin, NLCD_nRST_PORT); \
-	_delay_ms(100); \
- 	setpinPORT(NLCD_nRST_pin, NLCD_nRST_PORT); \
- 	{}; \
+   clrpinPORT(NLCD_nRST_pin, NLCD_nRST_PORT); \
+   _delay_ms(100); \
+   setpinPORT(NLCD_nRST_pin, NLCD_nRST_PORT); \
+   {}; \
 })
 
 #define NLCD_SetCommandMode() clrpinPORT(NLCD_DnC_pin, NLCD_DnC_PORT)
-#define NLCD_SetDataMode()		setpinPORT(NLCD_DnC_pin, NLCD_DnC_PORT)
+#define NLCD_SetDataMode()    setpinPORT(NLCD_DnC_pin, NLCD_DnC_PORT)
 
 //Taken almost directly from 3310_routines.c
 void nlcd_writeCommand(uint8_t command);
@@ -146,15 +146,15 @@ void nlcd_writeData(uint8_t data);
 
 void nlcd_gotoXY ( unsigned char x, unsigned char y );
 
-#define NLCD_UseExtendedCommands()	nlcd_writeCommand(0x20 | 0x01)
-#define NLCD_UseBasicCommands()		nlcd_writeCommand(0x20 | 0x00)
+#define NLCD_UseExtendedCommands()  nlcd_writeCommand(0x20 | 0x01)
+#define NLCD_UseBasicCommands()     nlcd_writeCommand(0x20 | 0x00)
 
-#define NLCD_SetContrast(val)	\
+#define NLCD_SetContrast(val) \
 ({ \
-	NLCD_UseExtendedCommands(); \
-	nlcd_writeCommand(0x80 | ((val)&0x7f)); \
-	NLCD_UseBasicCommands(); \
-	{}; \
+   NLCD_UseExtendedCommands(); \
+   nlcd_writeCommand(0x80 | ((val)&0x7f)); \
+   NLCD_UseBasicCommands(); \
+   {}; \
 })
 
 
@@ -178,8 +178,8 @@ static __inline__ uint8_t nlcd_charactersChanged(void);
 // charNum 83 is lower-right
 static __inline__ char nlcd_getChar(uint8_t charNum);
 
-#define NLCD_GetCharFromEnd(charNum)	\
-				nlcd_getChar(SCREEN_CHARS-(charNum))
+#define NLCD_GetCharFromEnd(charNum)   \
+            nlcd_getChar(SCREEN_CHARS-(charNum))
 
 //Starts writing at the specified position on the screen, where 0 is UL
 // It's not particularly smart... as after text is overwritten, it will
@@ -191,7 +191,7 @@ static __inline__ char nlcd_getChar(uint8_t charNum);
 static __inline__ uint8_t nlcd_setCharNum(uint8_t charNum);
 
 #define NLCD_SetCharNumFromEnd(charNum) \
-				nlcd_setCharNum(SCREEN_CHARS-(charNum))
+            nlcd_setCharNum(SCREEN_CHARS-(charNum))
 
 static __inline__ void nlcd_setBufferPos(uint8_t pos);
 

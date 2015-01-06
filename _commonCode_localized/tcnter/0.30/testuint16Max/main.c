@@ -28,13 +28,13 @@ tcnter_source_t timerCounter = 0;
 
 
 #define handleError(string, exit) \
-	if(errno)   \
+   if(errno)   \
 {\
-	   printf( string " Error %d: '%s'\n", errno, strerror(errno)); \
-	   if(exit) \
-	      return 1; \
-	   else \
-			errno = 0; \
+      printf( string " Error %d: '%s'\n", errno, strerror(errno)); \
+      if(exit) \
+         return 1; \
+      else \
+         errno = 0; \
 }
 
 //errno = 0 seems to work, whereas clearerr(stdin) doesn't
@@ -42,106 +42,106 @@ tcnter_source_t timerCounter = 0;
 int main(void)
 {
 
-	int stepSize = 1;
-	int quit = 0;
-	int timer = 0;
+   int stepSize = 1;
+   int quit = 0;
+   int timer = 0;
 
-	// Set STDIN non-blocking (Still requires Return)
-	int flags = fcntl(0, F_GETFL);
-	flags |= O_NONBLOCK;
-	fcntl(0, F_SETFL, flags);
+   // Set STDIN non-blocking (Still requires Return)
+   int flags = fcntl(0, F_GETFL);
+   flags |= O_NONBLOCK;
+   fcntl(0, F_SETFL, flags);
 
-	handleError("Couldn't open stdin.", 1);
+   handleError("Couldn't open stdin.", 1);
 
-	printf("---Press q and press return to quit---\n");
-	printf("   Press 1-8 and press return to change the step-size\n");
+   printf("---Press q and press return to quit---\n");
+   printf("   Press 1-8 and press return to change the step-size\n");
 
-	//POLLED_UAR Specific Stuff
-	tcnter_init();
-
-
-	while(!quit)
-	{
-		//This worked in 0.10-3! But now 0.10-4?!
-//		handleError(" Unhandled Error.", 0);
-
-		char kbChar;
-		kbChar = getchar();
-
-		//"Resource Temporarily Unavailable" isn't an error in this case
-		if(errno == 35)
-			errno = 0;
-		else
-		{
-			switch(kbChar)
-			{
-				case 'q':
-					quit = 1;
-					break;
-				case '1':
-					stepSize = 1;
-					break;
-				case '2':
-					stepSize = 2;
-					break;
-				case '3':
-					stepSize = 3;
-					break;
-				case '4':
-					stepSize = 4;
-					break;
-				case '5':
-					stepSize = 5;
-					break;
-				case '6':
-				   stepSize = 6;
-				   break;
-				case '7':
-				   stepSize = 7;
-					break;
-				case '8':
-					stepSize = 8;
-					break;
-
-				case '\n':
-					break;
-				//^^^ TO HERE
-				default:
-					printf("Received: '%c'", kbChar);
-			}
-		}
+   //POLLED_UAR Specific Stuff
+   tcnter_init();
 
 
-	//	tcnter_update();
+   while(!quit)
+   {
+      //This worked in 0.10-3! But now 0.10-4?!
+//    handleError(" Unhandled Error.", 0);
 
-		timer++;
+      char kbChar;
+      kbChar = getchar();
 
-		if(timer == 10)
-		{
-			timerCounter+=stepSize;
-			
-			//since timerCounter is tcnter_source_t (uint8_t, here)
-			// this needn't be done for wraparound after 0xff...
+      //"Resource Temporarily Unavailable" isn't an error in this case
+      if(errno == 35)
+         errno = 0;
+      else
+      {
+         switch(kbChar)
+         {
+            case 'q':
+               quit = 1;
+               break;
+            case '1':
+               stepSize = 1;
+               break;
+            case '2':
+               stepSize = 2;
+               break;
+            case '3':
+               stepSize = 3;
+               break;
+            case '4':
+               stepSize = 4;
+               break;
+            case '5':
+               stepSize = 5;
+               break;
+            case '6':
+               stepSize = 6;
+               break;
+            case '7':
+               stepSize = 7;
+               break;
+            case '8':
+               stepSize = 8;
+               break;
+
+            case '\n':
+               break;
+            //^^^ TO HERE
+            default:
+               printf("Received: '%c'", kbChar);
+         }
+      }
+
+
+   // tcnter_update();
+
+      timer++;
+
+      if(timer == 10)
+      {
+         timerCounter+=stepSize;
+         
+         //since timerCounter is tcnter_source_t (uint8_t, here)
+         // this needn't be done for wraparound after 0xff...
 #if(TCNTER_SOURCE_OVERFLOW_VAL <= UINT16_MAX)
-			if(timerCounter >= TCNTER_SOURCE_OVERFLOW_VAL)
-				timerCounter -= TCNTER_SOURCE_OVERFLOW_VAL;
+         if(timerCounter >= TCNTER_SOURCE_OVERFLOW_VAL)
+            timerCounter -= TCNTER_SOURCE_OVERFLOW_VAL;
 #elif (TCNTER_SOURCE_OVERFLOW_VAL > (UINT16_MAX+1))
  #error "wraparound math won't work here..."
 #endif
 
-			timer=0;
+         timer=0;
 
-			if(   (timerCounter < 3) 
-				|| (timerCounter > TCNTER_SOURCE_OVERFLOW_VAL - 3) )
-			printf("TCNT: %d, tcnter=%d\n",timerCounter, tcnter_get());
-		}
+         if(   (timerCounter < 3) 
+            || (timerCounter > TCNTER_SOURCE_OVERFLOW_VAL - 3) )
+         printf("TCNT: %d, tcnter=%d\n",timerCounter, tcnter_get());
+      }
 
-		tcnter_update();
+      tcnter_update();
 
-	}
+   }
 
 
-	return 0;
+   return 0;
 }
 
 /* mehPL:

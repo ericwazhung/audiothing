@@ -12,9 +12,9 @@
 extern __inline__ uint8_t puar_readInput(uint8_t puarNum)
 {
 #if(!defined(PUAR_DISABLED) || !PUAR_DISABLED)
-	return getpinPORT(Rx0pin, Rx0PORT);
+   return getpinPORT(Rx0pin, Rx0PORT);
 #else
-	return 1;
+   return 1;
 #endif
 }
 

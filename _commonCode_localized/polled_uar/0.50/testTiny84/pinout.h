@@ -31,8 +31,8 @@
 #define Rx0PORT   PORTA
 
 //Making it more pin-compatible with sdramThing3.0...
-#define Tx0pin		PA6		//MOSI
-#define Tx0PORT	PORTA
+#define Tx0pin    PA6      //MOSI
+#define Tx0PORT   PORTA
 
 
 

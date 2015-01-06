@@ -52,8 +52,8 @@
 //1.00-2 Timer3 fixup in compareMatchIntEnable (re: m162)
 //1.00-1 add compareMatchIntEnable(timer,channel)
 //       THIS IS UNVERIFIED... only to compile on 8515 with T0/OCIE0
-//		FIX T2_TIFR in Timer3 overflowIntEnable 
-//1.00	duplicate of 0.98-3, new numbering scheme...
+//    FIX T2_TIFR in Timer3 overflowIntEnable 
+//1.00   duplicate of 0.98-3, new numbering scheme...
 //.98-3 added overflow int enable...
 //.98-2 added COM settings and timer_init...
 //.98 first version, common header-stuff for [hopefully all] timers...
@@ -88,7 +88,7 @@
 
 //This only handles up to four timers...
 // don't change this without verifying it's safe to in timerCommon.c!
-#define MAXTIMERS	4
+#define MAXTIMERS 4
 //Currently handles up to four channels (A,B,C,D) per timer...
 // Though they're not all handled equally...
 #define MAXCHANNELSPERTIMER 4
@@ -98,21 +98,21 @@
 // where two are necessary
 //                      CSReg (CSn2:n0)
 //m162 (8515 pinout equivalent):
-// Timer0 8bit  1 OCR	TCCR0	   "Typical"
-// Timer1 16bit 2 OCRs	TCCR1B	"Typical"
-// Timer2 8bit  1 OCR	TCCR2	*** DOES NOT MATCH! See "Alternate" Below ***
-// Timer3 16bit 2 OCRs	TCCR3B	"Typical" **EXCEPT EXTERNAL** <- "Obscure"
+// Timer0 8bit  1 OCR   TCCR0    "Typical"
+// Timer1 16bit 2 OCRs  TCCR1B   "Typical"
+// Timer2 8bit  1 OCR   TCCR2 *** DOES NOT MATCH! See "Alternate" Below ***
+// Timer3 16bit 2 OCRs  TCCR3B   "Typical" **EXCEPT EXTERNAL** <- "Obscure"
 //mXX4P:
-// Timer0 8bit  2 OCRs	TCCR0B	"Typical"
-// Timer1 16bit 2 OCRs	TCCR1B	"Typical"
-// Timer2 8bit  2 OCRs	TCCR2B*** DOES NOT MATCH! See "Alternate" Below ***
+// Timer0 8bit  2 OCRs  TCCR0B   "Typical"
+// Timer1 16bit 2 OCRs  TCCR1B   "Typical"
+// Timer2 8bit  2 OCRs  TCCR2B*** DOES NOT MATCH! See "Alternate" Below ***
 //m8515:
-// Timer0 8bit  1 OCR	TCCR0	   "Typical"
-// Timer1 16bit 2 OCRs	TCCR1B	"Typical"
+// Timer0 8bit  1 OCR   TCCR0    "Typical"
+// Timer1 16bit 2 OCRs  TCCR1B   "Typical"
 //mXX8:
-// Timer0 8bit  2 OCRs	TCCR0B	"Typical"
-// Timer1 16bit 2 OCRs	TCCR1B	"Typical"
-// Timer2 8bit  2 OCRs	TCCR2B*** DOES NOT MATCH! See "Alternate" Below ***
+// Timer0 8bit  2 OCRs  TCCR0B   "Typical"
+// Timer1 16bit 2 OCRs  TCCR1B   "Typical"
+// Timer2 8bit  2 OCRs  TCCR2B*** DOES NOT MATCH! See "Alternate" Below ***
 // TinyX61:
 // Timer0 8bit  ???
 // Timer1 8bit  4 OCRs  TCCR1B   Non-standard in every way...
@@ -162,13 +162,13 @@ CS12 CS11 CS10   Description
 //values are 2^value... or (1<<CLKDIVx) returns x
 //See above tables for compatibility
 //TYPICAL
-#define CLKDIV1		0
+#define CLKDIV1      0
 
 #if(!defined(__AVR_AT90PWM161__))
- #define CLKDIV8		3
- #define CLKDIV64	6
- #define CLKDIV256	8
- #define CLKDIV1024	10
+ #define CLKDIV8     3
+ #define CLKDIV64 6
+ #define CLKDIV256   8
+ #define CLKDIV1024  10
 //Other divisors may be available and are somewhat burried below...
 
 
@@ -185,8 +185,8 @@ CS12 CS11 CS10   Description
 
 //ALTERNATE (available on all explored MCUs with Timer2)
 #if (defined(TCCR2) || defined(TCCR2B))
- #define CLKDIV32	5
- #define CLKDIV128	7
+ #define CLKDIV32 5
+ #define CLKDIV128   7
  //and for conditional compilation...
  #define CSALT
  //Does the timer use the alternate clock divisor scheme?
@@ -195,7 +195,7 @@ CS12 CS11 CS10   Description
 
 //OBSCURE (only available on m162 Timer3... not sure about other MCUs' Timer3)
 #if defined(__AVR_ATmega162__)
- #define CLKDIV16	4
+ #define CLKDIV16 4
  //and for conditional compilation...
  #define CSOBS
  //Does the timer use the obscure divisor scheme?
@@ -237,12 +237,12 @@ uint8_t timer_selectDivisor(uint8_t timerNum, uint8_t clockDiv);
 
 //The above values correspond with the bit-values loaded into the WGMnx bits, if appropriately shifted/masked...
 // i.e. WGMn1:n0 (TCCRn.3, TCCRn.6) on timer0 and timer2 of the m162
-//		WGM01:00 (TCCR0.3, TCCR0.6) on timer0 (no timer2) of the m8515
-//		WGMn1:n0 (TCCRnA.1:0)		on timer0 and timer2 of the m168 
-//		WGMn1:n0 (TCCRnA.1:0)		on timer0 and timer2 of the mxx4P
-//	16bit counters are a little more complicated, but not much... leaving all other WGM bits = 0...
-//		WGMn2,WGMn0 (TCCR1B.3, TCCR1A.0) on timer1 of the m168, m8515, and the mxx4P
-//		WGMn2,WGMn0 (TCCRnB.3, TCCRnA.0) on timer1 and timer3 of the m162
+//    WGM01:00 (TCCR0.3, TCCR0.6) on timer0 (no timer2) of the m8515
+//    WGMn1:n0 (TCCRnA.1:0)      on timer0 and timer2 of the m168 
+//    WGMn1:n0 (TCCRnA.1:0)      on timer0 and timer2 of the mxx4P
+// 16bit counters are a little more complicated, but not much... leaving all other WGM bits = 0...
+//    WGMn2,WGMn0 (TCCR1B.3, TCCR1A.0) on timer1 of the m168, m8515, and the mxx4P
+//    WGMn2,WGMn0 (TCCRnB.3, TCCRnA.0) on timer1 and timer3 of the m162
 // Unfortunately, these bits aren't always in the same register...
 //  so write them individually
 //  define a low-reg and high-reg (could be the same)
@@ -252,16 +252,16 @@ uint8_t timer_selectDivisor(uint8_t timerNum, uint8_t clockDiv);
 // WGM bit numbers are consistant between the two... but the actual bit locations are not...
 // In other words, each bit needs to be written individually...
 #if defined(TCCR0)
- #define T0_WGMReg	TCCR0
+ #define T0_WGMReg   TCCR0
 #endif
 #if defined(TCCR0A)
  #define T0_WGMReg TCCR0A
 #endif
 #if defined(TCCR2)
- #define T2_WGMReg	TCCR2
+ #define T2_WGMReg   TCCR2
 #endif
 #if defined(TCCR2A)
- #define T2_WGMReg	TCCR2A
+ #define T2_WGMReg   TCCR2A
 #endif
 // Timer 1 and timer 3 need to be configured in two registers...
 // they'll always be TCCR1A and 1B, 
@@ -273,51 +273,51 @@ uint8_t timer_setWGM(uint8_t timerNum, uint8_t wgm);
 // Vary depending on the selected WGM mode
 // However, they are very similar
 // This from 8515 (excluding ing/non-inv comments)
-//Mode#	COM01:00	Normal/CTC OC0 Operation					FastPWM	OC0				PhasePWM OC0
-//-----	--------	------------------------					-----------				------------
-//0		0 0 		Normal port operation, OC0 disconnected. 	<--						<--
-//1		0 1 		Toggle OC0 on Compare Match.				Reserved				Reserved
-//2		1 0 		Clear OC0 on Compare Match.					+ Sets at TOP (non-inv)	CompMatch: Up=Clr, Down=Set
-//3		1 1 		Set OC0 on Compare Match.					+ Clears at TOP	(inv)	CompMatch: Up=Set, Down=Clr
+//Mode#  COM01:00 Normal/CTC OC0 Operation               FastPWM  OC0            PhasePWM OC0
+//-----  -------- ------------------------               -----------          ------------
+//0      0 0      Normal port operation, OC0 disconnected.  <--                  <--
+//1      0 1      Toggle OC0 on Compare Match.           Reserved          Reserved
+//2      1 0      Clear OC0 on Compare Match.               + Sets at TOP (non-inv) CompMatch: Up=Clr, Down=Set
+//3      1 1      Set OC0 on Compare Match.              + Clears at TOP   (inv) CompMatch: Up=Set, Down=Clr
 
 //Same for all WGMs
-#define COM_DISCONNECTED		0
+#define COM_DISCONNECTED      0
 //Exclusive to Normal/Clr_on_compare modes
 //PWM modes typically Reserved, other functionality exists 
 //  on some timers/MCUs but isn't implemented here
-#define COM_TOGGLE_ON_COMPARE	1
+#define COM_TOGGLE_ON_COMPARE 1
 //Same for all WGMs
 //Some PWM units alternate at TOP (8515, 162), others at BOTTOM (168, XX4P)
 // Not yet sure about the significance...
 // Probably a good idea to read about the special case when the OCR matches TOP, etc...
 // leaving PWM specifics to pwm.h...
-#define COM_CLR_ON_COMPARE		2
-#define COM_SET_ON_COMPARE		3
+#define COM_CLR_ON_COMPARE    2
+#define COM_SET_ON_COMPARE    3
 
 //Luckily, COMnx1:0 are always sequential, but need to be shifted...
 // And always in the same registers!
 
 // These aren't _as_ used as they were... use OUT_A where appropriate...
-#define OUT_CHANNELA	0
-#define OUT_CHANNELB	1
+#define OUT_CHANNELA 0
+#define OUT_CHANNELB 1
 
 
 //COM bits need to be shifted...
 // If there're two channels (A,B) COMA is in bits 7:6
-//							  and COMB is in bits 5:4
+//                     and COMB is in bits 5:4
 // If there's one channel (OC0)   COM is in bits 5:4
 //  (wouldn't it be nice if they were in A's location?!)
-#define COM_SHIFT		4
-#define COMA_SHIFT		6
-#define COMB_SHIFT		4
-#define COM_MASK		(0x03<<COM_SHIFT)
-#define COMA_MASK		(0x03<<COMA_SHIFT)
-#define COMB_MASK		(0x03<<COMB_SHIFT)
+#define COM_SHIFT    4
+#define COMA_SHIFT      6
+#define COMB_SHIFT      4
+#define COM_MASK     (0x03<<COM_SHIFT)
+#define COMA_MASK    (0x03<<COMA_SHIFT)
+#define COMB_MASK    (0x03<<COMB_SHIFT)
 //It's probably not necessary to do this test... but it won't hurt...
 #if defined(_AVR_IOTNx61_H_)
-#define COMD_SHIFT	2
-#define COMD_MASK		(0x03<<COMD_SHIFT)
-#define T1_COMDReg	TCCR1C
+#define COMD_SHIFT   2
+#define COMD_MASK    (0x03<<COMD_SHIFT)
+#define T1_COMDReg   TCCR1C
 #endif
 
 //Can determine which OCnx pins are available by checking the FOCnx 
@@ -341,27 +341,27 @@ uint8_t timer_setWGM(uint8_t timerNum, uint8_t wgm);
 // NOTE: These Values Have Changed as of 1.20 (A was 0 and B was 1)
 #if defined(FOC0)
  // 0x01
- #define OUT_OC0	(0x00 | OUT_A)
+ #define OUT_OC0  (0x00 | OUT_A)
 #endif
 #if defined(FOC0A)
  // 0x01
- #define OUT_OC0A	(0x00 | OUT_A)
+ #define OUT_OC0A (0x00 | OUT_A)
 #endif
 #if defined(FOC0B)
  // 0x02
- #define OUT_OC0B	(0x00 | OUT_B)
+ #define OUT_OC0B (0x00 | OUT_B)
 #endif
 #if defined(FOC1)
  // 0x11
- #define OUT_OC1	(0x10 | OUT_A)
+ #define OUT_OC1  (0x10 | OUT_A)
 #endif
 #if defined(FOC1A)
  // 0x11
- #define OUT_OC1A	(0x10 | OUT_A)
+ #define OUT_OC1A (0x10 | OUT_A)
 #endif
 #if defined(FOC1B)
  // 0x12
- #define OUT_OC1B	(0x10 | OUT_B)
+ #define OUT_OC1B (0x10 | OUT_B)
 #endif
 #if defined(FOC1C)
  // 0x14
@@ -373,22 +373,22 @@ uint8_t timer_setWGM(uint8_t timerNum, uint8_t wgm);
  #define OUT_OC1D (0x10 | OUT_D)
 #endif
 #if defined(FOC2)
- #define OUT_OC2	(0x20 | OUT_A)
+ #define OUT_OC2  (0x20 | OUT_A)
 #endif
-#if defined(FOC2A)	
- #define OUT_OC2A	(0x20 | OUT_A)
+#if defined(FOC2A)   
+ #define OUT_OC2A (0x20 | OUT_A)
 #endif
 #if defined(FOC2B)
- #define OUT_OC2B	(0x20 | OUT_B)
+ #define OUT_OC2B (0x20 | OUT_B)
 #endif
 #if defined(FOC3)
- #define OUT_OC3	(0x30 | OUT_A)
+ #define OUT_OC3  (0x30 | OUT_A)
 #endif
 #if defined(FOC3A)
- #define OUT_OC3A	(0x30 | OUT_A)
+ #define OUT_OC3A (0x30 | OUT_A)
 #endif
 #if defined(FOC3B)
- #define OUT_OC3B	(0x30 | OUT_B)
+ #define OUT_OC3B (0x30 | OUT_B)
 #endif
 
 
@@ -399,29 +399,29 @@ uint8_t timer_setWGM(uint8_t timerNum, uint8_t wgm);
 //Create a standard interface for the COM registers...
 // This gets harder as, e.g. Tiny861 uses two regs for COM1A/B and COM1D
 #if defined(TCCR0)
- #define T0_COMReg	TCCR0
+ #define T0_COMReg   TCCR0
 #endif
 #if defined(TCCR0A)
- #define T0_COMReg	TCCR0A
+ #define T0_COMReg   TCCR0A
 #endif
 #if defined(TCCR1)
- #define T1_COMReg	TCCR1	//seems unlikely
+ #define T1_COMReg   TCCR1 //seems unlikely
 #endif
 #if defined(TCCR1A)
- #define T1_COMReg	TCCR1A
+ #define T1_COMReg   TCCR1A
 #endif
 //T1_COMDReg defined above
 #if defined(TCCR2)
- #define T2_COMReg	TCCR2
+ #define T2_COMReg   TCCR2
 #endif
 #if defined(TCCR2A)
- #define T2_COMReg	TCCR2A
+ #define T2_COMReg   TCCR2A
 #endif
 #if defined(TCCR3)
- #define T3_COMReg	TCCR3
+ #define T3_COMReg   TCCR3
 #endif
 #if defined(TCCR3A)
- #define T3_COMReg	TCCR3A
+ #define T3_COMReg   TCCR3A
 #endif
 
 
@@ -433,37 +433,37 @@ uint8_t timer_setWGM(uint8_t timerNum, uint8_t wgm);
 // Let's pretend by creating fake registers for each timer...
 #if defined(TIMSK)
  #if defined(TOIE0)
-	#define T0_TIMSK	TIMSK
-	#define T0_TIFR		TIFR
+   #define T0_TIMSK  TIMSK
+   #define T0_TIFR      TIFR
  #endif
  #if defined(TOIE1)
-	#define T1_TIMSK	TIMSK
-	#define T1_TIFR		TIFR
+   #define T1_TIMSK  TIMSK
+   #define T1_TIFR      TIFR
  #endif
  #if defined(TOIE2)
-	#define T2_TIMSK	TIMSK
-	#define T2_TIFR		TIFR
+   #define T2_TIMSK  TIMSK
+   #define T2_TIFR      TIFR
  #endif
  #if defined(TOIE3)
-	#define T3_TIMSK	ETIMSK
-	#define T3_TIFR		ETIFR
+   #define T3_TIMSK  ETIMSK
+   #define T3_TIFR      ETIFR
  #endif
 #endif
 #if defined(TIMSK0)
-	#define T0_TIMSK	TIMSK0
-	#define T0_TIFR		TIFR0
+   #define T0_TIMSK  TIMSK0
+   #define T0_TIFR      TIFR0
 #endif
 #if defined(TIMSK1)
-	#define T1_TIMSK	TIMSK1
-	#define T1_TIFR		TIFR1
+   #define T1_TIMSK  TIMSK1
+   #define T1_TIFR      TIFR1
 #endif
 #if defined(TIMSK2)
-	#define T2_TIMSK	TIMSK2
-	#define T2_TIFR		TIFR2
+   #define T2_TIMSK  TIMSK2
+   #define T2_TIFR      TIFR2
 #endif
 #if defined(TIMSK3)
-	#define T3_TIMSK	TIMSK3
-	#define T3_TIFR		TIFR3
+   #define T3_TIMSK  TIMSK3
+   #define T3_TIFR      TIFR3
 #endif
 
 
@@ -479,16 +479,16 @@ uint8_t timer_overflowIntEnable(uint8_t timerNum);
 //  outputChannel is either OUT_CHANNEL_A or OUT_CHANNEL_B
 //  !!! THIS SHOULD BE MODIFIED TO MATCH OUT_A OUT_B... (?)
 #if (!defined(TIMER_COMPAREMATCHINTSETUP_UNUSED) \
-		|| !TIMER_COMPAREMATCHINTSETUP_UNUSED)
+      || !TIMER_COMPAREMATCHINTSETUP_UNUSED)
 uint8_t timer_compareMatchIntSetup(uint8_t timerNum, uint8_t outputChannel,
-	  												uint8_t enable);
+                                       uint8_t enable);
 #define timer_compareMatchIntEnable(timerNum, outputChannel) \
-			timer_compareMatchIntSetup((timerNum), (outputChannel), TRUE)
+         timer_compareMatchIntSetup((timerNum), (outputChannel), TRUE)
 #endif
 
 //outputChannelMask can be e.g. (OUT_A | OUT_B | OUT_D)
 uint8_t timer_setOutputModes(uint8_t timerNum, uint8_t outputChannelMask,
-										uint8_t outputMode);
+                              uint8_t outputMode);
 
 /* Example usage... */
 // Currently this depends on Power-on defaults for unwritten registers!

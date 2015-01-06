@@ -18,24 +18,24 @@
 void main(void)
 {
 
-	init_heartBeat();
+   init_heartBeat();
 
-	puar_init(0);
+   puar_init(0);
 
-	while(1)
-	{
-		puar_update(0);
+   while(1)
+   {
+      puar_update(0);
 
-		if(puar_dataWaiting(0))
-		{
-			uint8_t byte = puar_getByte(0);
+      if(puar_dataWaiting(0))
+      {
+         uint8_t byte = puar_getByte(0);
 
-			if((byte >= '0') && (byte <= '9'))
-				set_heartBlink(byte-'0');
-		}
+         if((byte >= '0') && (byte <= '9'))
+            set_heartBlink(byte-'0');
+      }
 
-		heartUpdate();
-	}
+      heartUpdate();
+   }
 }
 
 /* mehPL:

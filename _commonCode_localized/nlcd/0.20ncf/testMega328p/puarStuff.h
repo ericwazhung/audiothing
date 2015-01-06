@@ -11,7 +11,7 @@
 
 extern __inline__ uint8_t puar_readInput(uint8_t puarNum)
 {
-	return getpinPORT(Rx0pin, Rx0PORT);
+   return getpinPORT(Rx0pin, Rx0PORT);
 }
 
 /* mehPL:

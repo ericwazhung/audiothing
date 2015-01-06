@@ -30,11 +30,11 @@
 // programming-header, type them here:
 
 #define Rx0pin    _PGM_SCK_PIN_NAME_
-#define Rx0PORT	_PGM_SCK_PORT_NAME_
+#define Rx0PORT   _PGM_SCK_PORT_NAME_
 
 
-#define Tx0pin		_PGM_MOSI_PIN_NAME_ //PA6		//MOSI
-#define Tx0PORT	_PGM_MOSI_PORT_NAME_ //PORTA
+#define Tx0pin    _PGM_MOSI_PIN_NAME_ //PA6     //MOSI
+#define Tx0PORT   _PGM_MOSI_PORT_NAME_ //PORTA
 
 
 // The button-array is connected to PD6

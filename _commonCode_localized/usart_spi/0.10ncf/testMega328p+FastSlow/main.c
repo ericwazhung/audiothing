@@ -40,7 +40,7 @@
 
 
 #include <stdio.h> //necessary for sprintf_P...
-						// See notes in the makefile re: AVR_MIN_PRINTF
+                  // See notes in the makefile re: AVR_MIN_PRINTF
 #include <util/delay.h>
 
 //For large things like this, I prefer to have them located globally (or
@@ -51,92 +51,92 @@ char stringBuffer[80];
 int main(void)
 {
 
-	init_heartBeat();
+   init_heartBeat();
 
-	//a/o 0.70, tcnter_init() must be called *before* puat_init()
-	tcnter_init();
-	puat_init(0);
-	puar_init(0);
+   //a/o 0.70, tcnter_init() must be called *before* puat_init()
+   tcnter_init();
+   puat_init(0);
+   puar_init(0);
 
-	spi_init(USART_SPI_FAST_BAUD_REG_VAL);
+   spi_init(USART_SPI_FAST_BAUD_REG_VAL);
 
-	//Likewise, sendStringBlocking[_P]() blocks tcnter and other updates
-	// so shouldn't be used when e.g. expecting RX-data...
-	//But it's OK now, we're still booting.
-	puat_sendStringBlocking_P(0, stringBuffer, 
-	 PSTR("\n\r\n\r"
-			"Type A Key (0-9 adjusts Heart).\n\r"));
-	puat_sendStringBlocking_P(0, stringBuffer, 
-	 PSTR("'F' sets Fast SPI transmission (Default).\n\r"));
-	puat_sendStringBlocking_P(0, stringBuffer, 
-	 PSTR("'S' sets Slow SPI transmission.\n\r"));
-	puat_sendStringBlocking_P(0, stringBuffer, 
-	 PSTR("Each keypress will be retransmitted to the SPI port.\n\r"));
-	puat_sendStringBlocking_P(0, stringBuffer, 
-	 PSTR("At the same time a byte will be received via the SPI port\n\r"));
-	puat_sendStringBlocking_P(0, stringBuffer, 
-	 PSTR("and retransmitted again to here.\n\r"));
-	puat_sendStringBlocking_P(0, stringBuffer, 
-	 PSTR(
+   //Likewise, sendStringBlocking[_P]() blocks tcnter and other updates
+   // so shouldn't be used when e.g. expecting RX-data...
+   //But it's OK now, we're still booting.
+   puat_sendStringBlocking_P(0, stringBuffer, 
+    PSTR("\n\r\n\r"
+         "Type A Key (0-9 adjusts Heart).\n\r"));
+   puat_sendStringBlocking_P(0, stringBuffer, 
+    PSTR("'F' sets Fast SPI transmission (Default).\n\r"));
+   puat_sendStringBlocking_P(0, stringBuffer, 
+    PSTR("'S' sets Slow SPI transmission.\n\r"));
+   puat_sendStringBlocking_P(0, stringBuffer, 
+    PSTR("Each keypress will be retransmitted to the SPI port.\n\r"));
+   puat_sendStringBlocking_P(0, stringBuffer, 
+    PSTR("At the same time a byte will be received via the SPI port\n\r"));
+   puat_sendStringBlocking_P(0, stringBuffer, 
+    PSTR("and retransmitted again to here.\n\r"));
+   puat_sendStringBlocking_P(0, stringBuffer, 
+    PSTR(
    "If MOSI is looped-back to MISO, this should appear as an 'echo'\n\r"));
-	puat_sendStringBlocking_P(0, stringBuffer, 
-	 PSTR("There may be a byte-delay.\n\r"));
+   puat_sendStringBlocking_P(0, stringBuffer, 
+    PSTR("There may be a byte-delay.\n\r"));
 
-	setHeartRate(0);
-
-
-	static dms4day_t startTime = 0;
-	uint8_t fastSPI=TRUE;
-
-	while(1)
-	{
-		tcnter_update();
-		puat_update(0);
-		puar_update(0);
-
-		if(dmsIsItTime(&startTime, 1*DMS_SEC))
-		{
-			puat_sendByteBlocking(0, '.');
-		}
+   setHeartRate(0);
 
 
+   static dms4day_t startTime = 0;
+   uint8_t fastSPI=TRUE;
 
-		if(puar_dataWaiting(0))
+   while(1)
+   {
+      tcnter_update();
+      puat_update(0);
+      puar_update(0);
+
+      if(dmsIsItTime(&startTime, 1*DMS_SEC))
+      {
+         puat_sendByteBlocking(0, '.');
+      }
+
+
+
+      if(puar_dataWaiting(0))
       {
          uint8_t byte = puar_getByte(0);
 
          if((byte >= '0') && (byte <= '9'))
             set_heartBlink(byte-'0');
 
-			if((byte == 'F') || (byte == 'f'))
-				fastSPI = TRUE;
-			if((byte == 'S') || (byte == 's'))
-				fastSPI = FALSE;
+         if((byte == 'F') || (byte == 'f'))
+            fastSPI = TRUE;
+         if((byte == 'S') || (byte == 's'))
+            fastSPI = FALSE;
 
 
          //Retransmit the received character via SPI
-			// (and receive a byte via SPI)
+         // (and receive a byte via SPI)
          //The output buffer shouldn't be full, right?
-			if(fastSPI)
-				byte=spi_transferByte(byte);         
-			else
-				byte=spi_transferByteWithTimer(byte);
+         if(fastSPI)
+            byte=spi_transferByte(byte);         
+         else
+            byte=spi_transferByteWithTimer(byte);
 
 
-			//Retransmit the SPI-Received byte via PUAT:
+         //Retransmit the SPI-Received byte via PUAT:
          //The output buffer shouldn't be full, right?
-			if(!puat_dataWaiting(0))
+         if(!puat_dataWaiting(0))
             puat_sendByte(0, byte);
 
       }
 
 
-		heartUpdate();
+      heartUpdate();
 
 
-	}
+   }
 
-	return 0;
+   return 0;
 }
 
 /* mehPL:

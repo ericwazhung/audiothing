@@ -29,8 +29,8 @@
 #define Rx0PORT   PORTB
 
 //Making it more pin-compatible with sdramThing3.0...
-#define Tx0pin		PB4		//MOSI
-#define Tx0PORT	PORTB
+#define Tx0pin    PB4      //MOSI
+#define Tx0PORT   PORTB
 
 
 

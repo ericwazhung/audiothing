@@ -16,108 +16,108 @@
 
 #if (defined(CIRBUFF_NO_CALLOC) && CIRBUFF_NO_CALLOC)
 #warning "Testing without CALLOC"
- cirBuff_data_t	buffer[LENGTH];
+ cirBuff_data_t   buffer[LENGTH];
 #endif
 
 int main(void)
 {
-	cirBuff_t BuffMan;
-	int i, j;
-	int byteRead;
-	
+   cirBuff_t BuffMan;
+   int i, j;
+   int byteRead;
+   
 #if (defined(CIRBUFF_NO_CALLOC) && CIRBUFF_NO_CALLOC)
-	cirBuff_init(&BuffMan, LENGTH, buffer);
+   cirBuff_init(&BuffMan, LENGTH, buffer);
 #else
-	cirBuff_init(&BuffMan, LENGTH);
+   cirBuff_init(&BuffMan, LENGTH);
 #endif
 
-	printf(" Buffer is %d bytes\n", LENGTH);	
-	printf("First, we add bytes, one by one, without blocking\n"
-			 " Then we read them all, plus two additional to test read\n"
-			 " X indicates bytes not written due to buffer being full\n"
-			 " Y indicates bytes not read due to buffer being empty\n");
+   printf(" Buffer is %d bytes\n", LENGTH);  
+   printf("First, we add bytes, one by one, without blocking\n"
+          " Then we read them all, plus two additional to test read\n"
+          " X indicates bytes not written due to buffer being full\n"
+          " Y indicates bytes not read due to buffer being empty\n");
 
-	for(i=0; i< 12; i++)
-	{
-		for(j=0; j<i; j++)
-		{
-			if(cirBuff_add(&BuffMan, j+'A', DONTBLOCK))
-				printf("X");
-		}
-		
-		printf("%d/%d bytes written/unused, writePos:%d, readPos:%d\n", j, 
-									cirBuff_availableSpace(&BuffMan),
-									BuffMan.writePosition, 
-									BuffMan.readPosition);
-	
-		printf(" Rereading bytes: ");	
-		for(j=0; j<i+2; j++)
-		{
-			byteRead = cirBuff_get(&BuffMan);
-			
-			if(byteRead != CIRBUFF_RETURN_NODATA)
-				printf("'%c' ", byteRead);
-			else
-				printf("Y");
-		}
-		printf("\n");
-	}
-	
-	printf(" Step1 Done\n");
-	
-	for(i=0; i< 12; i++)
-	{
-		for(j=0; j<i; j++)
-		{
-			cirBuff_add(&BuffMan, j+'A', DONTBLOCK);
-			j++;
-			cirBuff_add(&BuffMan, j+'A', DONTBLOCK);
-			
-			byteRead = cirBuff_get(&BuffMan);
-			
-			if(byteRead >= 0)
-				printf("%c ", byteRead);
-			else
-				printf("0");
-		}
-		
-		printf("%d written: ", j);
-		
-		for(j=0; j<i+2; j++)
-		{
-			byteRead = cirBuff_get(&BuffMan);
-			
-			if(byteRead >= 0)
-				printf("%c ", byteRead);
-			else
-				printf("0");
-		}
-		printf("\n");
-	}
-	
-	printf(" Step2 Done\n");
-	printf("yup\n");
-	printf("length=%d, readPos=%d, writePos=%d\n", (int)BuffMan.length, (int)BuffMan.readPosition, (int)BuffMan.writePosition);
-	printf("yup2\n");
-	printf("yup3\n");
-	printf("hardCalcNextWritePos=6\n"); //6%11);
-	printf("nextWritePos=%d\n", (BuffMan.writePosition + 1)%(BuffMan.length));
-	
-	//Learn som'n new every day... printf doesn't print until a \n is received?!
-	printf(" Now we're testing blocking... the program should halt when\n"
-			 " The buffer is full... (Press CTRL-C to kill)\n");
-	//Test blocking as best we can...
-	for(i=0; i<15; i++)
-	{
-		cirBuff_add(&BuffMan, i+'A', DOBLOCK);
-		printf("%c \n", i+'A');
-	}
-	
+   for(i=0; i< 12; i++)
+   {
+      for(j=0; j<i; j++)
+      {
+         if(cirBuff_add(&BuffMan, j+'A', DONTBLOCK))
+            printf("X");
+      }
+      
+      printf("%d/%d bytes written/unused, writePos:%d, readPos:%d\n", j, 
+                           cirBuff_availableSpace(&BuffMan),
+                           BuffMan.writePosition, 
+                           BuffMan.readPosition);
+   
+      printf(" Rereading bytes: "); 
+      for(j=0; j<i+2; j++)
+      {
+         byteRead = cirBuff_get(&BuffMan);
+         
+         if(byteRead != CIRBUFF_RETURN_NODATA)
+            printf("'%c' ", byteRead);
+         else
+            printf("Y");
+      }
+      printf("\n");
+   }
+   
+   printf(" Step1 Done\n");
+   
+   for(i=0; i< 12; i++)
+   {
+      for(j=0; j<i; j++)
+      {
+         cirBuff_add(&BuffMan, j+'A', DONTBLOCK);
+         j++;
+         cirBuff_add(&BuffMan, j+'A', DONTBLOCK);
+         
+         byteRead = cirBuff_get(&BuffMan);
+         
+         if(byteRead >= 0)
+            printf("%c ", byteRead);
+         else
+            printf("0");
+      }
+      
+      printf("%d written: ", j);
+      
+      for(j=0; j<i+2; j++)
+      {
+         byteRead = cirBuff_get(&BuffMan);
+         
+         if(byteRead >= 0)
+            printf("%c ", byteRead);
+         else
+            printf("0");
+      }
+      printf("\n");
+   }
+   
+   printf(" Step2 Done\n");
+   printf("yup\n");
+   printf("length=%d, readPos=%d, writePos=%d\n", (int)BuffMan.length, (int)BuffMan.readPosition, (int)BuffMan.writePosition);
+   printf("yup2\n");
+   printf("yup3\n");
+   printf("hardCalcNextWritePos=6\n"); //6%11);
+   printf("nextWritePos=%d\n", (BuffMan.writePosition + 1)%(BuffMan.length));
+   
+   //Learn som'n new every day... printf doesn't print until a \n is received?!
+   printf(" Now we're testing blocking... the program should halt when\n"
+          " The buffer is full... (Press CTRL-C to kill)\n");
+   //Test blocking as best we can...
+   for(i=0; i<15; i++)
+   {
+      cirBuff_add(&BuffMan, i+'A', DOBLOCK);
+      printf("%c \n", i+'A');
+   }
+   
 #if (!defined(CIRBUFF_NO_CALLOC) || !CIRBUFF_NO_CALLOC)
-	cirBuff_destroy(&BuffMan);
+   cirBuff_destroy(&BuffMan);
 #endif
 
-	return 0;
+   return 0;
 }
 /* mehPL:
  *    I would love to believe in a world where licensing shouldn't be

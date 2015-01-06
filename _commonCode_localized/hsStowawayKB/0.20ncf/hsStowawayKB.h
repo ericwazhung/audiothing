@@ -8,8 +8,8 @@
 
 
 
-//hsStowawayKB.h	0.20ncf-5
-//		Interfacing with the ol' Handspring Visor Deluxe's Stowaway Keyboard
+//hsStowawayKB.h  0.20ncf-5
+//    Interfacing with the ol' Handspring Visor Deluxe's Stowaway Keyboard
 
 // 0.20ncf-5 - Adding mehPL and putting this up online, WOOT!
 // 0.20ncf-4 - a/o audioThing40, GCC48
@@ -26,8 +26,8 @@
 // 0.10ncf - first version... no makefile, etc... (not commonFiled)
 
 // The Handspring Visor Deluxe's Cradle Pinout:
-// 	(LCD facing us, i.e. the same as the keyboard's pinout)
-// 	
+//    (LCD facing us, i.e. the same as the keyboard's pinout)
+//    
 //      (hsTx)
 //     2.7V,3mA   GND   kbTx
 //         |       |     |
@@ -116,7 +116,7 @@ const uint8_t keyMapUnshifted[] PROGMEM =
       [0x47]=  ';',
       [0x40]=  '\'',
       [0x41]= '\n',
-			//0x0D,  //Carriage Return (No Newline?)
+         //0x0D,  //Carriage Return (No Newline?)
 
       //Fourth Row
       [0x03]= 'z',
@@ -145,19 +145,19 @@ const uint8_t keyMapUnshifted[] PROGMEM =
       //Skipping Done=0x4f
       //Skipping Del=0x50, since arrows are NYI
 
-		//"Memo" Key
-		// WOW. The compiler is smart enough to recognize from toChar that
-		// rxByte  would never == MEMO_RETURN (prior to (uint8_t)ing it
-		// and completely wiped out the related code
-		// "large integer implicitly truncated to unsigned type"
-		// so:
-	  	// uint8_t rxChar = ...
-		//	if(rxChar == MEMO_RETURN) 
-		// {}
-		// oh, I guess it's not so impressive...
-		// ~= if(<0-255> == 1000)
-#define MEMO_RETURN	0xAB	//((uint8_t)'«')	//0xAB
-		[0x4a]= MEMO_RETURN
+      //"Memo" Key
+      // WOW. The compiler is smart enough to recognize from toChar that
+      // rxByte  would never == MEMO_RETURN (prior to (uint8_t)ing it
+      // and completely wiped out the related code
+      // "large integer implicitly truncated to unsigned type"
+      // so:
+      // uint8_t rxChar = ...
+      // if(rxChar == MEMO_RETURN) 
+      // {}
+      // oh, I guess it's not so impressive...
+      // ~= if(<0-255> == 1000)
+#define MEMO_RETURN  0xAB  //((uint8_t)'«')  //0xAB
+      [0x4a]= MEMO_RETURN
 };
 
 
@@ -178,103 +178,103 @@ const uint8_t shiftMapNumeric[] PROGMEM =
 
 char hsSKB_toChar(uint8_t rxByte)
 {
-	//To be used in "shift" variable...
-	#define RIGHT_SHIFT	(0x02)
-	#define LEFT_SHIFT	(0x01)
-	#define CAPS_LOCK		(0x04)
-	static uint8_t shift = 0;
+   //To be used in "shift" variable...
+   #define RIGHT_SHIFT  (0x02)
+   #define LEFT_SHIFT   (0x01)
+   #define CAPS_LOCK    (0x04)
+   static uint8_t shift = 0;
 
-	uint8_t keyChar = 0;
+   uint8_t keyChar = 0;
 
-	//Used for NON-alpha keys...
-	uint16_t byteWithShift;
-  	byteWithShift = (uint16_t)rxByte 
-		             | ((shift & (RIGHT_SHIFT | LEFT_SHIFT) ) ? 0x100 : 0x0);
-		
-						//((uint16_t)(shift&0x01)<<8);
+   //Used for NON-alpha keys...
+   uint16_t byteWithShift;
+   byteWithShift = (uint16_t)rxByte 
+                   | ((shift & (RIGHT_SHIFT | LEFT_SHIFT) ) ? 0x100 : 0x0);
+      
+                  //((uint16_t)(shift&0x01)<<8);
 
-	//This might be better as a look-up table...
-	//First Switch Statement is for non-alpha keys...
-	// alphabet handled later... (shift's easier to handle)
-	switch(rxByte)
-	{
-		//CapsLock
-		//Have to handle Caps Lock weirdly since there's no indicator
-		// So: Caps Lock = CapsOn, SHIFT-CapsLock = CapsOff
-		case 0x18:     //Caps Lock
-			if(shift & (RIGHT_SHIFT | LEFT_SHIFT))
-				shift &= ~(CAPS_LOCK);
-			else
-		   	shift |= CAPS_LOCK;
-			break;
-		//Left Shift
-		// Key-Down
-		case 0x58:           //Left-Shift
-		   shift |= LEFT_SHIFT;
-		   break;
-		// Key Up
-		case 0xd8:
-		   shift &= ~(LEFT_SHIFT);
-			break;
-		//Right Shift
-		// Key Down
-		case 0x59:           //Right-Shift
-		   shift |= RIGHT_SHIFT;
-			break;
-		// Key Up
-		case 0xd9:
-		   shift &= ~(RIGHT_SHIFT);
-			break;
-		default:
-			//Lookup the unshifted version...
-			if(rxByte < sizeof(keyMapUnshifted))
-				keyChar = pgm_read_byte(&(keyMapUnshifted[rxByte]));
-			
-			if(shift)
-			{
-				//If it's an alpha-char shift it manually...
-				if((keyChar>='a') && (keyChar<='z'))
-					return keyChar - 0x20; //A=0x41, a=0x61
-				else if(shift & (RIGHT_SHIFT | LEFT_SHIFT))
-				{
-					//If it's 0-9
-					// These can be shifted from another lookup table...
-					if((keyChar>='0') && (keyChar<='9'))
-						keyChar = pgm_read_byte(&(shiftMapNumeric[keyChar-'0']));
-					else
-					{
-						switch(keyChar)
-						{
-							case '`':	return '~';
-							case '-':	return '_';
-							case '=':	return '+';
-							case '[':	return '{';
-							case ']':	return '}';
-							case '\\':	return '|';
-							case ';':	return ':';
-							case '\'':	return '"';
-							case ',':	return '<';
-							case '.':	return '>';
-							case '/':	return '?';
-							default: 	return keyChar;
-						}
-					}
-/*	Am Thinkink These few cases of direct-remapping aren't going to 
+   //This might be better as a look-up table...
+   //First Switch Statement is for non-alpha keys...
+   // alphabet handled later... (shift's easier to handle)
+   switch(rxByte)
+   {
+      //CapsLock
+      //Have to handle Caps Lock weirdly since there's no indicator
+      // So: Caps Lock = CapsOn, SHIFT-CapsLock = CapsOff
+      case 0x18:     //Caps Lock
+         if(shift & (RIGHT_SHIFT | LEFT_SHIFT))
+            shift &= ~(CAPS_LOCK);
+         else
+            shift |= CAPS_LOCK;
+         break;
+      //Left Shift
+      // Key-Down
+      case 0x58:           //Left-Shift
+         shift |= LEFT_SHIFT;
+         break;
+      // Key Up
+      case 0xd8:
+         shift &= ~(LEFT_SHIFT);
+         break;
+      //Right Shift
+      // Key Down
+      case 0x59:           //Right-Shift
+         shift |= RIGHT_SHIFT;
+         break;
+      // Key Up
+      case 0xd9:
+         shift &= ~(RIGHT_SHIFT);
+         break;
+      default:
+         //Lookup the unshifted version...
+         if(rxByte < sizeof(keyMapUnshifted))
+            keyChar = pgm_read_byte(&(keyMapUnshifted[rxByte]));
+         
+         if(shift)
+         {
+            //If it's an alpha-char shift it manually...
+            if((keyChar>='a') && (keyChar<='z'))
+               return keyChar - 0x20; //A=0x41, a=0x61
+            else if(shift & (RIGHT_SHIFT | LEFT_SHIFT))
+            {
+               //If it's 0-9
+               // These can be shifted from another lookup table...
+               if((keyChar>='0') && (keyChar<='9'))
+                  keyChar = pgm_read_byte(&(shiftMapNumeric[keyChar-'0']));
+               else
+               {
+                  switch(keyChar)
+                  {
+                     case '`':   return '~';
+                     case '-':   return '_';
+                     case '=':   return '+';
+                     case '[':   return '{';
+                     case ']':   return '}';
+                     case '\\':  return '|';
+                     case ';':   return ':';
+                     case '\'':  return '"';
+                     case ',':   return '<';
+                     case '.':   return '>';
+                     case '/':   return '?';
+                     default:    return keyChar;
+                  }
+               }
+/* Am Thinkink These few cases of direct-remapping aren't going to 
    save any code-space...
-					//Unshifted: [ \ ] -> Shifted: { | }
-					// Map directly...
-					else if((keyChar>='[') && (keyChar<=']')
-						keyChar+=0x20;
+               //Unshifted: [ \ ] -> Shifted: { | }
+               // Map directly...
+               else if((keyChar>='[') && (keyChar<=']')
+                  keyChar+=0x20;
 
-					//
-					else if((keyChar
+               //
+               else if((keyChar
 */
-				}
-			}
-	}
-	//Kinda a hokey mixture between breaks and returns...
-	// so...
-	return keyChar;
+            }
+         }
+   }
+   //Kinda a hokey mixture between breaks and returns...
+   // so...
+   return keyChar;
 }
 
 

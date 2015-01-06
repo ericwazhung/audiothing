@@ -79,7 +79,7 @@
 #define ADC_LOWSPEED FALSE
 
 
-#define ADC_CALC_CYCLES	13	//This is not changeable...
+#define ADC_CALC_CYCLES 13 //This is not changeable...
 #define ADC_CLKDIV 64
 
 //These are only valid if NUM_ADCS == 2

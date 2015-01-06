@@ -203,12 +203,12 @@
 
 //Connecting the Button/DAC array to AIN0 (PA6) (negative input)
 // AIN1 is PA5 (positive input) tied to a voltage-divider @ VCC/2
-//#define ANABUTTONS_PIN	PA6
+//#define ANABUTTONS_PIN   PA6
 
 
 
 // Kinda hokey, just a number of loops...
-//#define CHARGE_TIME	0xf0
+//#define CHARGE_TIME   0xf0
 
 
 /* SONY RM-MC29F headphone-cord remote:
@@ -230,18 +230,18 @@
       ¯¯---__| VOL |__---¯¯
 
 
-		
-                                       mbt         220ohm	
-								(sdramThing3.0-_anaDigiTesting-2)   3.5-5
-#define NO_B				0  (open)		N/A                  N/A
-#define VOL_PLUS_B		1	9.9k			123-128		119      122
-#define VOL_MINUS_B		2	8.4k			105-109		104		105
-#define PLUS_B				3	11.9k			147-153		142		143
-#define MINUS_B			4	5.17k			67-69			63			65
-#define PLAY_PAUSE_B		5	330 ohms		46-52			22			23
-#define STOP_B				6	7.1k			89-93			85			88
-#define FWD_B				7	3.65k			50-52			45			47
-#define REV_B				8	1k				22-23			16			15
+      
+                                       mbt         220ohm   
+                        (sdramThing3.0-_anaDigiTesting-2)   3.5-5
+#define NO_B            0  (open)      N/A                  N/A
+#define VOL_PLUS_B      1  9.9k        123-128     119      122
+#define VOL_MINUS_B     2  8.4k        105-109     104      105
+#define PLUS_B          3  11.9k       147-153     142      143
+#define MINUS_B         4  5.17k       67-69       63       65
+#define PLAY_PAUSE_B    5  330 ohms    46-52       22       23
+#define STOP_B          6  7.1k        89-93       85       88
+#define FWD_B           7  3.65k       50-52       45       47
+#define REV_B           8  1k          22-23       16       15
 
 The mbt (minimumButtonTime) is dang-near linear with respect to resistance
 EXCEPT 330ohms which appears like 3.65k
@@ -305,50 +305,50 @@ digital I/O)
    (The Sony CD-Remote)
 static __inline__ uint8_t anaButtons_getButton(void)
 {
-	if(!newCompTime)
-		return NO_B;
+   if(!newCompTime)
+      return NO_B;
 
-	tcnter_t t = compTime;
-	newCompTime = FALSE;
+   tcnter_t t = compTime;
+   newCompTime = FALSE;
 
-	if( (t>230) )
-		return NO_B;
-	//+ ~216-221 TCNTs
-	else if( (t>200) ) //&& (t<230) )
-		return PLUS_B;
-	//Vol+ ~180-182 TCNTs
-	else if( (t>170) ) //&& (t<190) )
-		return VOL_PLUS_B;
-	//Vol- ~152-156 TCNTs
-	else if( (t>140) ) // && (t<170) )
-		return VOL_MINUS_B;
-	//Stop ~ 128-133
-	else if( (t>120) ) //&& (t<140) )
-		return STOP_B;
-	//- ~95-97
-	else if( (t>90) ) // && (t<100) )
-		return MINUS_B;
-	//FWD ~68-71
-	else if( (t>65) ) // && (t<75) )
-		return FWD_B;
+   if( (t>230) )
+      return NO_B;
+   //+ ~216-221 TCNTs
+   else if( (t>200) ) //&& (t<230) )
+      return PLUS_B;
+   //Vol+ ~180-182 TCNTs
+   else if( (t>170) ) //&& (t<190) )
+      return VOL_PLUS_B;
+   //Vol- ~152-156 TCNTs
+   else if( (t>140) ) // && (t<170) )
+      return VOL_MINUS_B;
+   //Stop ~ 128-133
+   else if( (t>120) ) //&& (t<140) )
+      return STOP_B;
+   //- ~95-97
+   else if( (t>90) ) // && (t<100) )
+      return MINUS_B;
+   //FWD ~68-71
+   else if( (t>65) ) // && (t<75) )
+      return FWD_B;
 
 
-	//This and REV are confusing, as well
-	// I'm *certain* I measured 330Ohms on Play/Pause
-	// and 1kOhms on REV, but they're returning opposite values for TCNTs...
-	//Play/Pause ~27-30
-	else if( (t>26) ) //&& (t<35) )
-		return PLAY_PAUSE_B;
+   //This and REV are confusing, as well
+   // I'm *certain* I measured 330Ohms on Play/Pause
+   // and 1kOhms on REV, but they're returning opposite values for TCNTs...
+   //Play/Pause ~27-30
+   else if( (t>26) ) //&& (t<35) )
+      return PLAY_PAUSE_B;
 
-	//FWD and REV are confusing...
-	// The way it fits in *my* hand is apparently upside-down
-	// So the names here match the proper orientation (spelling upright)
-	//REV ~20-24
-	else if( (t>15) ) //&& (t<26) )
-		return REV_B;
+   //FWD and REV are confusing...
+   // The way it fits in *my* hand is apparently upside-down
+   // So the names here match the proper orientation (spelling upright)
+   //REV ~20-24
+   else if( (t>15) ) //&& (t<26) )
+      return REV_B;
 
-	else
-		return NO_B;
+   else
+      return NO_B;
 }
 */
 

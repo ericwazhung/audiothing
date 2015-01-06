@@ -19,30 +19,30 @@
 
 int main(int argc, char *argv[])
 {
-	printf("Call with, e.g. 'thisProgram /dev/cu.usbserial'\n");
-	
-	char * fileString = argv[1];
-	printf("File: '%s'\n",fileString);
-	
-	FILE *fid;
-	fid = fopen(fileString, "rb");
-	if ( fid == NULL )
-	{
-	   printf("Unable to open file\n");
-	   return 1;
-	}
+   printf("Call with, e.g. 'thisProgram /dev/cu.usbserial'\n");
+   
+   char * fileString = argv[1];
+   printf("File: '%s'\n",fileString);
+   
+   FILE *fid;
+   fid = fopen(fileString, "rb");
+   if ( fid == NULL )
+   {
+      printf("Unable to open file\n");
+      return 1;
+   }
 
 
-	while(1)
-	{
-		uint8_t data;
+   while(1)
+   {
+      uint8_t data;
 
-		fread(&data, sizeof(uint8_t), 1, fid);
+      fread(&data, sizeof(uint8_t), 1, fid);
 
-		char dataChar = hsSKB_toChar(data);
-		if(dataChar != 0)
-			printf("KB: 0x%"PRIx8" = Key: '%c'\n", data, hsSKB_toChar(data));
-	}
+      char dataChar = hsSKB_toChar(data);
+      if(dataChar != 0)
+         printf("KB: 0x%"PRIx8" = Key: '%c'\n", data, hsSKB_toChar(data));
+   }
 
 
 }

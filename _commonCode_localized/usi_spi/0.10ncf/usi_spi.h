@@ -39,7 +39,7 @@ uint8_t spi_transferByte(uint8_t txByte);
 
 static __inline__
 void spi_StrobeClockAndShift(void)
-	__attribute__((__always_inline__));
+   __attribute__((__always_inline__));
 
 
 uint8_t spi_transferByteWithTimer(uint8_t txByte);

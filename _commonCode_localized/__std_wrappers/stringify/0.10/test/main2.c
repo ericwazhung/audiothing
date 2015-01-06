@@ -10,14 +10,14 @@
 #include "../stringify.h"
 
 /* from info cpp 3.4:
-	There is no way to combine an argument with surrounding text and
-	stringify it all together.  Instead, you can write a series of adjacent
-	string constants and stringified arguments.  The preprocessor will
-	replace the stringified arguments with string constants.  The C
-	compiler will then combine all the adjacent string constants into one
-	long string.
+   There is no way to combine an argument with surrounding text and
+   stringify it all together.  Instead, you can write a series of adjacent
+   string constants and stringified arguments.  The preprocessor will
+   replace the stringified arguments with string constants.  The C
+   compiler will then combine all the adjacent string constants into one
+   long string.
 
-	That dun woik for #include...
+   That dun woik for #include...
 */
 
 /*
@@ -32,10 +32,10 @@
 
 int main(void)
 {
-	int a=1;
-	int b=3;
+   int a=1;
+   int b=3;
 
-	printf("a=1, b=3, test(a,b)=%d\n",test(a,b));
+   printf("a=1, b=3, test(a,b)=%d\n",test(a,b));
 }
 */
 
@@ -50,15 +50,15 @@ int main( int argc , char const *argv[] )
 {
    printf("#define VALUE 100\n");
    printf("printf(\"%%s\", STRINGIFY(VALUE)) ->");
-	    printf( "%s\n" , STRINGIFY(VALUE));
+       printf( "%s\n" , STRINGIFY(VALUE));
 
    printf("#define VALUE2 VALUE\n");
    printf("printf(\"%%s\", STRINGIFY(VALUE2)) ->");
-	    printf( "%s\n" , STRINGIFY(VALUE2));
+       printf( "%s\n" , STRINGIFY(VALUE2));
 
    printf("#define VALUE3 (VALUE/2)\n");
    printf("printf(\"%%s\", STRINGIFY(VALUE3)) ->");
-	    printf( "%s\n" , STRINGIFY(VALUE3));
+       printf( "%s\n" , STRINGIFY(VALUE3));
 
    printf("%s\n", STRINGIFY(STRINGIFY(VALUE3)));
 
